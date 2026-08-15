@@ -23,17 +23,27 @@
 
 ## 安装（给使用者）
 
-### 方式一：本地包（开发 / 内部分发）
+仓库：<https://github.com/tableau-China/dsh-tableau-twb-viewer>
+
+### 方式一：直接从 GitHub 安装（推荐）
 
 ```bash
-# 在包含插件目录的位置执行
-dsh plugin --profile web add ./dsh-tableau-twb-viewer
+# 从 GitHub 主分支安装
+dsh plugin --profile web add github:tableau-China/dsh-tableau-twb-viewer
 ```
 
-### 方式二：npm 发布后（推荐给他人使用）
+### 方式二：从 GitHub Release 安装（版本锁定）
+
+每个版本发布时附带可安装的 tarball（见 [Releases](https://github.com/tableau-China/dsh-tableau-twb-viewer/releases)）：
 
 ```bash
-dsh plugin --profile web add dsh-tableau-twb-viewer
+dsh plugin --profile web add https://github.com/tableau-China/dsh-tableau-twb-viewer/releases/download/v0.1.0/dsh-tableau-twb-viewer-0.1.0.tgz
+```
+
+### 方式三：本地目录（开发调试）
+
+```bash
+dsh plugin --profile web add ./dsh-tableau-twb-viewer
 ```
 
 > 命令会把插件装进 `$DSH_HOME/profiles/web` 并追加到 `dsh.profile.bundles`。
@@ -43,6 +53,15 @@ dsh plugin --profile web add dsh-tableau-twb-viewer
 
 ```bash
 dsh plugin --profile web remove dsh-tableau-twb-viewer
+```
+
+### 从源码构建
+
+```bash
+git clone https://github.com/tableau-China/dsh-tableau-twb-viewer.git
+cd dsh-tableau-twb-viewer
+npm install
+npm run build     # 生成 lib/client.js（仓库已内置构建产物，一般无需重建）
 ```
 
 ## 使用
@@ -91,14 +110,17 @@ npm run gen-css    # 从原始 CSS 重新生成作用域化样式
 npm run e2e                 # 终端 B：无头浏览器全流程验证
 ```
 
-## 发布（给他人安装）
+## 发布新版本（维护者）
+
+推 tag 即自动构建并生成 GitHub Release（`.github/workflows/release.yml`）：
 
 ```bash
-npm login
-npm version patch
-npm publish
-# 使用者即可：dsh plugin --profile web add dsh-tableau-twb-viewer
+git tag v0.2.0          # 版本号与 package.json 同步
+git push origin v0.2.0  # Actions 自动: npm ci -> build -> npm pack -> Release(tgz)
 ```
+
+手动构建 tarball：`npm pack`（产出 `dsh-tableau-twb-viewer-<ver>.tgz`，可直接挂在
+任意地方分发）。
 
 包名 `dsh-tableau-twb-viewer` 目前未被占用；如改为 scoped 包
 （如 `@yourname/dsh-tableau-twb-viewer`），安装命令相应调整即可。
@@ -116,5 +138,5 @@ npm publish
 
 ## License
 
-MIT。移植自内部工具 tableau_parse（原代码无明确许可声明；逻辑本身为 Tableau
+Apache-2.0。移植自内部工具 tableau_parse（原代码无明确许可声明；逻辑本身为 Tableau
 文件格式的通用解析）。
