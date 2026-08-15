@@ -1,0 +1,57 @@
+{
+  "name": "dsh-tableau-twb-viewer",
+  "version": "0.1.0",
+  "description": "TWb 检视器：在 DSH Web 中导入 Tableau .twb 工作簿，查看仪表板 1:1 布局图、字段引用关系图与数据源/计算字段 metadata",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "lib/client.js",
+    "sample.twb",
+    "cordis.patch.yml",
+    "src"
+  ],
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js",
+    "./src/*": "./src/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "gen-css": "node gen-css.mjs",
+    "verify": "node test/verify.mjs",
+    "e2e": "node test/e2e-ui.mjs"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "tableau",
+    "twb",
+    "data-lineage"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1"
+  },
+  "devDependencies": {
+    "@xmldom/xmldom": "^0.9.11",
+    "esbuild": "^0.28.2",
+    "puppeteer-core": "^25.7.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime"
+      ]
+    }
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

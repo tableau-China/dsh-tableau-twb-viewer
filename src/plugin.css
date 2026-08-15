@@ -1,0 +1,20 @@
+/* dsh-tableau-twb-viewer 插件自有样式（区别于从原始应用移植的 style.css） */
+
+/* 全屏模式：铺满整个浏览器窗口（portal 挂载到 document.body） */
+.twb-root.twb-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--twb-bg, #f1f5f9);
+}
+.twb-root.twb-fullscreen .app {
+  height: 100dvh;
+}
+
+/* 头部全屏切换按钮 */
+.fs-toggle {
+  white-space: nowrap;
+}
