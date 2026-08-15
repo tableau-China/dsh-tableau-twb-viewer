@@ -1,0 +1,29 @@
+# 打 tag（如 v0.1.0）后自动构建并发布 GitHub Release（附可安装的 npm tarball）
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm pack
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: "*.tgz"
+          generate_release_notes: true
