@@ -1,7 +1,7 @@
 {
   "name": "dsh-tableau-twb-viewer",
-  "version": "0.1.0",
-  "description": "TWb 检视器：在 DSH Web 中导入 Tableau .twb 工作簿，查看仪表板 1:1 布局图、字段引用关系图与数据源/计算字段 metadata",
+  "version": "0.2.0",
+  "description": "TWb 检视器：在 DSH Web 中导入 Tableau .twb 工作簿，查看仪表板 1:1 布局图、字段引用关系图与数据源/计算字段 metadata（只读元数据，不解析 .twbx 数据提取）",
   "type": "module",
   "main": "index.js",
   "files": [
@@ -9,7 +9,9 @@
     "lib/client.js",
     "sample.twb",
     "cordis.patch.yml",
-    "src"
+    "src",
+    "CHANGELOG.md",
+    "PROGRESS.md"
   ],
   "exports": {
     ".": "./index.js",
@@ -21,6 +23,9 @@
     "build": "node build.mjs",
     "gen-css": "node gen-css.mjs",
     "verify": "node test/verify.mjs",
+    "verify:update": "node test/verify.mjs --update",
+    "verify:reference": "node test/verify-reference.mjs",
+    "bench": "node test/bench.mjs",
     "e2e": "node test/e2e-ui.mjs"
   },
   "keywords": [
@@ -32,8 +37,16 @@
     "data-lineage"
   ],
   "license": "Apache-2.0",
-  "peerDependencies": {
-    "@deepseek-ai/cordis": "^4.0.1"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tableau-China/dsh-tableau-twb-viewer.git"
+  },
+  "homepage": "https://github.com/tableau-China/dsh-tableau-twb-viewer#readme",
+  "bugs": {
+    "url": "https://github.com/tableau-China/dsh-tableau-twb-viewer/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "devDependencies": {
     "@xmldom/xmldom": "^0.9.11",
@@ -47,7 +60,8 @@
     "client": {
       "platform": "web",
       "inject": [
-        "@deepseek-ai/dsh-client-runtime"
+        "@deepseek-ai/dsh-client-ui-renderer",
+        "@deepseek-ai/dsh-client-ui-settings"
       ]
     }
   },
