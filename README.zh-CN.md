@@ -3,6 +3,7 @@
 > 在 DeepSeek Harness 里检视 Tableau 工作簿（`.twb`）——**不需要装 Tableau Desktop**：1:1 的 SVG 仪表板布局图、字段级引用关系（血缘）图、完整的数据源与计算字段 metadata，全部**在浏览器端解析**。
 > A DeepSeek Harness (DSH) plugin. 只读元数据，**不碰你的数据**。
 
+[![npm](https://img.shields.io/npm/v/dsh-tableau-twb-viewer?style=flat-square&logo=npm)](https://www.npmjs.com/package/dsh-tableau-twb-viewer)
 [![license](https://img.shields.io/github/license/tableau-China/dsh-tableau-twb-viewer?style=flat-square)](./LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/tableau-China/dsh-tableau-twb-viewer/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/tableau-China/dsh-tableau-twb-viewer/actions)
 [![node](https://img.shields.io/badge/node-%3E%3D20-339933?style=flat-square&logo=node.js)](https://nodejs.org)

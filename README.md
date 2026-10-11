@@ -3,6 +3,7 @@
 > Inspect a Tableau workbook (`.twb`) inside DeepSeek Harness — **no Tableau Desktop needed**: a 1:1 SVG dashboard layout, a field-level lineage graph, and full data-source / calculated-field metadata, all parsed **in your browser**.
 > A DeepSeek Harness (DSH) plugin. Read-only metadata, **never touches your data**.
 
+[![npm](https://img.shields.io/npm/v/dsh-tableau-twb-viewer?style=flat-square&logo=npm)](https://www.npmjs.com/package/dsh-tableau-twb-viewer)
 [![license](https://img.shields.io/github/license/tableau-China/dsh-tableau-twb-viewer?style=flat-square)](./LICENSE)
 [![CI](https://img.shields.io/github/actions/workflow/status/tableau-China/dsh-tableau-twb-viewer/ci.yml?branch=main&style=flat-square&label=CI)](https://github.com/tableau-China/dsh-tableau-twb-viewer/actions)
 [![node](https://img.shields.io/badge/node-%3E%3D20-339933?style=flat-square&logo=node.js)](https://nodejs.org)
