@@ -68,4 +68,6 @@
    + `pnpm.onlyBuiltDependencies: ["esbuild"]`）、`node:test` 覆盖解析/构图边界。
 2. **批 4（功能）**：血缘图 Mermaid / CSV 导出（写文档直接可用）；i18n（`ctx.locale` 字典，
    客户端 inject 需加 `locale`）；布局按数据源分块 + 层内换行，压缩超宽画布。
-3. **发布**：改动确认后 `git tag v0.2.0` 触发 Actions 生成 Release（当前工作区改动尚未提交/打标）。
+3. **发布**：已发 v0.1.0 / v0.2.0 / v0.3.1（GitHub Release + npm 包）；npm 走 CI 暂存 + 一次 OTP 批准。
+4. **下次发版（0.3.2 或后续）随包带上**：0.3.1 的 npm tarball 构建于 `4420a131`，早于之后的文档提交，
+   因此包内 README 缺少「从 npm 安装」一节与 npm 徽章——下次发版自动包含，无需单独处理。
