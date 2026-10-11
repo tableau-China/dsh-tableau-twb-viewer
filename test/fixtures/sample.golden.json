@@ -1,0 +1,3064 @@
+{
+ "parse": {
+  "dashboards": [
+   {
+    "name": "产品",
+    "width": 1000,
+    "height": 620,
+    "zones": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 1000,
+      "h": 620,
+      "type": "layout-basic",
+      "name": "",
+      "text": "",
+      "kind": "container",
+      "children": [
+       {
+        "x": 4.1,
+        "y": 4.8,
+        "w": 991.8,
+        "h": 610.4,
+        "type": "layout-flow",
+        "name": "",
+        "text": "",
+        "kind": "container",
+        "children": [
+         {
+          "x": 4.1,
+          "y": 4.8,
+          "w": 991.8,
+          "h": 610.4,
+          "type": "layout-basic",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 4.1,
+            "y": 4.8,
+            "w": 991.8,
+            "h": 305.1,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 4.1,
+              "y": 4.8,
+              "w": 991.8,
+              "h": 305.1,
+              "type": "layout-flow",
+              "name": "",
+              "text": "",
+              "kind": "container",
+              "children": [
+               {
+                "x": 4.1,
+                "y": 4.8,
+                "w": 991.8,
+                "h": 26.1,
+                "type": "title",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": []
+               },
+               {
+                "x": 4.1,
+                "y": 30.9,
+                "w": 991.8,
+                "h": 279,
+                "type": "layout-flow",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": [
+                 {
+                  "x": 4.1,
+                  "y": 30.9,
+                  "w": 991.8,
+                  "h": 279,
+                  "type": "layout-basic",
+                  "name": "",
+                  "text": "",
+                  "kind": "container",
+                  "children": [
+                   {
+                    "x": 4.1,
+                    "y": 30.9,
+                    "w": 879.9,
+                    "h": 279,
+                    "type": "",
+                    "name": "产品视图",
+                    "text": "",
+                    "kind": "worksheet",
+                    "children": []
+                   },
+                   {
+                    "x": 884,
+                    "y": 30.9,
+                    "w": 111.9,
+                    "h": 279,
+                    "type": "layout-flow",
+                    "name": "",
+                    "text": "",
+                    "kind": "container",
+                    "children": [
+                     {
+                      "x": 888.7,
+                      "y": 36.3,
+                      "w": 102.6,
+                      "h": 87.1,
+                      "type": "filter",
+                      "name": "产品视图",
+                      "text": "",
+                      "kind": "worksheet",
+                      "children": []
+                     },
+                     {
+                      "x": 888.7,
+                      "y": 123.4,
+                      "w": 102.6,
+                      "h": 44.6,
+                      "type": "color",
+                      "name": "产品视图",
+                      "text": "",
+                      "kind": "worksheet",
+                      "children": []
+                     },
+                     {
+                      "x": 888.7,
+                      "y": 168,
+                      "w": 102.6,
+                      "h": 44.6,
+                      "type": "color",
+                      "name": "产品详情",
+                      "text": "",
+                      "kind": "worksheet",
+                      "children": []
+                     }
+                    ]
+                   }
+                  ]
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "x": 4.1,
+            "y": 309.9,
+            "w": 991.8,
+            "h": 305.3,
+            "type": "",
+            "name": "产品详情",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "佣金模式",
+    "width": 800,
+    "height": 600,
+    "zones": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 800,
+      "h": 600,
+      "type": "layout-basic",
+      "name": "",
+      "text": "",
+      "kind": "container",
+      "children": [
+       {
+        "x": 0,
+        "y": 0,
+        "w": 800,
+        "h": 600,
+        "type": "layout-flow",
+        "name": "",
+        "text": "",
+        "kind": "container",
+        "children": [
+         {
+          "x": 3.3,
+          "y": 4.6,
+          "w": 793.4,
+          "h": 21.2,
+          "type": "title",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": []
+         },
+         {
+          "x": 3.3,
+          "y": 25.9,
+          "w": 793.4,
+          "h": 727,
+          "type": "layout-flow",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 3.3,
+            "y": 25.9,
+            "w": 793.4,
+            "h": 1004,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 3.3,
+              "y": 25.9,
+              "w": 793.4,
+              "h": 16.6,
+              "type": "text",
+              "name": "",
+              "text": "输入新的配额、佣金率和底薪，以估计销售额和报酬",
+              "kind": "text",
+              "children": []
+             },
+             {
+              "x": 3.3,
+              "y": 42.5,
+              "w": 793.4,
+              "h": 57,
+              "type": "layout-basic",
+              "name": "",
+              "text": "",
+              "kind": "container",
+              "children": [
+               {
+                "x": 3.3,
+                "y": 45.1,
+                "w": 326.6,
+                "h": 37.8,
+                "type": "layout-flow",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": [
+                 {
+                  "x": 3.3,
+                  "y": 45.1,
+                  "w": 163.3,
+                  "h": 37.8,
+                  "type": "paramctrl",
+                  "name": "",
+                  "text": "",
+                  "kind": "container",
+                  "children": []
+                 },
+                 {
+                  "x": 166.6,
+                  "y": 45.1,
+                  "w": 163.3,
+                  "h": 37.8,
+                  "type": "paramctrl",
+                  "name": "",
+                  "text": "",
+                  "kind": "container",
+                  "children": []
+                 }
+                ]
+               },
+               {
+                "x": 329.9,
+                "y": 45.1,
+                "w": 116.6,
+                "h": 175,
+                "type": "paramctrl",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": []
+               },
+               {
+                "x": 563.2,
+                "y": 45.1,
+                "w": 233.6,
+                "h": 37.8,
+                "type": "empty",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": []
+               },
+               {
+                "x": 446.6,
+                "y": 45.1,
+                "w": 116.6,
+                "h": 37.8,
+                "type": "paramctrl",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": []
+               }
+              ]
+             },
+             {
+              "x": 3.3,
+              "y": 85.6,
+              "w": 793.4,
+              "h": 395.6,
+              "type": "layout-flow",
+              "name": "",
+              "text": "",
+              "kind": "container",
+              "children": [
+               {
+                "x": 3.3,
+                "y": 85.6,
+                "w": 397,
+                "h": 395.6,
+                "type": "",
+                "name": "配额实现情况",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 400.2,
+                "y": 85.6,
+                "w": 396.5,
+                "h": 395.6,
+                "type": "",
+                "name": "佣金预测",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "x": 3.3,
+          "y": 481.2,
+          "w": 793.4,
+          "h": 37,
+          "type": "layout-flow",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 3.3,
+            "y": 487.8,
+            "w": 397,
+            "h": 19.2,
+            "type": "color",
+            "name": "配额实现情况",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           },
+           {
+            "x": 400.2,
+            "y": 487.8,
+            "w": 396.5,
+            "h": 19.2,
+            "type": "color",
+            "name": "佣金预测",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           }
+          ]
+         },
+         {
+          "x": 3.3,
+          "y": 508.4,
+          "w": 793.4,
+          "h": 123,
+          "type": "layout-flow",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 5.6,
+            "y": 511.7,
+            "w": 394.6,
+            "h": 80.3,
+            "type": "",
+            "name": "销售额",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           },
+           {
+            "x": 400.2,
+            "y": 511.7,
+            "w": 394.2,
+            "h": 80.3,
+            "type": "",
+            "name": "OTE",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "发货",
+    "width": 1000,
+    "height": 620,
+    "zones": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 1000,
+      "h": 620,
+      "type": "layout-basic",
+      "name": "",
+      "text": "",
+      "kind": "container",
+      "children": [
+       {
+        "x": 4.1,
+        "y": 4.8,
+        "w": 991.8,
+        "h": 610.4,
+        "type": "layout-flow",
+        "name": "",
+        "text": "",
+        "kind": "container",
+        "children": [
+         {
+          "x": 4.1,
+          "y": 4.8,
+          "w": 991.8,
+          "h": 610.4,
+          "type": "layout-basic",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 4.1,
+            "y": 50.6,
+            "w": 869.4,
+            "h": 564.6,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 4.1,
+              "y": 50.6,
+              "w": 53,
+              "h": 41.8,
+              "type": "",
+              "name": "发货摘要",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 4.1,
+              "y": 92.5,
+              "w": 296,
+              "h": 203,
+              "type": "",
+              "name": "发货趋势",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 4.1,
+              "y": 295.5,
+              "w": 869.4,
+              "h": 319.7,
+              "type": "",
+              "name": "发货天数",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             }
+            ]
+           },
+           {
+            "x": 4.1,
+            "y": 4.8,
+            "w": 991.8,
+            "h": 45.8,
+            "type": "title",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": []
+           },
+           {
+            "x": 873.5,
+            "y": 50.7,
+            "w": 122.5,
+            "h": 160,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 878.1,
+              "y": 56.2,
+              "w": 113.1,
+              "h": 74.1,
+              "type": "filter",
+              "name": "发货趋势",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 878.1,
+              "y": 130.3,
+              "w": 113.1,
+              "h": 74.1,
+              "type": "filter",
+              "name": "发货趋势",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 878.1,
+              "y": 204.4,
+              "w": 113.1,
+              "h": 35.7,
+              "type": "filter",
+              "name": "发货趋势",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 878.1,
+              "y": 240,
+              "w": 113.1,
+              "h": 35.7,
+              "type": "filter",
+              "name": "发货趋势",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "客户",
+    "width": 1000,
+    "height": 620,
+    "zones": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 1000,
+      "h": 620,
+      "type": "layout-basic",
+      "name": "",
+      "text": "",
+      "kind": "container",
+      "children": [
+       {
+        "x": 4.1,
+        "y": 4.8,
+        "w": 991.8,
+        "h": 610.4,
+        "type": "layout-flow",
+        "name": "",
+        "text": "",
+        "kind": "container",
+        "children": [
+         {
+          "x": 4.1,
+          "y": 4.8,
+          "w": 991.8,
+          "h": 610.4,
+          "type": "layout-basic",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 4.1,
+            "y": 4.8,
+            "w": 991.8,
+            "h": 40.9,
+            "type": "title",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": []
+           },
+           {
+            "x": 4.1,
+            "y": 138.1,
+            "w": 883.9,
+            "h": 477.1,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 4.1,
+              "y": 137.9,
+              "w": 442.4,
+              "h": 477.3,
+              "type": "",
+              "name": "客户散点图",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 446.5,
+              "y": 137.9,
+              "w": 441.8,
+              "h": 477.3,
+              "type": "",
+              "name": "客户排名",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             }
+            ]
+           },
+           {
+            "x": 4.1,
+            "y": 45.7,
+            "w": 991.8,
+            "h": 92.5,
+            "type": "",
+            "name": "客户概述",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           },
+           {
+            "x": 888,
+            "y": 138.1,
+            "w": 107.9,
+            "h": 477.1,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 892.7,
+              "y": 143.6,
+              "w": 98.5,
+              "h": 35.7,
+              "type": "filter",
+              "name": "客户散点图",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 892.7,
+              "y": 179.3,
+              "w": 98.5,
+              "h": 74.1,
+              "type": "filter",
+              "name": "客户散点图",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 892.7,
+              "y": 253.4,
+              "w": 98.5,
+              "h": 74.1,
+              "type": "filter",
+              "name": "客户散点图",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 892.7,
+              "y": 327.4,
+              "w": 98.5,
+              "h": 44.6,
+              "type": "color",
+              "name": "客户散点图",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "概述",
+    "width": 1000,
+    "height": 620,
+    "zones": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 1000,
+      "h": 620,
+      "type": "layout-basic",
+      "name": "",
+      "text": "",
+      "kind": "container",
+      "children": [
+       {
+        "x": 0,
+        "y": 0,
+        "w": 1000,
+        "h": 620,
+        "type": "layout-flow",
+        "name": "",
+        "text": "",
+        "kind": "container",
+        "children": [
+         {
+          "x": 0,
+          "y": 0,
+          "w": 1000,
+          "h": 620,
+          "type": "layout-flow",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 3.5,
+            "y": 4.1,
+            "w": 993.1,
+            "h": 68.1,
+            "type": "",
+            "name": "总销售额",
+            "text": "",
+            "kind": "worksheet",
+            "children": []
+           },
+           {
+            "x": 3.5,
+            "y": 72.2,
+            "w": 993.1,
+            "h": 337,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 3.5,
+              "y": 72.2,
+              "w": 993.1,
+              "h": 196.2,
+              "type": "layout-flow",
+              "name": "",
+              "text": "",
+              "kind": "container",
+              "children": [
+               {
+                "x": 3.5,
+                "y": 72.2,
+                "w": 905.9,
+                "h": 196.2,
+                "type": "",
+                "name": "销售地图",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 909.3,
+                "y": 72.2,
+                "w": 87.2,
+                "h": 169,
+                "type": "layout-flow",
+                "name": "",
+                "text": "",
+                "kind": "container",
+                "children": [
+                 {
+                  "x": 913.3,
+                  "y": 76.8,
+                  "w": 79.4,
+                  "h": 30.9,
+                  "type": "filter",
+                  "name": "销售地图",
+                  "text": "",
+                  "kind": "worksheet",
+                  "children": []
+                 },
+                 {
+                  "x": 913.3,
+                  "y": 107.7,
+                  "w": 79.4,
+                  "h": 40.8,
+                  "type": "filter",
+                  "name": "销售地图",
+                  "text": "",
+                  "kind": "worksheet",
+                  "children": []
+                 },
+                 {
+                  "x": 913.3,
+                  "y": 148.5,
+                  "w": 79.4,
+                  "h": 40.8,
+                  "type": "filter",
+                  "name": "销售地图",
+                  "text": "",
+                  "kind": "worksheet",
+                  "children": []
+                 },
+                 {
+                  "x": 913.3,
+                  "y": 189.2,
+                  "w": 79.4,
+                  "h": 39,
+                  "type": "color",
+                  "name": "销售地图",
+                  "text": "",
+                  "kind": "worksheet",
+                  "children": []
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "x": 3.5,
+            "y": 268.4,
+            "w": 993.1,
+            "h": 347.6,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 5.4,
+              "y": 270.7,
+              "w": 493.6,
+              "h": 342.9,
+              "type": "",
+              "name": "按细分划分的销售额",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             },
+             {
+              "x": 499,
+              "y": 270.7,
+              "w": 495.6,
+              "h": 342.9,
+              "type": "",
+              "name": "按产品划分的销售额",
+              "text": "",
+              "kind": "worksheet",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   },
+   {
+    "name": "订单详细信息",
+    "width": 800,
+    "height": 600,
+    "zones": [
+     {
+      "x": 0,
+      "y": 0,
+      "w": 800,
+      "h": 600,
+      "type": "layout-basic",
+      "name": "",
+      "text": "",
+      "kind": "container",
+      "children": [
+       {
+        "x": 0,
+        "y": 0,
+        "w": 800,
+        "h": 600,
+        "type": "layout-flow",
+        "name": "",
+        "text": "",
+        "kind": "container",
+        "children": [
+         {
+          "x": 3.3,
+          "y": 4.6,
+          "w": 793.4,
+          "h": 23.9,
+          "type": "title",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": []
+         },
+         {
+          "x": 3.3,
+          "y": 28.5,
+          "w": 793.4,
+          "h": 566.8,
+          "type": "layout-flow",
+          "name": "",
+          "text": "",
+          "kind": "container",
+          "children": [
+           {
+            "x": 3.3,
+            "y": 28.5,
+            "w": 793.4,
+            "h": 566.8,
+            "type": "layout-flow",
+            "name": "",
+            "text": "",
+            "kind": "container",
+            "children": [
+             {
+              "x": 3.3,
+              "y": 28.5,
+              "w": 793.4,
+              "h": 62,
+              "type": "layout-flow",
+              "name": "",
+              "text": "",
+              "kind": "container",
+              "children": [
+               {
+                "x": 3.3,
+                "y": 28.5,
+                "w": 419,
+                "h": 41.1,
+                "type": "filter",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 422.2,
+                "y": 28.5,
+                "w": 74.9,
+                "h": 41.1,
+                "type": "filter",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 497.1,
+                "y": 28.5,
+                "w": 74.9,
+                "h": 41.1,
+                "type": "filter",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 572,
+                "y": 28.5,
+                "w": 74.9,
+                "h": 41.1,
+                "type": "filter",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 646.9,
+                "y": 28.5,
+                "w": 74.9,
+                "h": 41.1,
+                "type": "filter",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               },
+               {
+                "x": 721.8,
+                "y": 28.5,
+                "w": 74.9,
+                "h": 41.1,
+                "type": "filter",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               }
+              ]
+             },
+             {
+              "x": 3.3,
+              "y": 69.7,
+              "w": 793.4,
+              "h": 525.7,
+              "type": "layout-basic",
+              "name": "",
+              "text": "",
+              "kind": "container",
+              "children": [
+               {
+                "x": 3.3,
+                "y": 69.7,
+                "w": 793.4,
+                "h": 525.7,
+                "type": "",
+                "name": "产品详情表",
+                "text": "",
+                "kind": "worksheet",
+                "children": []
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "worksheets": [
+   "OTE",
+   "业绩",
+   "产品视图",
+   "产品详情",
+   "产品详情表",
+   "佣金预测",
+   "假设预测",
+   "发货天数",
+   "发货摘要",
+   "发货趋势",
+   "客户排名",
+   "客户散点图",
+   "客户概述",
+   "工具提示：按城市划分的利润率",
+   "总销售额",
+   "按产品划分的销售额",
+   "按细分划分的销售额",
+   "配额实现情况",
+   "销售地图",
+   "销售额",
+   "预测"
+  ],
+  "datasources": [
+   {
+    "caption": "Parameters",
+    "name": "Parameters",
+    "connection": null,
+    "columns": [
+     {
+      "name": "[Parameter 1 1]",
+      "caption": "排序依据",
+      "label": "排序依据",
+      "datatype": "string",
+      "role": "measure",
+      "type": "nominal",
+      "formula": "\"名称\"",
+      "formulaRaw": "\"名称\""
+     },
+     {
+      "name": "[Parameter 1]",
+      "caption": "新业务增长",
+      "label": "新业务增长",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "0.59999999999999998",
+      "formulaRaw": "0.59999999999999998"
+     },
+     {
+      "name": "[Parameter 2]",
+      "caption": "流失率",
+      "label": "流失率",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "0.064000000000000001",
+      "formulaRaw": "0.064000000000000001"
+     },
+     {
+      "name": "[佣金率]",
+      "caption": "佣金率",
+      "label": "佣金率",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "18.399999999999999",
+      "formulaRaw": "18.399999999999999"
+     },
+     {
+      "name": "[底薪]",
+      "caption": "底薪",
+      "label": "底薪",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "50000",
+      "formulaRaw": "50000"
+     },
+     {
+      "name": "[新配额]",
+      "caption": "新配额",
+      "label": "新配额",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "500000",
+      "formulaRaw": "500000"
+     }
+    ],
+    "groups": []
+   },
+   {
+    "caption": "销售目标",
+    "name": "federated.0hgpf0j1fdpvv316shikk0mmdlec",
+    "connection": {
+     "class": "federated",
+     "type": null,
+     "server": null,
+     "dbname": null,
+     "filename": null
+    },
+    "columns": [
+     {
+      "name": "[__tableau_internal_object_id__].[Sheet1_66AF038055174B6D8F7445FD0BC80ED3]",
+      "caption": "销售目标",
+      "label": "销售目标",
+      "datatype": "table",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     }
+    ],
+    "groups": []
+   },
+   {
+    "caption": "销售佣金",
+    "name": "federated.0a01cod1oxl83l1f5yves1cfciqo",
+    "connection": {
+     "class": "federated",
+     "type": null,
+     "server": null,
+     "dbname": null,
+     "filename": null
+    },
+    "columns": [
+     {
+      "name": "[Calculation_0440925131659539]",
+      "caption": "实现的配额百分比",
+      "label": "实现的配额百分比",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "AVG([成就 (预计)])/[Parameters].[新配额]",
+      "formulaRaw": "AVG([成就 (copy)])/[Parameters].[新配额]"
+     },
+     {
+      "name": "[Calculation_4120925132203686]",
+      "caption": "排名高于 3",
+      "label": "排名高于 3",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "ROUND(INDEX() / 3 - 0.6,0) + 1",
+      "formulaRaw": "ROUND(INDEX() / 3 - 0.6,0) + 1"
+     },
+     {
+      "name": "[Calculation_8140925133029303]",
+      "caption": "按字段排序",
+      "label": "按字段排序",
+      "datatype": "real",
+      "role": "measure",
+      "type": "ordinal",
+      "formula": "if [Parameters].[排序依据]=\"名称\" then 0\r\nelseif [Parameters].[排序依据]=\"配额百分比 - 降序\" then -[实现的配额百分比]\r\nelse [实现的配额百分比] end",
+      "formulaRaw": "if [Parameters].[Parameter 1 1]=\"名称\" then 0\r\nelseif [Parameters].[Parameter 1 1]=\"配额百分比 - 降序\" then -[Calculation_0440925131659539]\r\nelse [Calculation_0440925131659539] end"
+     },
+     {
+      "name": "[OTE (可变)]",
+      "caption": null,
+      "label": "[OTE (可变)]",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "[Parameters].[底薪] + ([Parameters].[佣金率]*[Parameters].[新配额])/100",
+      "formulaRaw": "[Parameters].[底薪] + ([Parameters].[佣金率]*[Parameters].[新配额])/100"
+     },
+     {
+      "name": "[__tableau_internal_object_id__].[Sales Commission.csv_4F66D485F1F148A299B285539B88B015]",
+      "caption": "销售佣金",
+      "label": "销售佣金",
+      "datatype": "table",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[估计薪酬标签]",
+      "caption": null,
+      "label": "[估计薪酬标签]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": "\"估计薪酬:\"",
+      "formulaRaw": "\"估计薪酬:\""
+     },
+     {
+      "name": "[佣金 (可变)]",
+      "caption": null,
+      "label": "[佣金 (可变)]",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "([Parameters].[佣金率]*[销售额])/100",
+      "formulaRaw": "([Parameters].[佣金率]*[销售额])/100"
+     },
+     {
+      "name": "[基础 (可变)]",
+      "caption": null,
+      "label": "[基础 (可变)]",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "[Parameters].[底薪]",
+      "formulaRaw": "[Parameters].[底薪]"
+     },
+     {
+      "name": "[总薪酬]",
+      "caption": null,
+      "label": "[总薪酬]",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "MIN([基础 (可变)]) + SUM([佣金 (可变)])",
+      "formulaRaw": "MIN([基础 (可变)]) + SUM([佣金 (可变)])"
+     },
+     {
+      "name": "[总销售额标签]",
+      "caption": null,
+      "label": "[总销售额标签]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": "\"总销售额:\"",
+      "formulaRaw": "\"总销售额:\""
+     },
+     {
+      "name": "[成就 (copy)]",
+      "caption": "成就 (预计)",
+      "label": "成就 (预计)",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "[销售额]",
+      "formulaRaw": "[销售额]"
+     },
+     {
+      "name": "[成就 (可变) (copy)]",
+      "caption": "实现的配额",
+      "label": "实现的配额",
+      "datatype": "string",
+      "role": "measure",
+      "type": "nominal",
+      "formula": "if SUM([成就 (预计)]) >= [Parameters].[新配额] then \"100% +\"\r\nelseif SUM([成就 (预计)]) >= 0.75 * [Parameters].[新配额] then \"75-100%\"\r\nelseif SUM([成就 (预计)]) >= 0.5 * [Parameters].[新配额] then \"50-75%\"\r\nelse \"低于 50%\" end",
+      "formulaRaw": "if SUM([成就 (copy)]) >= [Parameters].[新配额] then \"100% +\"\r\nelseif SUM([成就 (copy)]) >= 0.75 * [Parameters].[新配额] then \"75-100%\"\r\nelseif SUM([成就 (copy)]) >= 0.5 * [Parameters].[新配额] then \"50-75%\"\r\nelse \"低于 50%\" end"
+     },
+     {
+      "name": "[销售额]",
+      "caption": null,
+      "label": "[销售额]",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     }
+    ],
+    "groups": []
+   },
+   {
+    "caption": "示例 - 超市",
+    "name": "federated.10nnk8d1vgmw8q17yu76u06pnbcj",
+    "connection": {
+     "class": "federated",
+     "type": null,
+     "server": null,
+     "dbname": null,
+     "filename": null
+    },
+    "columns": [
+     {
+      "name": "[:Measure Names]",
+      "caption": null,
+      "label": "[:Measure Names]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[Calculation_0831103151444568]",
+      "caption": "发货天数",
+      "label": "发货天数",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "DATEDIFF('day',[订单日期],[发货日期])",
+      "formulaRaw": "DATEDIFF('day',[订单日期],[发货日期])"
+     },
+     {
+      "name": "[Calculation_5421109230915137]",
+      "caption": "销售预测",
+      "label": "销售预测",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "[销售额]*(1-[Parameters].[流失率])*(1+[Parameters].[新业务增长])",
+      "formulaRaw": "[销售额]*(1-[Parameters].[Parameter 2])*(1+[Parameters].[Parameter 1])"
+     },
+     {
+      "name": "[Calculation_6401103171259723]",
+      "caption": "发货状态",
+      "label": "发货状态",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": "if [发货天数]> [预定发货天数] then \"延迟发货\" \r\nelseIF [发货天数]= [预定发货天数] then \"按时发货\"\r\nElse \"提前发货\" end",
+      "formulaRaw": "if [Calculation_0831103151444568]> [Calculation_6861103170623145] then \"延迟发货\" \r\nelseIF [Calculation_0831103151444568]= [Calculation_6861103170623145] then \"按时发货\"\r\nElse \"提前发货\" end"
+     },
+     {
+      "name": "[Calculation_6861103170623145]",
+      "caption": "预定发货天数",
+      "label": "预定发货天数",
+      "datatype": "integer",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "CASE  [装运模式]\r\nWHEN \"当日\" THEN 0\r\nWHEN \"一级\" THEN 1\r\nWHEN \"二级\" THEN 3\r\nWHEN \"标准级\" THEN 6\r\nEND",
+      "formulaRaw": "CASE  [装运模式]\r\nWHEN \"当日\" THEN 0\r\nWHEN \"一级\" THEN 1\r\nWHEN \"二级\" THEN 3\r\nWHEN \"标准级\" THEN 6\r\nEND"
+     },
+     {
+      "name": "[Calculation_9060122104947471]",
+      "caption": "订单有利可图吗？",
+      "label": "订单有利可图吗？",
+      "datatype": "boolean",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": "{fixed [订单 ID]:sum([利润])}>0\r\n// 计算订单级别的利润",
+      "formulaRaw": "{fixed [订单 ID]:sum([利润])}>0\r\n// 计算订单级别的利润"
+     },
+     {
+      "name": "[Calculation_9321103144526191]",
+      "caption": "每个客户的销售额",
+      "label": "每个客户的销售额",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "Sum([销售额])/countD([客户名称])",
+      "formulaRaw": "Sum([销售额])/countD([客户名称])"
+     },
+     {
+      "name": "[Calculation_9921103144103743]",
+      "caption": "利润率",
+      "label": "利润率",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "sum([利润])/sum([销售额])",
+      "formulaRaw": "sum([利润])/sum([销售额])"
+     },
+     {
+      "name": "[Calculation_9951107165644870]",
+      "caption": "销售额高于目标？",
+      "label": "销售额高于目标？",
+      "datatype": "string",
+      "role": "measure",
+      "type": "nominal",
+      "formula": "If Sum([销售额])>SUM([federated.0hgpf0j1fdpvv316shikk0mmdlec].[销售目标]) then \"高于目标\" else \"低于目标\" end",
+      "formulaRaw": "If Sum([销售额])>SUM([federated.0hgpf0j1fdpvv316shikk0mmdlec].[销售目标]) then \"高于目标\" else \"低于目标\" end"
+     },
+     {
+      "name": "[__tableau_internal_object_id__].[人员_37AF7429D04E4916914EED91681E5975]",
+      "caption": "人员",
+      "label": "人员",
+      "datatype": "table",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[__tableau_internal_object_id__].[订单_6D2EF74F348B46BDA976A7AEEA6FB5C9]",
+      "caption": "订单",
+      "label": "订单",
+      "datatype": "table",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[__tableau_internal_object_id__].[退货_11818460B7524AB795D23E763C65D6BC]",
+      "caption": "退货",
+      "label": "退货",
+      "datatype": "table",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[产品名称]",
+      "caption": null,
+      "label": "[产品名称]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[利润]",
+      "caption": null,
+      "label": "[利润]",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[区域 (人员)]",
+      "caption": null,
+      "label": "[区域 (人员)]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[区域]",
+      "caption": null,
+      "label": "[区域]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[国家/地区]",
+      "caption": null,
+      "label": "[国家/地区]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[城市]",
+      "caption": null,
+      "label": "[城市]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[子类别]",
+      "caption": null,
+      "label": "[子类别]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[客户名称]",
+      "caption": null,
+      "label": "[客户名称]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[折扣]",
+      "caption": null,
+      "label": "[折扣]",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[每个客户的销售额 (copy)]",
+      "caption": "每订单利润",
+      "label": "每订单利润",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "Sum([利润])/countD([订单 ID])",
+      "formulaRaw": "Sum([利润])/countD([订单 ID])"
+     },
+     {
+      "name": "[省/自治区]",
+      "caption": null,
+      "label": "[省/自治区]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[类别]",
+      "caption": null,
+      "label": "[类别]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[细分]",
+      "caption": null,
+      "label": "[细分]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[行 ID]",
+      "caption": null,
+      "label": "[行 ID]",
+      "datatype": "integer",
+      "role": "dimension",
+      "type": "ordinal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[装运模式]",
+      "caption": null,
+      "label": "[装运模式]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[订单 ID (退货)]",
+      "caption": null,
+      "label": "[订单 ID (退货)]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[订单 ID]",
+      "caption": null,
+      "label": "[订单 ID]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[订单日期]",
+      "caption": null,
+      "label": "[订单日期]",
+      "datatype": "date",
+      "role": "dimension",
+      "type": "ordinal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[邮政编码]",
+      "caption": null,
+      "label": "[邮政编码]",
+      "datatype": "string",
+      "role": "dimension",
+      "type": "nominal",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[销售额]",
+      "caption": null,
+      "label": "[销售额]",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": null,
+      "formulaRaw": null
+     },
+     {
+      "name": "[销售额预计 (copy)]",
+      "caption": "单位估计",
+      "label": "单位估计",
+      "datatype": "real",
+      "role": "measure",
+      "type": "quantitative",
+      "formula": "ROUND([数量]*(1-[Parameters].[流失率])*(1+[Parameters].[新业务增长]),0)",
+      "formulaRaw": "ROUND([数量]*(1-[Parameters].[Parameter 2])*(1+[Parameters].[Parameter 1]),0)"
+     }
+    ],
+    "groups": [
+     "[Action (MONTH(订单日期),产品子类别)]",
+     "[Action (MONTH(订单日期),产品类别)]",
+     "[Action (MONTH(订单日期),产品类别,产品子类别)]",
+     "[Action (MONTH(订单日期),产品类别,细分) 1]",
+     "[Action (MONTH(订单日期),产品类别,细分)]",
+     "[Action (MONTH(订单日期),细分)]",
+     "[Action (QUARTER(订单日期),MONTH(订单日期),产品子类别)]",
+     "[Action (QUARTER(订单日期),MONTH(订单日期),产品类别,产品子类别)]",
+     "[Action (YEAR(订单日期),MONTH(订单日期))]",
+     "[Action (YEAR(订单日期),MONTH(订单日期),产品类别)]",
+     "[Action (YEAR(订单日期),MONTH(订单日期),细分)]",
+     "[Action (交易利润,MONTH(订单日期),细分)]",
+     "[Action (产品子类别,区域,细分)]",
+     "[Action (产品子类别,省/自治区)]",
+     "[Action (产品类别,产品子类别,细分)]",
+     "[Action (区域)]",
+     "[Action (发货状态)]",
+     "[Action (发货状态,YEAR(订单日期),WEEK(订单日期))]",
+     "[Action (发货状态,客户名称,订单日期,订单 ID,产品名称,装运模式)]",
+     "[Action (客户细分)]",
+     "[Action (是否延迟？)]",
+     "[Action (省/自治区)]",
+     "[Action (类别)]",
+     "[Action (类别,MONTH(订单日期))]",
+     "[Action (类别,YEAR(订单日期),MONTH(订单日期))]",
+     "[Action (细分)]",
+     "[Action (订单有利可图吗？,MONTH(订单日期),细分)]",
+     "[Action (订单有利可图吗？,类别,MONTH(订单日期))]",
+     "[Action (邮政编码,省/自治区) 1]",
+     "[Action (邮政编码,省/自治区)]",
+     "[工具提示 (国家/地区,省/自治区)]",
+     "[工具提示 (省/自治区)]"
+    ]
+   }
+  ]
+ },
+ "graph": {
+  "nodes": [
+   {
+    "id": "ds:0",
+    "kind": "datasource",
+    "label": "Parameters",
+    "name": "Parameters",
+    "dsIdx": 0
+   },
+   {
+    "id": "f:0:Parameter 1 1",
+    "kind": "field",
+    "label": "排序依据",
+    "caption": "排序依据",
+    "name": "[Parameter 1 1]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 0,
+    "formula": "\"名称\"",
+    "formulaRaw": "\"名称\""
+   },
+   {
+    "id": "f:0:Parameter 1",
+    "kind": "field",
+    "label": "新业务增长",
+    "caption": "新业务增长",
+    "name": "[Parameter 1]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 0,
+    "formula": "0.59999999999999998",
+    "formulaRaw": "0.59999999999999998"
+   },
+   {
+    "id": "f:0:Parameter 2",
+    "kind": "field",
+    "label": "流失率",
+    "caption": "流失率",
+    "name": "[Parameter 2]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 0,
+    "formula": "0.064000000000000001",
+    "formulaRaw": "0.064000000000000001"
+   },
+   {
+    "id": "f:0:佣金率",
+    "kind": "field",
+    "label": "佣金率",
+    "caption": "佣金率",
+    "name": "[佣金率]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 0,
+    "formula": "18.399999999999999",
+    "formulaRaw": "18.399999999999999"
+   },
+   {
+    "id": "f:0:底薪",
+    "kind": "field",
+    "label": "底薪",
+    "caption": "底薪",
+    "name": "[底薪]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 0,
+    "formula": "50000",
+    "formulaRaw": "50000"
+   },
+   {
+    "id": "f:0:新配额",
+    "kind": "field",
+    "label": "新配额",
+    "caption": "新配额",
+    "name": "[新配额]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 0,
+    "formula": "500000",
+    "formulaRaw": "500000"
+   },
+   {
+    "id": "ds:1",
+    "kind": "datasource",
+    "label": "销售目标",
+    "name": "federated.0hgpf0j1fdpvv316shikk0mmdlec",
+    "dsIdx": 1
+   },
+   {
+    "id": "f:1:__tableau_internal_object_id__].[Sheet1_66AF038055174B6D8F7445FD0BC80ED3",
+    "kind": "field",
+    "label": "销售目标",
+    "caption": "销售目标",
+    "name": "[__tableau_internal_object_id__].[Sheet1_66AF038055174B6D8F7445FD0BC80ED3]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 1,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "ds:2",
+    "kind": "datasource",
+    "label": "销售佣金",
+    "name": "federated.0a01cod1oxl83l1f5yves1cfciqo",
+    "dsIdx": 2
+   },
+   {
+    "id": "f:2:Calculation_0440925131659539",
+    "kind": "field",
+    "label": "实现的配额百分比",
+    "caption": "实现的配额百分比",
+    "name": "[Calculation_0440925131659539]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "AVG([成就 (预计)])/[Parameters].[新配额]",
+    "formulaRaw": "AVG([成就 (copy)])/[Parameters].[新配额]"
+   },
+   {
+    "id": "f:2:Calculation_4120925132203686",
+    "kind": "field",
+    "label": "排名高于 3",
+    "caption": "排名高于 3",
+    "name": "[Calculation_4120925132203686]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "ROUND(INDEX() / 3 - 0.6,0) + 1",
+    "formulaRaw": "ROUND(INDEX() / 3 - 0.6,0) + 1"
+   },
+   {
+    "id": "f:2:Calculation_8140925133029303",
+    "kind": "field",
+    "label": "按字段排序",
+    "caption": "按字段排序",
+    "name": "[Calculation_8140925133029303]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "if [Parameters].[排序依据]=\"名称\" then 0\r\nelseif [Parameters].[排序依据]=\"配额百分比 - 降序\" then -[实现的配额百分比]\r\nelse [实现的配额百分比] end",
+    "formulaRaw": "if [Parameters].[Parameter 1 1]=\"名称\" then 0\r\nelseif [Parameters].[Parameter 1 1]=\"配额百分比 - 降序\" then -[Calculation_0440925131659539]\r\nelse [Calculation_0440925131659539] end"
+   },
+   {
+    "id": "f:2:OTE (可变)",
+    "kind": "field",
+    "label": "[OTE (可变)]",
+    "caption": null,
+    "name": "[OTE (可变)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "[Parameters].[底薪] + ([Parameters].[佣金率]*[Parameters].[新配额])/100",
+    "formulaRaw": "[Parameters].[底薪] + ([Parameters].[佣金率]*[Parameters].[新配额])/100"
+   },
+   {
+    "id": "f:2:__tableau_internal_object_id__].[Sales Commission.csv_4F66D485F1F148A299B285539B88B015",
+    "kind": "field",
+    "label": "销售佣金",
+    "caption": "销售佣金",
+    "name": "[__tableau_internal_object_id__].[Sales Commission.csv_4F66D485F1F148A299B285539B88B015]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 2,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:2:估计薪酬标签",
+    "kind": "field",
+    "label": "[估计薪酬标签]",
+    "caption": null,
+    "name": "[估计薪酬标签]",
+    "role": "dimension",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "\"估计薪酬:\"",
+    "formulaRaw": "\"估计薪酬:\""
+   },
+   {
+    "id": "f:2:佣金 (可变)",
+    "kind": "field",
+    "label": "[佣金 (可变)]",
+    "caption": null,
+    "name": "[佣金 (可变)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "([Parameters].[佣金率]*[销售额])/100",
+    "formulaRaw": "([Parameters].[佣金率]*[销售额])/100"
+   },
+   {
+    "id": "f:2:基础 (可变)",
+    "kind": "field",
+    "label": "[基础 (可变)]",
+    "caption": null,
+    "name": "[基础 (可变)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "[Parameters].[底薪]",
+    "formulaRaw": "[Parameters].[底薪]"
+   },
+   {
+    "id": "f:2:总薪酬",
+    "kind": "field",
+    "label": "[总薪酬]",
+    "caption": null,
+    "name": "[总薪酬]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "MIN([基础 (可变)]) + SUM([佣金 (可变)])",
+    "formulaRaw": "MIN([基础 (可变)]) + SUM([佣金 (可变)])"
+   },
+   {
+    "id": "f:2:总销售额标签",
+    "kind": "field",
+    "label": "[总销售额标签]",
+    "caption": null,
+    "name": "[总销售额标签]",
+    "role": "dimension",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "\"总销售额:\"",
+    "formulaRaw": "\"总销售额:\""
+   },
+   {
+    "id": "f:2:成就 (copy)",
+    "kind": "field",
+    "label": "成就 (预计)",
+    "caption": "成就 (预计)",
+    "name": "[成就 (copy)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "[销售额]",
+    "formulaRaw": "[销售额]"
+   },
+   {
+    "id": "f:2:成就 (可变) (copy)",
+    "kind": "field",
+    "label": "实现的配额",
+    "caption": "实现的配额",
+    "name": "[成就 (可变) (copy)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 2,
+    "formula": "if SUM([成就 (预计)]) >= [Parameters].[新配额] then \"100% +\"\r\nelseif SUM([成就 (预计)]) >= 0.75 * [Parameters].[新配额] then \"75-100%\"\r\nelseif SUM([成就 (预计)]) >= 0.5 * [Parameters].[新配额] then \"50-75%\"\r\nelse \"低于 50%\" end",
+    "formulaRaw": "if SUM([成就 (copy)]) >= [Parameters].[新配额] then \"100% +\"\r\nelseif SUM([成就 (copy)]) >= 0.75 * [Parameters].[新配额] then \"75-100%\"\r\nelseif SUM([成就 (copy)]) >= 0.5 * [Parameters].[新配额] then \"50-75%\"\r\nelse \"低于 50%\" end"
+   },
+   {
+    "id": "f:2:销售额",
+    "kind": "field",
+    "label": "[销售额]",
+    "caption": null,
+    "name": "[销售额]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 2,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "u:2:Parameters",
+    "kind": "unknown",
+    "label": "Parameters",
+    "name": "Parameters",
+    "dsIdx": 2
+   },
+   {
+    "id": "ds:3",
+    "kind": "datasource",
+    "label": "示例 - 超市",
+    "name": "federated.10nnk8d1vgmw8q17yu76u06pnbcj",
+    "dsIdx": 3
+   },
+   {
+    "id": "f:3::Measure Names",
+    "kind": "field",
+    "label": "[:Measure Names]",
+    "caption": null,
+    "name": "[:Measure Names]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:Calculation_0831103151444568",
+    "kind": "field",
+    "label": "发货天数",
+    "caption": "发货天数",
+    "name": "[Calculation_0831103151444568]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "DATEDIFF('day',[订单日期],[发货日期])",
+    "formulaRaw": "DATEDIFF('day',[订单日期],[发货日期])"
+   },
+   {
+    "id": "f:3:Calculation_5421109230915137",
+    "kind": "field",
+    "label": "销售预测",
+    "caption": "销售预测",
+    "name": "[Calculation_5421109230915137]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "[销售额]*(1-[Parameters].[流失率])*(1+[Parameters].[新业务增长])",
+    "formulaRaw": "[销售额]*(1-[Parameters].[Parameter 2])*(1+[Parameters].[Parameter 1])"
+   },
+   {
+    "id": "f:3:Calculation_6401103171259723",
+    "kind": "field",
+    "label": "发货状态",
+    "caption": "发货状态",
+    "name": "[Calculation_6401103171259723]",
+    "role": "dimension",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "if [发货天数]> [预定发货天数] then \"延迟发货\" \r\nelseIF [发货天数]= [预定发货天数] then \"按时发货\"\r\nElse \"提前发货\" end",
+    "formulaRaw": "if [Calculation_0831103151444568]> [Calculation_6861103170623145] then \"延迟发货\" \r\nelseIF [Calculation_0831103151444568]= [Calculation_6861103170623145] then \"按时发货\"\r\nElse \"提前发货\" end"
+   },
+   {
+    "id": "f:3:Calculation_6861103170623145",
+    "kind": "field",
+    "label": "预定发货天数",
+    "caption": "预定发货天数",
+    "name": "[Calculation_6861103170623145]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "CASE  [装运模式]\r\nWHEN \"当日\" THEN 0\r\nWHEN \"一级\" THEN 1\r\nWHEN \"二级\" THEN 3\r\nWHEN \"标准级\" THEN 6\r\nEND",
+    "formulaRaw": "CASE  [装运模式]\r\nWHEN \"当日\" THEN 0\r\nWHEN \"一级\" THEN 1\r\nWHEN \"二级\" THEN 3\r\nWHEN \"标准级\" THEN 6\r\nEND"
+   },
+   {
+    "id": "f:3:Calculation_9060122104947471",
+    "kind": "field",
+    "label": "订单有利可图吗？",
+    "caption": "订单有利可图吗？",
+    "name": "[Calculation_9060122104947471]",
+    "role": "dimension",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "{fixed [订单 ID]:sum([利润])}>0\r\n// 计算订单级别的利润",
+    "formulaRaw": "{fixed [订单 ID]:sum([利润])}>0\r\n// 计算订单级别的利润"
+   },
+   {
+    "id": "f:3:Calculation_9321103144526191",
+    "kind": "field",
+    "label": "每个客户的销售额",
+    "caption": "每个客户的销售额",
+    "name": "[Calculation_9321103144526191]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "Sum([销售额])/countD([客户名称])",
+    "formulaRaw": "Sum([销售额])/countD([客户名称])"
+   },
+   {
+    "id": "f:3:Calculation_9921103144103743",
+    "kind": "field",
+    "label": "利润率",
+    "caption": "利润率",
+    "name": "[Calculation_9921103144103743]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "sum([利润])/sum([销售额])",
+    "formulaRaw": "sum([利润])/sum([销售额])"
+   },
+   {
+    "id": "f:3:Calculation_9951107165644870",
+    "kind": "field",
+    "label": "销售额高于目标？",
+    "caption": "销售额高于目标？",
+    "name": "[Calculation_9951107165644870]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "If Sum([销售额])>SUM([federated.0hgpf0j1fdpvv316shikk0mmdlec].[销售目标]) then \"高于目标\" else \"低于目标\" end",
+    "formulaRaw": "If Sum([销售额])>SUM([federated.0hgpf0j1fdpvv316shikk0mmdlec].[销售目标]) then \"高于目标\" else \"低于目标\" end"
+   },
+   {
+    "id": "f:3:__tableau_internal_object_id__].[人员_37AF7429D04E4916914EED91681E5975",
+    "kind": "field",
+    "label": "人员",
+    "caption": "人员",
+    "name": "[__tableau_internal_object_id__].[人员_37AF7429D04E4916914EED91681E5975]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:__tableau_internal_object_id__].[订单_6D2EF74F348B46BDA976A7AEEA6FB5C9",
+    "kind": "field",
+    "label": "订单",
+    "caption": "订单",
+    "name": "[__tableau_internal_object_id__].[订单_6D2EF74F348B46BDA976A7AEEA6FB5C9]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:__tableau_internal_object_id__].[退货_11818460B7524AB795D23E763C65D6BC",
+    "kind": "field",
+    "label": "退货",
+    "caption": "退货",
+    "name": "[__tableau_internal_object_id__].[退货_11818460B7524AB795D23E763C65D6BC]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:产品名称",
+    "kind": "field",
+    "label": "[产品名称]",
+    "caption": null,
+    "name": "[产品名称]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:利润",
+    "kind": "field",
+    "label": "[利润]",
+    "caption": null,
+    "name": "[利润]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:区域 (人员)",
+    "kind": "field",
+    "label": "[区域 (人员)]",
+    "caption": null,
+    "name": "[区域 (人员)]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:区域",
+    "kind": "field",
+    "label": "[区域]",
+    "caption": null,
+    "name": "[区域]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:国家/地区",
+    "kind": "field",
+    "label": "[国家/地区]",
+    "caption": null,
+    "name": "[国家/地区]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:城市",
+    "kind": "field",
+    "label": "[城市]",
+    "caption": null,
+    "name": "[城市]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:子类别",
+    "kind": "field",
+    "label": "[子类别]",
+    "caption": null,
+    "name": "[子类别]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:客户名称",
+    "kind": "field",
+    "label": "[客户名称]",
+    "caption": null,
+    "name": "[客户名称]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:折扣",
+    "kind": "field",
+    "label": "[折扣]",
+    "caption": null,
+    "name": "[折扣]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:每个客户的销售额 (copy)",
+    "kind": "field",
+    "label": "每订单利润",
+    "caption": "每订单利润",
+    "name": "[每个客户的销售额 (copy)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "Sum([利润])/countD([订单 ID])",
+    "formulaRaw": "Sum([利润])/countD([订单 ID])"
+   },
+   {
+    "id": "f:3:省/自治区",
+    "kind": "field",
+    "label": "[省/自治区]",
+    "caption": null,
+    "name": "[省/自治区]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:类别",
+    "kind": "field",
+    "label": "[类别]",
+    "caption": null,
+    "name": "[类别]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:细分",
+    "kind": "field",
+    "label": "[细分]",
+    "caption": null,
+    "name": "[细分]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:行 ID",
+    "kind": "field",
+    "label": "[行 ID]",
+    "caption": null,
+    "name": "[行 ID]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:装运模式",
+    "kind": "field",
+    "label": "[装运模式]",
+    "caption": null,
+    "name": "[装运模式]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:订单 ID (退货)",
+    "kind": "field",
+    "label": "[订单 ID (退货)]",
+    "caption": null,
+    "name": "[订单 ID (退货)]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:订单 ID",
+    "kind": "field",
+    "label": "[订单 ID]",
+    "caption": null,
+    "name": "[订单 ID]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:订单日期",
+    "kind": "field",
+    "label": "[订单日期]",
+    "caption": null,
+    "name": "[订单日期]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:邮政编码",
+    "kind": "field",
+    "label": "[邮政编码]",
+    "caption": null,
+    "name": "[邮政编码]",
+    "role": "dimension",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:销售额",
+    "kind": "field",
+    "label": "[销售额]",
+    "caption": null,
+    "name": "[销售额]",
+    "role": "measure",
+    "isCalc": false,
+    "dsIdx": 3,
+    "formula": null,
+    "formulaRaw": null
+   },
+   {
+    "id": "f:3:销售额预计 (copy)",
+    "kind": "field",
+    "label": "单位估计",
+    "caption": "单位估计",
+    "name": "[销售额预计 (copy)]",
+    "role": "measure",
+    "isCalc": true,
+    "dsIdx": 3,
+    "formula": "ROUND([数量]*(1-[Parameters].[流失率])*(1+[Parameters].[新业务增长]),0)",
+    "formulaRaw": "ROUND([数量]*(1-[Parameters].[Parameter 2])*(1+[Parameters].[Parameter 1]),0)"
+   },
+   {
+    "id": "u:3:发货日期",
+    "kind": "unknown",
+    "label": "发货日期",
+    "name": "发货日期",
+    "dsIdx": 3
+   },
+   {
+    "id": "u:3:Parameters",
+    "kind": "unknown",
+    "label": "Parameters",
+    "name": "Parameters",
+    "dsIdx": 3
+   },
+   {
+    "id": "u:3:federated.0hgpf0j1fdpvv316shikk0mmdlec",
+    "kind": "unknown",
+    "label": "federated.0hgpf0j1fdpvv316shikk0mmdlec",
+    "name": "federated.0hgpf0j1fdpvv316shikk0mmdlec",
+    "dsIdx": 3
+   },
+   {
+    "id": "u:3:数量",
+    "kind": "unknown",
+    "label": "数量",
+    "name": "数量",
+    "dsIdx": 3
+   }
+  ],
+  "edges": [
+   {
+    "from": "ds:1",
+    "to": "f:1:__tableau_internal_object_id__].[Sheet1_66AF038055174B6D8F7445FD0BC80ED3"
+   },
+   {
+    "from": "ds:2",
+    "to": "f:2:__tableau_internal_object_id__].[Sales Commission.csv_4F66D485F1F148A299B285539B88B015"
+   },
+   {
+    "from": "ds:2",
+    "to": "f:2:销售额"
+   },
+   {
+    "from": "f:2:Calculation_0440925131659539",
+    "to": "f:2:成就 (copy)"
+   },
+   {
+    "from": "f:2:Calculation_0440925131659539",
+    "to": "u:2:Parameters"
+   },
+   {
+    "from": "f:2:Calculation_0440925131659539",
+    "to": "f:0:新配额"
+   },
+   {
+    "from": "f:2:Calculation_8140925133029303",
+    "to": "u:2:Parameters"
+   },
+   {
+    "from": "f:2:Calculation_8140925133029303",
+    "to": "f:0:Parameter 1 1"
+   },
+   {
+    "from": "f:2:Calculation_8140925133029303",
+    "to": "f:2:Calculation_0440925131659539"
+   },
+   {
+    "from": "f:2:OTE (可变)",
+    "to": "u:2:Parameters"
+   },
+   {
+    "from": "f:2:OTE (可变)",
+    "to": "f:0:底薪"
+   },
+   {
+    "from": "f:2:OTE (可变)",
+    "to": "f:0:佣金率"
+   },
+   {
+    "from": "f:2:OTE (可变)",
+    "to": "f:0:新配额"
+   },
+   {
+    "from": "f:2:佣金 (可变)",
+    "to": "u:2:Parameters"
+   },
+   {
+    "from": "f:2:佣金 (可变)",
+    "to": "f:0:佣金率"
+   },
+   {
+    "from": "f:2:佣金 (可变)",
+    "to": "f:2:销售额"
+   },
+   {
+    "from": "f:2:基础 (可变)",
+    "to": "u:2:Parameters"
+   },
+   {
+    "from": "f:2:基础 (可变)",
+    "to": "f:0:底薪"
+   },
+   {
+    "from": "f:2:总薪酬",
+    "to": "f:2:基础 (可变)"
+   },
+   {
+    "from": "f:2:总薪酬",
+    "to": "f:2:佣金 (可变)"
+   },
+   {
+    "from": "f:2:成就 (copy)",
+    "to": "f:2:销售额"
+   },
+   {
+    "from": "f:2:成就 (可变) (copy)",
+    "to": "f:2:成就 (copy)"
+   },
+   {
+    "from": "f:2:成就 (可变) (copy)",
+    "to": "u:2:Parameters"
+   },
+   {
+    "from": "f:2:成就 (可变) (copy)",
+    "to": "f:0:新配额"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3::Measure Names"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:__tableau_internal_object_id__].[人员_37AF7429D04E4916914EED91681E5975"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:__tableau_internal_object_id__].[订单_6D2EF74F348B46BDA976A7AEEA6FB5C9"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:__tableau_internal_object_id__].[退货_11818460B7524AB795D23E763C65D6BC"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:产品名称"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:利润"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:区域 (人员)"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:区域"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:国家/地区"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:城市"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:子类别"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:客户名称"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:折扣"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:省/自治区"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:类别"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:细分"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:行 ID"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:装运模式"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:订单 ID (退货)"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:订单 ID"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:订单日期"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:邮政编码"
+   },
+   {
+    "from": "ds:3",
+    "to": "f:3:销售额"
+   },
+   {
+    "from": "f:3:Calculation_0831103151444568",
+    "to": "f:3:订单日期"
+   },
+   {
+    "from": "f:3:Calculation_0831103151444568",
+    "to": "u:3:发货日期"
+   },
+   {
+    "from": "f:3:Calculation_5421109230915137",
+    "to": "f:3:销售额"
+   },
+   {
+    "from": "f:3:Calculation_5421109230915137",
+    "to": "u:3:Parameters"
+   },
+   {
+    "from": "f:3:Calculation_5421109230915137",
+    "to": "f:0:Parameter 2"
+   },
+   {
+    "from": "f:3:Calculation_5421109230915137",
+    "to": "f:0:Parameter 1"
+   },
+   {
+    "from": "f:3:Calculation_6401103171259723",
+    "to": "f:3:Calculation_0831103151444568"
+   },
+   {
+    "from": "f:3:Calculation_6401103171259723",
+    "to": "f:3:Calculation_6861103170623145"
+   },
+   {
+    "from": "f:3:Calculation_6861103170623145",
+    "to": "f:3:装运模式"
+   },
+   {
+    "from": "f:3:Calculation_9060122104947471",
+    "to": "f:3:订单 ID"
+   },
+   {
+    "from": "f:3:Calculation_9060122104947471",
+    "to": "f:3:利润"
+   },
+   {
+    "from": "f:3:Calculation_9321103144526191",
+    "to": "f:3:销售额"
+   },
+   {
+    "from": "f:3:Calculation_9321103144526191",
+    "to": "f:3:客户名称"
+   },
+   {
+    "from": "f:3:Calculation_9921103144103743",
+    "to": "f:3:利润"
+   },
+   {
+    "from": "f:3:Calculation_9921103144103743",
+    "to": "f:3:销售额"
+   },
+   {
+    "from": "f:3:Calculation_9951107165644870",
+    "to": "f:3:销售额"
+   },
+   {
+    "from": "f:3:Calculation_9951107165644870",
+    "to": "u:3:federated.0hgpf0j1fdpvv316shikk0mmdlec"
+   },
+   {
+    "from": "f:3:Calculation_9951107165644870",
+    "to": "f:1:__tableau_internal_object_id__].[Sheet1_66AF038055174B6D8F7445FD0BC80ED3"
+   },
+   {
+    "from": "f:3:每个客户的销售额 (copy)",
+    "to": "f:3:利润"
+   },
+   {
+    "from": "f:3:每个客户的销售额 (copy)",
+    "to": "f:3:订单 ID"
+   },
+   {
+    "from": "f:3:销售额预计 (copy)",
+    "to": "u:3:数量"
+   },
+   {
+    "from": "f:3:销售额预计 (copy)",
+    "to": "u:3:Parameters"
+   },
+   {
+    "from": "f:3:销售额预计 (copy)",
+    "to": "f:0:Parameter 2"
+   },
+   {
+    "from": "f:3:销售额预计 (copy)",
+    "to": "f:0:Parameter 1"
+   }
+  ],
+  "dsNodes": [
+   "ds:0",
+   "ds:1",
+   "ds:2",
+   "ds:3"
+  ]
+ },
+ "layout": {
+  "pos": {
+   "ds:0": {
+    "x": 24,
+    "y": 540
+   },
+   "ds:1": {
+    "x": 24,
+    "y": 602
+   },
+   "ds:2": {
+    "x": 24,
+    "y": 664
+   },
+   "ds:3": {
+    "x": 24,
+    "y": 726
+   },
+   "f:2:估计薪酬标签": {
+    "x": 328,
+    "y": 44
+   },
+   "f:2:总销售额标签": {
+    "x": 328,
+    "y": 106
+   },
+   "f:3::Measure Names": {
+    "x": 328,
+    "y": 168
+   },
+   "f:3:产品名称": {
+    "x": 328,
+    "y": 230
+   },
+   "f:3:区域 (人员)": {
+    "x": 328,
+    "y": 292
+   },
+   "f:3:区域": {
+    "x": 328,
+    "y": 354
+   },
+   "f:3:国家/地区": {
+    "x": 328,
+    "y": 416
+   },
+   "f:3:城市": {
+    "x": 328,
+    "y": 478
+   },
+   "f:3:子类别": {
+    "x": 328,
+    "y": 540
+   },
+   "f:3:客户名称": {
+    "x": 328,
+    "y": 602
+   },
+   "f:3:省/自治区": {
+    "x": 328,
+    "y": 664
+   },
+   "f:3:类别": {
+    "x": 328,
+    "y": 726
+   },
+   "f:3:细分": {
+    "x": 328,
+    "y": 788
+   },
+   "f:3:行 ID": {
+    "x": 328,
+    "y": 850
+   },
+   "f:3:装运模式": {
+    "x": 328,
+    "y": 912
+   },
+   "f:3:订单 ID (退货)": {
+    "x": 328,
+    "y": 974
+   },
+   "f:3:订单 ID": {
+    "x": 328,
+    "y": 1036
+   },
+   "f:3:订单日期": {
+    "x": 328,
+    "y": 1098
+   },
+   "f:3:邮政编码": {
+    "x": 328,
+    "y": 1160
+   },
+   "f:0:Parameter 1 1": {
+    "x": 328,
+    "y": 1222
+   },
+   "f:0:Parameter 1": {
+    "x": 564,
+    "y": 44
+   },
+   "f:0:Parameter 2": {
+    "x": 564,
+    "y": 106
+   },
+   "f:0:佣金率": {
+    "x": 564,
+    "y": 168
+   },
+   "f:0:底薪": {
+    "x": 564,
+    "y": 230
+   },
+   "f:0:新配额": {
+    "x": 564,
+    "y": 292
+   },
+   "f:1:__tableau_internal_object_id__].[Sheet1_66AF038055174B6D8F7445FD0BC80ED3": {
+    "x": 564,
+    "y": 354
+   },
+   "f:2:Calculation_4120925132203686": {
+    "x": 564,
+    "y": 416
+   },
+   "f:2:__tableau_internal_object_id__].[Sales Commission.csv_4F66D485F1F148A299B285539B88B015": {
+    "x": 564,
+    "y": 478
+   },
+   "f:2:销售额": {
+    "x": 564,
+    "y": 540
+   },
+   "u:2:Parameters": {
+    "x": 564,
+    "y": 602
+   },
+   "f:3:__tableau_internal_object_id__].[人员_37AF7429D04E4916914EED91681E5975": {
+    "x": 564,
+    "y": 664
+   },
+   "f:3:__tableau_internal_object_id__].[订单_6D2EF74F348B46BDA976A7AEEA6FB5C9": {
+    "x": 564,
+    "y": 726
+   },
+   "f:3:__tableau_internal_object_id__].[退货_11818460B7524AB795D23E763C65D6BC": {
+    "x": 564,
+    "y": 788
+   },
+   "f:3:利润": {
+    "x": 564,
+    "y": 850
+   },
+   "f:3:折扣": {
+    "x": 564,
+    "y": 912
+   },
+   "f:3:销售额": {
+    "x": 564,
+    "y": 974
+   },
+   "u:3:发货日期": {
+    "x": 564,
+    "y": 1036
+   },
+   "u:3:Parameters": {
+    "x": 564,
+    "y": 1098
+   },
+   "u:3:federated.0hgpf0j1fdpvv316shikk0mmdlec": {
+    "x": 564,
+    "y": 1160
+   },
+   "u:3:数量": {
+    "x": 564,
+    "y": 1222
+   },
+   "f:2:OTE (可变)": {
+    "x": 868,
+    "y": 261
+   },
+   "f:2:佣金 (可变)": {
+    "x": 868,
+    "y": 323
+   },
+   "f:2:基础 (可变)": {
+    "x": 868,
+    "y": 385
+   },
+   "f:2:成就 (copy)": {
+    "x": 868,
+    "y": 447
+   },
+   "f:3:Calculation_0831103151444568": {
+    "x": 868,
+    "y": 509
+   },
+   "f:3:Calculation_5421109230915137": {
+    "x": 868,
+    "y": 571
+   },
+   "f:3:Calculation_6861103170623145": {
+    "x": 868,
+    "y": 633
+   },
+   "f:3:Calculation_9060122104947471": {
+    "x": 868,
+    "y": 695
+   },
+   "f:3:Calculation_9321103144526191": {
+    "x": 868,
+    "y": 757
+   },
+   "f:3:Calculation_9921103144103743": {
+    "x": 868,
+    "y": 819
+   },
+   "f:3:Calculation_9951107165644870": {
+    "x": 868,
+    "y": 881
+   },
+   "f:3:每个客户的销售额 (copy)": {
+    "x": 868,
+    "y": 943
+   },
+   "f:3:销售额预计 (copy)": {
+    "x": 868,
+    "y": 1005
+   },
+   "f:2:Calculation_0440925131659539": {
+    "x": 1172,
+    "y": 540
+   },
+   "f:2:总薪酬": {
+    "x": 1172,
+    "y": 602
+   },
+   "f:2:成就 (可变) (copy)": {
+    "x": 1172,
+    "y": 664
+   },
+   "f:3:Calculation_6401103171259723": {
+    "x": 1172,
+    "y": 726
+   },
+   "f:2:Calculation_8140925133029303": {
+    "x": 1476,
+    "y": 633
+   }
+  },
+  "lanes": [
+   {
+    "layer": 0,
+    "x": 24,
+    "right": 200,
+    "width": 176,
+    "count": 4,
+    "subCols": 1,
+    "label": "数据源"
+   },
+   {
+    "layer": 1,
+    "x": 328,
+    "right": 740,
+    "width": 412,
+    "count": 40,
+    "subCols": 2,
+    "label": "原始字段（维度↑ / 度量↓）"
+   },
+   {
+    "layer": 2,
+    "x": 868,
+    "right": 1044,
+    "width": 176,
+    "count": 13,
+    "subCols": 1,
+    "label": "计算字段 · 层级 1"
+   },
+   {
+    "layer": 3,
+    "x": 1172,
+    "right": 1348,
+    "width": 176,
+    "count": 4,
+    "subCols": 1,
+    "label": "计算字段 · 层级 2"
+   },
+   {
+    "layer": 4,
+    "x": 1476,
+    "right": 1652,
+    "width": 176,
+    "count": 1,
+    "subCols": 1,
+    "label": "计算字段 · 层级 3"
+   }
+  ],
+  "width": 1676,
+  "height": 1318
+ },
+ "formulaTokens": [
+  {
+   "name": "[Parameter 1 1]",
+   "tokens": [
+    [
+     "fh-other",
+     "\""
+    ],
+    [
+     "fh-other",
+     "名"
+    ],
+    [
+     "fh-other",
+     "称"
+    ],
+    [
+     "fh-other",
+     "\""
+    ]
+   ]
+  },
+  {
+   "name": "[Parameter 1]",
+   "tokens": [
+    [
+     "fh-number",
+     "0.59999999999999998"
+    ]
+   ]
+  },
+  {
+   "name": "[Parameter 2]",
+   "tokens": [
+    [
+     "fh-number",
+     "0.064000000000000001"
+    ]
+   ]
+  }
+ ]
+}

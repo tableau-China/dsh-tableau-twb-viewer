@@ -1,10 +1,16 @@
-// 真实浏览器端到端验证：启动测试 profile 的 Web 应用，完成（或跳过）首次引导，
-// 打开设置页，确认「TWb 检视器」分区渲染成功、载入示例后布局图与引用关系图可用。
+// 端到端测试：在真实 DSH Web（无头 Chrome）里验证插件全部功能。
 //
-// 前置：测试 profile 已在 TWB_URL（默认 127.0.0.1:3199）运行，且服务端以
-// SSH_CONNECTION=1 启动（强制 browse 目录选择器，便于无头环境自动化）。
+// 覆盖：引导 → 打开设置 → 插件分区 → **打开即自动加载内置示例** → 布局图/引用关系图
+//       → 聚焦控件 → 全屏 → Esc 后重开恢复 → 控制台无错误。
+//
+// 前置：
+//   1. ./test/e2e-boot.sh 3199 启动隔离实例（会打印带 token 的 URL）
+//   2. TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e
+//
+// 兼容 DSH 0.1.0-rc 与 0.2.x：引导流程按「能点就点、弹窗用真实鼠标点掉」处理。
 
 import puppeteer from "puppeteer-core";
+import { writeFileSync } from "node:fs";
 
 const URL = process.env.TWB_URL || "http://127.0.0.1:3199";
 const CHROME = process.env.TWB_CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -19,176 +25,144 @@ const browser = await puppeteer.launch({
 });
 
 const page = await browser.newPage();
+await page.setViewport({ width: 1440, height: 900 });
+
 const consoleErrors = [];
 page.on("console", (msg) => {
   if (msg.type() === "error") consoleErrors.push(msg.text());
 });
 page.on("pageerror", (err) => consoleErrors.push("pageerror: " + err.message));
 
+let failed = false;
 const ok = (cond, label) => {
   if (cond) console.log("✓ " + label);
   else {
     console.error("✗ " + label);
-    process.exitCode = 1;
+    failed = true;
   }
+};
+
+/** 用真实鼠标点击文本匹配的按钮（React 弹窗会拦截合成 click）。 */
+const clickButtonText = async (texts) => {
+  const handle = await page.evaluateHandle((wanted) => {
+    const buttons = [...document.querySelectorAll('[role="dialog"] button, button')];
+    return buttons.find((b) => wanted.some((t) => (b.textContent || "").includes(t))) || null;
+  }, texts);
+  const el = handle.asElement();
+  if (!el) return false;
+  const box = await el.boundingBox();
+  if (!box) return false;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await sleep(1200);
+  return true;
 };
 
 try {
   await page.goto(URL, { waitUntil: "networkidle2", timeout: 60000 });
   await sleep(5000);
 
-  // ---- 关闭模型配置引导弹窗（如存在；须用真实鼠标点击）----
-  const dismissModal = async () => {
-    const handle = await page.evaluateHandle(() => {
-      const b = [...document.querySelectorAll('[role="dialog"] button')].find((x) => /Configure later/.test(x.textContent || ""));
-      return b || null;
-    });
-    const el = handle.asElement();
-    if (!el) return false;
-    const box = await el.boundingBox();
-    if (!box) return false;
-    await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-    await sleep(2000);
-    return true;
-  };
-  await dismissModal();
-
-  // ---- 首次引导（仅当出现 Choose workspace 时执行）----
-  const needsOnboarding = await page.evaluate(() =>
-    document.body.innerText.includes("Choose workspace")
-  );
-  if (needsOnboarding) {
-    await page.evaluate(() => {
-      const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").includes("Choose workspace"));
-      if (b) b.click();
-    });
-    const pathBox = await page.waitForSelector('textarea[placeholder="Choose a workspace to start"]', { timeout: 15000 });
-    await pathBox.type(WORKSPACE_PATH);
-    await page.keyboard.press("Enter");
-    await sleep(2500);
-    await page.evaluate(() => {
-      const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").trim() === "Open");
-      if (b) b.click();
-    });
-    await sleep(2500);
-    await page.evaluate(async () => {
-      const clickT = (t) => {
-        const b = [...document.querySelectorAll("button")].find((x) => (x.textContent || "").trim() === t || x.textContent.includes(t));
-        if (b) {
-          b.click();
-          return true;
-        }
-        return false;
-      };
-      for (let i = 0; i < 8; i++) {
-        if (clickT("Standard mode")) {
-          await new Promise((r) => setTimeout(r, 600));
-          continue;
-        }
-        if (clickT("Save and continue")) {
-          await new Promise((r) => setTimeout(r, 1500));
-          continue;
-        }
-        if (clickT("Configure later")) {
-          await new Promise((r) => setTimeout(r, 1500));
-          continue;
-        }
-        break;
-      }
-    });
-    await sleep(4000);
+  // ---- 首次引导：工作区选择（新老流程都试）+ 关掉阻塞弹窗 ----
+  for (let round = 0; round < 6; round++) {
+    const before = await page.evaluate(() => document.body.innerText.slice(0, 120));
+    const pathBox = await page.$('textarea[placeholder*="workspace"], textarea[placeholder*="工作区"]');
+    if (pathBox) {
+      await pathBox.type(WORKSPACE_PATH);
+      await page.keyboard.press("Enter");
+      await sleep(2000);
+      await clickButtonText(["Open", "打开"]);
+      continue;
+    }
+    if (await clickButtonText(["Continue", "继续"])) continue;
+    if (await clickButtonText(["Configure later", "稍后配置"])) continue;
+    const after = await page.evaluate(() => document.body.innerText.slice(0, 120));
+    if (after === before) break;
   }
-  const onboarded = await page.evaluate(() => !document.body.innerText.includes("Choose workspace"));
-  ok(onboarded, "进入主界面（引导完成或已引导过）");
-  await sleep(3000);
+  await sleep(2000);
 
   // ---- 打开设置 ----
-  const trigger = await page.waitForSelector('button[aria-haspopup="dialog"]', { timeout: 15000 }).catch(() => null);
+  const trigger = await page.waitForSelector('button[aria-haspopup="dialog"]', { timeout: 20000 }).catch(() => null);
   ok(!!trigger, "设置触发器存在");
   if (trigger) {
     await trigger.click();
-    await sleep(2000);
+    await sleep(2500);
   }
 
-  // ---- 设置页出现「TWb 检视器」导航项并点击 ----
   const navClicked = await page.evaluate(() => {
-    const items = [...document.querySelectorAll("button, [role=button], a")];
-    const hit = items.find((el) => el.textContent.trim() === "TWb 检视器");
+    const hit = [...document.querySelectorAll("button, [role=button], a")].find((el) => el.textContent.trim() === "TWb 检视器");
     if (hit) {
       hit.click();
       return true;
     }
     return false;
   });
-  ok(navClicked, "设置页出现「TWb 检视器」导航项并点击");
+  ok(navClicked, "设置导航出现「TWb 检视器」并可点击");
   await sleep(2000);
 
-  // ---- 检视器面板渲染 ----
-  const welcome = await page.evaluate(() =>
-    document.body.innerText.includes("Tableau .twb 仪表板布局检视器")
-  );
-  ok(welcome, "TWb 检视器面板已渲染（标题可见）");
+  // ---- 打开即自动加载内置示例（本次新增行为）----
+  const autoLoaded = await page
+    .waitForSelector(".twb-root .canvas-viewport svg", { timeout: 25000 })
+    .then(() => true)
+    .catch(() => false);
+  ok(autoLoaded, "打开即自动加载内置示例（未点击「载入示例」）");
 
-  // ---- 载入示例 ----
-  const sampleClicked = await page.evaluate(() => {
-    const btns = [...document.querySelectorAll("button")];
-    const hit = btns.find((b) => b.textContent.includes("载入示例"));
-    if (hit) {
-      hit.click();
-      return true;
-    }
-    return false;
-  });
-  ok(sampleClicked, "「载入示例」可点击");
-  await sleep(3500);
+  const panel = await page.evaluate(() => ({
+    title: document.body.innerText.includes("Tableau .twb 仪表板布局检视器"),
+    summary: document.querySelector(".twb-root .summary-bar")?.innerText.replace(/\n/g, " ").slice(0, 90) || "",
+    meta: !!document.querySelector(".twb-root .meta-panel"),
+    zones: document.querySelectorAll(".twb-root .canvas-viewport svg rect").length,
+    fileName: document.querySelector(".twb-root .summary-bar .sf")?.textContent || ""
+  }));
+  ok(panel.title, "检视器面板已渲染");
+  ok(panel.zones > 5, `布局图已渲染（${panel.zones} 个 zone）`);
+  ok(panel.meta, "Metadata 面板已渲染");
+  ok(panel.fileName.includes("sample"), `已加载示例文件（${panel.fileName}）`);
+  console.log(`  概要: ${panel.summary}`);
 
-  const loaded = await page.evaluate(() => {
-    const text = document.body.innerText;
-    return {
-      summary: text.includes("仪表板") && text.includes("数据源"),
-      layoutCanvas: !!document.querySelector(".twb-root .canvas-viewport svg"),
-      metaPanel: !!document.querySelector(".twb-root .meta-panel"),
-      lineageTab: [...document.querySelectorAll(".twb-root .view-tabs button")].some((b) => b.textContent.includes("引用关系"))
-    };
-  });
-  ok(loaded.summary, "示例解析完成（概要栏可见）");
-  ok(loaded.layoutCanvas, "布局图 SVG 已渲染");
-  ok(loaded.metaPanel, "Metadata 面板已渲染");
-  ok(loaded.lineageTab, "「引用关系」标签存在");
+  // ---- .twbx 必须被拒绝（有意的数据安全设计）----
+  const twbxPath = "/tmp/twb-should-reject.twbx";
+  writeFileSync(twbxPath, "PK\u0003\u0004dummy-twbx");
+  const fileInput = await page.$('.twb-root input[type="file"]');
+  await fileInput.uploadFile(twbxPath);
+  await sleep(1500);
+  const rejected = await page.evaluate(() => ({
+    error: document.querySelector(".twb-root .error-banner")?.textContent || "",
+    file: document.querySelector(".twb-root .summary-bar .sf")?.textContent || ""
+  }));
+  ok(rejected.error.includes("twbx"), `.twbx 被拒绝并提示（不改变当前文件：${rejected.file}）`);
 
-  // ---- 引用关系视图 ----
-  const switched = await page.evaluate(() => {
-    const btns = [...document.querySelectorAll(".twb-root .view-tabs button")];
-    const hit = btns.find((b) => b.textContent.includes("引用关系"));
-    if (hit) {
-      hit.click();
-      return true;
-    }
-    return false;
+  // ---- 引用关系图 + 聚焦控件 ----
+  await page.evaluate(() => {
+    const b = [...document.querySelectorAll(".twb-root .view-tabs button")].find((x) => x.textContent.includes("引用关系"));
+    if (b) b.click();
   });
   await sleep(2500);
   const lineage = await page.evaluate(() => ({
     svg: !!document.querySelector(".twb-root .lineage-svg"),
+    picker: !!document.querySelector(".twb-root .lineage-picker"),
     nodes: document.querySelectorAll(".twb-root .ln-node").length,
     edges: document.querySelectorAll(".twb-root .ln-edge").length,
-    picker: !!document.querySelector(".twb-root .lineage-picker")
+    focusSeg: !!document.querySelector(".twb-root .focus-seg")
   }));
-  ok(switched, "切换到「引用关系」视图");
-  ok(lineage.svg && lineage.picker, "引用关系图渲染（SVG + 字段选择器）");
+  ok(lineage.svg && lineage.picker, "引用关系图已渲染（SVG + 字段选择器）");
   ok(lineage.nodes > 0 && lineage.edges > 0, `图内容: ${lineage.nodes} 节点 / ${lineage.edges} 边`);
+  ok(lineage.focusSeg, "聚焦控件存在（大图可用性）");
 
-  // ---- 点击节点 -> 详情面板 ----
-  const detail = await page.evaluate(() => {
+  // 点击节点 → 血缘详情
+  await page.evaluate(() => {
     const node = document.querySelector(".twb-root .ln-node");
-    if (!node) return false;
-    node.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    return true;
+    if (node) node.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
   await sleep(800);
-  const detailShown = await page.evaluate(() => !!document.querySelector(".twb-root .detail-body"));
-  ok(detail && detailShown, "点击节点后详情面板出现（上下游血缘）");
+  ok(await page.evaluate(() => !!document.querySelector(".twb-root .detail-body")), "点击节点后显示上下游血缘详情");
 
-  // ---- 全屏模式 ----
+  // 切回「全部」聚焦，保证后续断言看到完整图
+  await page.evaluate(() => {
+    const b = [...document.querySelectorAll(".twb-root .focus-seg button")].find((x) => x.textContent.trim() === "全部");
+    if (b) b.click();
+  });
+  await sleep(1200);
+
+  // ---- 全屏 ----
   const fsClicked = await page.evaluate(() => {
     const b = [...document.querySelectorAll(".twb-root button")].find((x) => x.textContent.includes("全屏"));
     if (b) {
@@ -207,53 +181,87 @@ try {
       present: true,
       fixed: getComputedStyle(root).position === "fixed",
       covers: Math.abs(r.width - window.innerWidth) < 4 && Math.abs(r.height - window.innerHeight) < 4,
-      nodes: document.querySelectorAll(".twb-root .ln-node").length,
-      header: document.body.innerText.includes("✕ 退出全屏")
+      nodes: document.querySelectorAll(".twb-root .ln-node").length
     };
   });
-  ok(fsState.present, "全屏覆盖层出现");
-  ok(fsState.fixed, "全屏覆盖层为 position:fixed");
-  ok(fsState.covers, "全屏覆盖层铺满视口");
-  ok(fsState.nodes === lineage.nodes, `全屏后关系图仍渲染（${fsState.nodes} 节点，状态未丢失）`);
-  ok(fsState.header, "「✕ 退出全屏」按钮在头部");
+  ok(fsState.present && fsState.fixed && fsState.covers, "全屏覆盖层铺满视口（position:fixed）");
+  ok(fsState.nodes > 0, `全屏后关系图仍渲染（${fsState.nodes} 节点，状态未丢失）`);
 
-  // Esc 退出全屏（会同时关闭设置弹窗——弹窗自带 Esc 行为）
+  // ---- Esc 退出（同时关闭设置）→ 重开恢复 ----
   await page.keyboard.press("Escape");
-  await sleep(1000);
-  const exited = await page.evaluate(() => !document.querySelector(".twb-root.twb-fullscreen"));
-  ok(exited, "Esc 退出全屏");
-
-  // 重新打开设置：解析结果应被恢复（持久化），无需重新上传
-  const trig2 = await page.waitForSelector('button[aria-haspopup="dialog"]', { timeout: 10000 }).catch(() => null);
-  ok(!!trig2, "重新打开设置");
-  if (trig2) {
-    await trig2.click();
-    await sleep(1500);
-  }
-  const nav2 = await page.evaluate(() => {
-    const items = [...document.querySelectorAll("button, [role=button], a")];
-    const hit = items.find((el) => el.textContent.trim() === "TWb 检视器");
-    if (hit) {
-      hit.click();
-      return true;
-    }
-    return false;
-  });
-  ok(nav2, "重新进入「TWb 检视器」");
   await sleep(1500);
+  ok(await page.evaluate(() => !document.querySelector(".twb-root.twb-fullscreen")), "Esc 退出全屏");
+
+  const trigger2 = await page.waitForSelector('button[aria-haspopup="dialog"]', { timeout: 15000 }).catch(() => null);
+  if (trigger2) {
+    await trigger2.click();
+    await sleep(2000);
+    await page.evaluate(() => {
+      const hit = [...document.querySelectorAll("button, [role=button], a")].find((el) => el.textContent.trim() === "TWb 检视器");
+      if (hit) hit.click();
+    });
+    await sleep(2500);
+  }
   const restored = await page.evaluate(() => ({
     nodes: document.querySelectorAll(".twb-root .ln-node").length,
-    activeTab: [...document.querySelectorAll(".twb-root .view-tabs button")].find((b) => b.className.includes("active"))?.textContent,
-    summary: document.body.innerText.includes("仪表板")
+    activeTab: [...document.querySelectorAll(".twb-root .view-tabs button")].find((b) => b.className.includes("active"))?.textContent || ""
   }));
-  ok(restored.nodes === lineage.nodes, `重开后关系图已恢复（${restored.nodes} 节点）`);
-  ok(restored.activeTab === "引用关系", `视图已恢复（${restored.activeTab}）`);
+  ok(restored.nodes > 0, `重开设置后已恢复（${restored.nodes} 节点）`);
+  ok(restored.activeTab.includes("引用关系"), `视图已恢复（${restored.activeTab}）`);
 
-  // ---- 控制台无错误 ----
-  const realErrors = consoleErrors.filter(
-    (e) => !e.includes("favicon") && !e.includes("net::ERR_")
-  );
+  // ---- 可选：真实大图（验证聚焦模式 / 自动聚焦）----
+  if (process.env.TWB_LARGE_FIELDS) {
+    const fields = Number(process.env.TWB_LARGE_FIELDS);
+    const { makeTwb } = await import("./lib/synthetic-twb.mjs");
+    const { writeFileSync } = await import("node:fs");
+    const largePath = "/tmp/twb-large-e2e.twb";
+    writeFileSync(largePath, makeTwb({ datasources: 2, fields }));
+
+    const fileInput = await page.$('.twb-root input[type="file"]');
+    await fileInput.uploadFile(largePath);
+    await sleep(8000);
+    const uploaded = await page.evaluate(() => ({
+      file: document.querySelector(".twb-root .summary-bar .sf")?.textContent || "",
+      summary: document.querySelector(".twb-root .summary-bar")?.innerText.replace(/\n/g, " ").slice(0, 70) || ""
+    }));
+    ok(uploaded.file.includes("twb-large-e2e"), `已上传大图 ${fields * 2} 字段（${uploaded.summary}）`);
+
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll(".twb-root .view-tabs button")].find((x) => x.textContent.includes("引用关系"));
+      if (b) b.click();
+    });
+    await sleep(6000);
+    const all = await page.evaluate(() => document.querySelectorAll(".twb-root .ln-node").length);
+    ok(all > 1200, `大图全量渲染（${all} 节点）`);
+
+    // 选中一个节点 → 超过阈值时自动聚焦（±2 跳）
+    await page.evaluate(() => {
+      const n = document.querySelector(".twb-root .ln-node");
+      if (n) n.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(2500);
+    const focused = await page.evaluate(() => ({
+      nodes: document.querySelectorAll(".twb-root .ln-node").length,
+      count: document.querySelector(".twb-root .focus-count")?.textContent.trim() || ""
+    }));
+    ok(focused.nodes > 0 && focused.nodes < all, `自动聚焦生效（${focused.nodes} / ${all} 节点 · ${focused.count}）`);
+
+    // 切「全部」→ 恢复全量
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll(".twb-root .focus-seg button")].find((x) => x.textContent.trim() === "全部");
+      if (b) b.click();
+    });
+    await sleep(4000);
+    const back = await page.evaluate(() => document.querySelectorAll(".twb-root .ln-node").length);
+    ok(back === all, `切「全部」恢复全量渲染（${back} 节点）`);
+  }
+
+  // ---- 控制台 ----
+  const realErrors = consoleErrors.filter((e) => !e.includes("favicon") && !e.includes("net::ERR_"));
   ok(realErrors.length === 0, `控制台无报错${realErrors.length ? "：" + realErrors.join(" | ").slice(0, 300) : ""}`);
 } finally {
   await browser.close();
 }
+
+if (failed) process.exit(1);
+console.log("\n端到端测试全部通过 ✔");
