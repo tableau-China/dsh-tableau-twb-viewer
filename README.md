@@ -23,6 +23,7 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 
 ## Features
 
+- ✅ **One click from the left sidebar**: the plugin registers its own panel row in the DSH sidebar, so it opens as a full page next to your conversation — no digging through Settings. (A Settings entry is kept as a secondary path.)
 - ✅ **Open and it is already there**: the plugin auto-loads a built-in sample workbook, so you see the whole UI in one second — then drop in your own `.twb` to replace it.
 - ✅ **1:1 dashboard layout**: every dashboard zone is drawn as SVG at true scale (worksheets, containers, text), with zoom / pan and one-click export to **SVG / PNG / Excalidraw** for annotated review decks.
 - ✅ **Field lineage graph**: layered dependency graph — datasource → raw fields → calculated fields. Click any node for its **upstream inputs / downstream dependents**, search, and filter by role (dimension / measure / calculation).
@@ -42,6 +43,10 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 Refusing `.twbx` is a deliberate security decision: a packaged workbook can carry your full dataset, and pulling that into an inspection flow widens the data-exposure surface for no benefit. The plugin only ever reads data-free `.twb` metadata. If you pick a `.twbx` you get an explicit message telling you to **Save As → `.twb`** in Tableau.
 
 ## Screenshots
+
+**Where it lives** — a panel row in the left sidebar; the viewer opens as a full page beside your conversation
+
+![sidebar entry](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/panel.png)
 
 **Dashboard layout** — 1:1 SVG rendering of every zone, with SVG / PNG / Excalidraw export
 
@@ -85,7 +90,7 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 
 ## Usage
 
-1. Open DSH Web → **Settings → TWb Viewer**. The built-in sample loads automatically.
+1. Open DSH Web and click **TWb Viewer** in the **left sidebar** (Settings → TWb Viewer also works). The built-in sample loads automatically.
 2. Replace it with your own file: click **Choose .twb file** or drag a `.twb` onto the uploader.
 3. **Layout** tab: 1:1 dashboard rendering; zoom, pan, fit, and export SVG / PNG / Excalidraw.
 4. **Lineage** tab: click any node to see upstream/downstream lineage; search and filter fields; use the *Focus* control to show ±1/±2/±3 hops or the whole graph.
@@ -96,7 +101,7 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 
 | Symptom | Fix |
 |---|---|
-| No "TWb Viewer" entry in Settings | Restart `dsh web`, then hard-refresh the browser tab (`Cmd+Shift+R` / `Ctrl+F5`) — the tab may still run the pre-install bundle. |
+| No "TWb Viewer" row in the sidebar | Restart `dsh web`, then hard-refresh the browser tab (`Cmd+Shift+R` / `Ctrl+F5`) — the tab may still run the pre-install bundle. The Settings → TWb Viewer entry can be used in the meantime. |
 | "This is not a valid Tableau workbook" | The file must be a `.twb` (XML). If you only have a `.twbx`, open it in Tableau and **Save As → `.twb`**. |
 | A `.twbx` was refused | Working as intended — see [Data safety](#data-safety-twb-only-twbx-is-refused-by-design). |
 | Very large workbook feels slow | The lineage graph already auto-focuses above 1,200 nodes; use the *Focus* control (±1 hop) to narrow further. |

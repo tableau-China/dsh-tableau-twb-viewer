@@ -1376,9 +1376,39 @@ function App({ fullscreen = false, onToggleFullscreen }) {
   );
 }
 
-// ---- 插件入口（挂到设置页，支持全屏铺满窗口）----
+// ---- 插件入口 ----
+//
+// 主入口：左侧栏面板行（sidebar.panellist）+ 主区整页（main 槽位，keyed by panel id）。
+// 这是 DSH 0.2.x 的生态惯例（plugin-manager / schedule 同构）：入口常驻可见，
+// 不必期待用户去「设置」里找插件。
+// 次入口：设置页分区，保留给习惯在设置里找插件的用户。
 
-function TwbViewerSection() {
+/** 面板 id：同时用作左侧栏行 id、main 槽位 key 与设置分区 id。 */
+const PANEL_ID = "twb-viewer";
+const PANEL_LABEL = "TWb 检视器";
+
+/** 左侧栏面板图标（工作簿 + 血缘节点，跟随 host 主题色）。 */
+function TwbPanelIcon({ size = 18, active }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden="true"
+      style={{ display: "block", opacity: active ? 1 : 0.85 }}
+    >
+      <rect x="1.4" y="2.2" width="13.2" height="11.6" rx="2" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M1.4 6.2h13.2" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="5.2" cy="10.4" r="1.35" stroke="currentColor" strokeWidth="1.1" />
+      <circle cx="10.8" cy="10.4" r="1.35" stroke="currentColor" strokeWidth="1.1" />
+      <path d="M6.55 10.4h2.9" stroke="currentColor" strokeWidth="1.1" />
+    </svg>
+  );
+}
+
+/** 共享外壳：负责全屏切换（Esc 退出）与根容器样式变体。 */
+function TwbViewerRoot({ variant }) {
   const [fullscreen, setFullscreen] = useState(false);
 
   // Esc 退出全屏
@@ -1394,26 +1424,59 @@ function TwbViewerSection() {
   const toggle = () => setFullscreen((v) => !v);
 
   // 纯 CSS 全屏：切换只改 className，组件树不变 -> 已解析文件 / 视图 / 缩放平移
-  // 状态全部保留。设置弹窗无 transform 祖先，position:fixed 即可铺满视口。
+  // 状态全部保留。容器无 transform 祖先，position:fixed 即可铺满视口。
   return (
-    <div className={`twb-root${fullscreen ? " twb-fullscreen" : ""}`}>
+    <div className={`twb-root twb-root--${variant}${fullscreen ? " twb-fullscreen" : ""}`}>
       <App fullscreen={fullscreen} onToggleFullscreen={toggle} />
     </div>
   );
 }
 
+/** 主区整页（左侧栏面板行的落地页）。 */
+function TwbViewerPage() {
+  return <TwbViewerRoot variant="panel" />;
+}
+
+/** 设置页分区（次入口）。 */
+function TwbViewerSection() {
+  return <TwbViewerRoot variant="section" />;
+}
+
 /** 客户端服务依赖：slots（槽位注册）。 */
 export const inject = ["slots"];
 
-/** 客户端插件体：在设置页注册「TWb 检视器」分区。 */
+/** 客户端插件体：注册左侧栏面板、主区整页与设置分区。 */
 export function apply(ctx) {
+  // 主入口：左侧栏一行 → 点击由 host 调 layout.selectPanel(PANEL_ID) 切到 main 整页
+  ctx.slots.inject("sidebar.panellist", () =>
+    ctx.slots.register(
+      {
+        name: "sidebar.panellist",
+        id: PANEL_ID,
+        order: 20,
+        label: () => PANEL_LABEL
+      },
+      TwbPanelIcon
+    )
+  );
+  // 主区整页内容（main 是 keyed 槽位，key 必须与面板 id 一致）
+  ctx.slots.inject("main", () =>
+    ctx.slots.register(
+      {
+        name: "main",
+        key: PANEL_ID
+      },
+      TwbViewerPage
+    )
+  );
+  // 次入口：设置 → TWb 检视器
   ctx.slots.inject("settings.section", () =>
     ctx.slots.register(
       {
         name: "settings.section",
-        id: "twb-viewer",
+        id: PANEL_ID,
         order: 16,
-        label: () => "TWb 检视器"
+        label: () => PANEL_LABEL
       },
       TwbViewerSection
     )

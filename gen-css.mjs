@@ -30,10 +30,12 @@ css = css.replace(/([^{}]+)\{/g, (m, sel) => {
 // 4) :root 变量块 -> .twb-root 变量块（作用于本面板子树，随继承生效）
 css = css.replace(/^:root\{/, ".twb-root{");
 
-// 5) 面板尺寸适配：应用原高度为 100vh，这里改为占满容器并给一个兜底高度
+// 5) 上下文尺寸适配：
+//    · --section（设置弹窗内）原高度按 100vh 计算，这里给兜底高度；
+//    · --panel（主区整页）由 host 布局给定高度，占满即可（见 plugin.css）。
 css += `
-.twb-root{height:calc(100dvh - 168px);min-height:540px;overflow:hidden}
-.twb-root .app{height:100%}
+.twb-root--section{height:calc(100dvh - 168px);min-height:540px;overflow:hidden}
+.twb-root--section .app{height:100%}
 `;
 
 writeFileSync(OUT, css);

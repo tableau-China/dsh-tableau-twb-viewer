@@ -63,23 +63,21 @@ try {
     break;
   }
 
-  // 打开设置 → TWb 检视器
-  const trigger = await page.$('button[aria-haspopup="dialog"]');
-  if (trigger) {
-    await trigger.click();
-    await sleep(2500);
+  // 主入口：左侧栏面板行 → 主区整页（0.3.0 起的主路径）
+  const entry = await page.$('[aria-label="TWb 检视器"]');
+  if (entry) {
+    await entry.click();
+    await sleep(3000);
   }
-  await page.evaluate(() => {
-    const hit = [...document.querySelectorAll("button, [role=button], a")].find((el) => el.textContent.trim() === "TWb 检视器");
-    if (hit) hit.click();
-  });
-  await sleep(3000);
 
   // 等内置示例自动加载完成
   await page.waitForSelector(".twb-root .canvas-viewport svg", { timeout: 25000 });
   await sleep(2500);
 
-  // 全屏（让截图聚焦插件本身）
+  // 0) 入口与整页形态：左侧栏面板行 + 主区检视器（全屏之前拍摄）
+  await shot("panel", () => !!document.querySelector(".twb-root--panel .canvas-viewport svg"));
+
+  // 全屏（让其余截图聚焦插件本身）
   await page.evaluate(() => {
     const b = [...document.querySelectorAll(".twb-root button")].find((x) => x.textContent.includes("全屏"));
     if (b) b.click();

@@ -1,6 +1,16 @@
 /* dsh-tableau-twb-viewer 插件自有样式（区别于从原始应用移植的 style.css） */
 
-/* 全屏模式：铺满整个浏览器窗口（portal 挂载到 document.body） */
+/* 主区整页（左侧栏面板行的落地页）：由 host 布局给定高度，占满即可 */
+.twb-root--panel {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.twb-root--panel .app {
+  height: 100%;
+}
+
+/* 全屏模式：铺满整个浏览器窗口 */
 .twb-root.twb-fullscreen {
   position: fixed;
   inset: 0;
