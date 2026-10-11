@@ -7,7 +7,21 @@
 | 0.2.0 | 2026-10-11 | 0.2.1-alpha.2 | 性能修复、打开即加载示例、大图聚焦、不解析 .twbx（安全） |
 | 0.1.0 | 2026-08-15 | 0.1.0-rc.6 | 首个发布版本（GitHub Release） |
 
-## 0.2.0 — 2026-10-11
+## 0.2.0 — 2026-10-11（已发布）
+
+> Release：<https://github.com/tableau-China/dsh-tableau-twb-viewer/releases/tag/v0.2.0>
+> 安装：`dsh plugin --profile web add https://github.com/tableau-China/dsh-tableau-twb-viewer/releases/download/v0.2.0/dsh-tableau-twb-viewer-0.2.0.tgz`
+
+### 文档与发布
+
+- **英文 README 成为仓库首页**（npm 首页同样展示英文），中文版改为 `README.zh-CN.md`，
+  两版均含语言切换、pitch、特性、截图、安装、常见问题与兼容性表；
+- 新增 `assets/` 双语截图（`npm run screenshots` 可复现生成）；
+- 新增 `.github/workflows/ci.yml`：构建一致性校验（入库的 `lib/client.js` 必须与源码一致）
+  + 快照测试 + 性能护栏；
+- `package.json`：description / keywords 英文化，`files` 增补双语 README 与 LICENSE，
+  `dsh.client.inject` 改为服务名 `["slots"]`（与生态惯例及 bundle 内导出一致）；
+- 仓库补齐 GitHub description 与 topics；CI 与 Release 工作流均为 success。
 
 ### 修复
 

@@ -6,8 +6,11 @@
 
 - 版本：`0.2.0`（`package.json` ↔ CHANGELOG 已交叉核对）
 - DSH 兼容：`0.1.0-rc.6`（开发基线）与 `0.2.1-alpha.2`（端到端实测通过）
-- 已发布：GitHub `tableau-China/dsh-tableau-twb-viewer`（v0.1.0 Release 在架）
-- 验证入口：`npm run verify`（快照）· `npm run bench`（性能护栏）· `npm run e2e`（真实浏览器）
+- 已发布：GitHub `tableau-China/dsh-tableau-twb-viewer`
+  - `v0.1.0`（2026-08-15）与 `v0.2.0`（2026-10-11）Release 均在架，附可安装 tarball
+  - 仓库首页为**英文 README**（`README.zh-CN.md` 为中文版），含双语截图 `assets/`
+  - CI（`.github/workflows/ci.yml`）与 Release（`release.yml`）在 GitHub 上均为 success
+- 验证入口：`npm run verify`（快照）· `npm run bench`（性能护栏）· `npm run e2e`（真实浏览器）· `npm run screenshots`（文档截图）
 
 ## 进度
 
