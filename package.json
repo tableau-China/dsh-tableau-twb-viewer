@@ -1,6 +1,6 @@
 {
   "name": "dsh-tableau-twb-viewer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "DeepSeek Harness (DSH) plugin — inspect a Tableau workbook (.twb) in the browser: 1:1 SVG dashboard layout, field-level lineage graph, datasource / calculated-field metadata. Read-only metadata; .twbx refused by design.",
   "type": "module",
   "main": "index.js",
@@ -42,6 +42,10 @@
     "visualization"
   ],
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tableau-China/dsh-tableau-twb-viewer.git"

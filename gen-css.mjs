@@ -30,13 +30,7 @@ css = css.replace(/([^{}]+)\{/g, (m, sel) => {
 // 4) :root 变量块 -> .twb-root 变量块（作用于本面板子树，随继承生效）
 css = css.replace(/^:root\{/, ".twb-root{");
 
-// 5) 上下文尺寸适配：
-//    · --section（设置弹窗内）原高度按 100vh 计算，这里给兜底高度；
-//    · --panel（主区整页）由 host 布局给定高度，占满即可（见 plugin.css）。
-css += `
-.twb-root--section{height:calc(100dvh - 168px);min-height:540px;overflow:hidden}
-.twb-root--section .app{height:100%}
-`;
+// 5) 尺寸：主区整页由 host 布局给定高度（见 plugin.css），此处不再注入额外规则。
 
 writeFileSync(OUT, css);
 console.log("written", OUT.pathname, (css.length / 1024).toFixed(1) + " KB");

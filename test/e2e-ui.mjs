@@ -193,36 +193,21 @@ try {
   ok(afterEsc.panelStillThere && afterEsc.nodes > 0, `退出全屏后主区面板仍在（${afterEsc.nodes} 节点）`);
   ok(afterEsc.activeTab.includes("引用关系"), `视图已保留（${afterEsc.activeTab}）`);
 
-  // ---- 次入口：设置页分区仍可用 ----
+  // ---- 设置里不再注册入口（唯一入口 = 左侧栏）----
   const trigger2 = await page.waitForSelector('button[aria-haspopup="dialog"]', { timeout: 15000 }).catch(() => null);
-  ok(!!trigger2, "设置触发器存在（次入口）");
   if (trigger2) {
     await trigger2.click();
     await sleep(2000);
   }
-  const settingsEntry = await page.evaluate(() => {
-    // 注意：左侧栏面板行与设置导航同名，必须在弹窗内查找
+  const settingsNav = await page.evaluate(() => {
     const dialog = document.querySelector('[role="dialog"]') || document.body;
-    const hit = [...dialog.querySelectorAll("button, [role=button], a")].find(
-      (el) => el.textContent.trim() === "TWb 检视器"
-    );
-    if (!hit) return false;
-    hit.click();
-    return true;
+    return [...dialog.querySelectorAll("button, [role=button], a")].map((el) => el.textContent.trim());
   });
-  await sleep(2500);
-  const restored = await page.evaluate(() => ({
-    section: !!document.querySelector(".twb-root--section"),
-    nodes: document.querySelectorAll(".twb-root--panel .ln-node").length
-  }));
-  ok(settingsEntry && restored.section, "设置页分区入口保留可用（.twb-root--section）");
-  ok(restored.nodes > 0, `设置内同样恢复上次解析结果（${restored.nodes} 节点）`);
-
-  // 关闭设置弹窗：避免后续断言同时命中「设置分区」与「主区面板」两个已挂载实例
+  ok(!settingsNav.includes("TWb 检视器"), "设置中不再出现插件入口（唯一入口为左侧栏）");
   await page.keyboard.press("Escape");
   await sleep(1500);
   ok(
-    await page.evaluate(() => !document.querySelector(".twb-root--section")),
+    await page.evaluate(() => !!document.querySelector(".twb-root--panel") && !document.querySelector(".twb-root--section")),
     "关闭设置后仅保留主区实例"
   );
 

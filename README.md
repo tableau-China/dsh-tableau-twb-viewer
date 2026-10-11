@@ -23,13 +23,13 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 
 ## Features
 
-- ✅ **One click from the left sidebar**: the plugin registers its own panel row in the DSH sidebar, so it opens as a full page next to your conversation — no digging through Settings. (A Settings entry is kept as a secondary path.)
+- ✅ **One click from the left sidebar**: the plugin registers its own panel row in the DSH sidebar, so it opens as a full page next to your conversation — no digging through Settings.
 - ✅ **Open and it is already there**: the plugin auto-loads a built-in sample workbook, so you see the whole UI in one second — then drop in your own `.twb` to replace it.
 - ✅ **1:1 dashboard layout**: every dashboard zone is drawn as SVG at true scale (worksheets, containers, text), with zoom / pan and one-click export to **SVG / PNG / Excalidraw** for annotated review decks.
 - ✅ **Field lineage graph**: layered dependency graph — datasource → raw fields → calculated fields. Click any node for its **upstream inputs / downstream dependents**, search, and filter by role (dimension / measure / calculation).
 - ✅ **Built for large workbooks**: above 1,200 nodes the graph auto-focuses on the selected node's ±2 hops (switchable ±1/±2/±3/all), so a 5,000-node workbook stays smooth instead of freezing the panel.
 - ✅ **Full-screen mode**: one click fills the browser window (`Esc` to exit); layout and lineage refit automatically.
-- ✅ **State persisted**: the parsed workbook is cached (with shape validation), so closing settings or reloading the page brings back your file and current view.
+- ✅ **State persisted**: the parsed workbook is cached (with shape validation), so switching panels or reloading the page brings back your file and current view.
 - ✅ **Metadata panel**: data-source connection details, field list with roles/data types, calculated-field formulas with syntax highlighting, worksheet inventory.
 - ✅ **Read-only and private**: parsing happens **in the browser**; the file is never uploaded. The Node half only serves a built-in sample route.
 
@@ -90,7 +90,7 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 
 ## Usage
 
-1. Open DSH Web and click **TWb Viewer** in the **left sidebar** (Settings → TWb Viewer also works). The built-in sample loads automatically.
+1. Open DSH Web and click **TWb Viewer** in the **left sidebar**. The built-in sample loads automatically.
 2. Replace it with your own file: click **Choose .twb file** or drag a `.twb` onto the uploader.
 3. **Layout** tab: 1:1 dashboard rendering; zoom, pan, fit, and export SVG / PNG / Excalidraw.
 4. **Lineage** tab: click any node to see upstream/downstream lineage; search and filter fields; use the *Focus* control to show ±1/±2/±3 hops or the whole graph.
@@ -101,7 +101,7 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 
 | Symptom | Fix |
 |---|---|
-| No "TWb Viewer" row in the sidebar | Restart `dsh web`, then hard-refresh the browser tab (`Cmd+Shift+R` / `Ctrl+F5`) — the tab may still run the pre-install bundle. The Settings → TWb Viewer entry can be used in the meantime. |
+| No "TWb Viewer" row in the sidebar | Restart `dsh web`, then hard-refresh the browser tab (`Cmd+Shift+R` / `Ctrl+F5`) — the tab may still run the pre-install bundle. |
 | "This is not a valid Tableau workbook" | The file must be a `.twb` (XML). If you only have a `.twbx`, open it in Tableau and **Save As → `.twb`**. |
 | A `.twbx` was refused | Working as intended — see [Data safety](#data-safety-twb-only-twbx-is-refused-by-design). |
 | Very large workbook feels slow | The lineage graph already auto-focuses above 1,200 nodes; use the *Focus* control (±1 hop) to narrow further. |

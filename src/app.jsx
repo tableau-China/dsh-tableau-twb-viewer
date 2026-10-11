@@ -287,7 +287,6 @@ function Uploader({ onText, onError, busy }) {
       <button onClick={loadSample} disabled={busy}>
         {busy ? "加载中…" : "载入示例"}
       </button>
-      <span className="hint">拖拽 .twb 到此处，或点击选择（打开时已自动载入内置示例）</span>
     </div>
   );
 }
@@ -1378,12 +1377,11 @@ function App({ fullscreen = false, onToggleFullscreen }) {
 
 // ---- 插件入口 ----
 //
-// 主入口：左侧栏面板行（sidebar.panellist）+ 主区整页（main 槽位，keyed by panel id）。
+// 唯一入口：左侧栏面板行（sidebar.panellist）+ 主区整页（main 槽位，keyed by panel id）。
 // 这是 DSH 0.2.x 的生态惯例（plugin-manager / schedule 同构）：入口常驻可见，
 // 不必期待用户去「设置」里找插件。
-// 次入口：设置页分区，保留给习惯在设置里找插件的用户。
 
-/** 面板 id：同时用作左侧栏行 id、main 槽位 key 与设置分区 id。 */
+/** 面板 id：同时用作左侧栏行 id 与 main 槽位 key。 */
 const PANEL_ID = "twb-viewer";
 const PANEL_LABEL = "TWb 检视器";
 
@@ -1407,8 +1405,8 @@ function TwbPanelIcon({ size = 18, active }) {
   );
 }
 
-/** 共享外壳：负责全屏切换（Esc 退出）与根容器样式变体。 */
-function TwbViewerRoot({ variant }) {
+/** 共享外壳：负责全屏切换（Esc 退出）与根容器（主区整页）。 */
+function TwbViewerRoot() {
   const [fullscreen, setFullscreen] = useState(false);
 
   // Esc 退出全屏
@@ -1426,7 +1424,7 @@ function TwbViewerRoot({ variant }) {
   // 纯 CSS 全屏：切换只改 className，组件树不变 -> 已解析文件 / 视图 / 缩放平移
   // 状态全部保留。容器无 transform 祖先，position:fixed 即可铺满视口。
   return (
-    <div className={`twb-root twb-root--${variant}${fullscreen ? " twb-fullscreen" : ""}`}>
+    <div className={`twb-root twb-root--panel${fullscreen ? " twb-fullscreen" : ""}`}>
       <App fullscreen={fullscreen} onToggleFullscreen={toggle} />
     </div>
   );
@@ -1434,20 +1432,15 @@ function TwbViewerRoot({ variant }) {
 
 /** 主区整页（左侧栏面板行的落地页）。 */
 function TwbViewerPage() {
-  return <TwbViewerRoot variant="panel" />;
-}
-
-/** 设置页分区（次入口）。 */
-function TwbViewerSection() {
-  return <TwbViewerRoot variant="section" />;
+  return <TwbViewerRoot />;
 }
 
 /** 客户端服务依赖：slots（槽位注册）。 */
 export const inject = ["slots"];
 
-/** 客户端插件体：注册左侧栏面板、主区整页与设置分区。 */
+/** 客户端插件体：注册左侧栏面板行与主区整页。 */
 export function apply(ctx) {
-  // 主入口：左侧栏一行 → 点击由 host 调 layout.selectPanel(PANEL_ID) 切到 main 整页
+  // 左侧栏一行 → 点击由 host 调 layout.selectPanel(PANEL_ID) 切到 main 整页
   ctx.slots.inject("sidebar.panellist", () =>
     ctx.slots.register(
       {
@@ -1467,18 +1460,6 @@ export function apply(ctx) {
         key: PANEL_ID
       },
       TwbViewerPage
-    )
-  );
-  // 次入口：设置 → TWb 检视器
-  ctx.slots.inject("settings.section", () =>
-    ctx.slots.register(
-      {
-        name: "settings.section",
-        id: PANEL_ID,
-        order: 16,
-        label: () => PANEL_LABEL
-      },
-      TwbViewerSection
     )
   );
 }

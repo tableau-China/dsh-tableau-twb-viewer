@@ -1,5 +1,11 @@
-# 打 tag（如 v0.1.0）后自动构建并发布 GitHub Release（附可安装的 npm tarball）
 name: release
+
+# 打 tag（如 v0.3.1）后同时发布两个通道：
+#   · GitHub Release（附可安装 tarball）
+#   · npm 包 —— 走「CI 暂存 + 人工一次 OTP 批准」（与 dsh-workload-report 同策略）：
+#       npm 目前要求发布必须有交互式 2FA，任何 token 直发都会 EOTP；
+#       因此 CI 用 token 只做暂存（npm stage publish），维护者用下面的命令批准：
+#         npm stage approve <stage-id> --registry=https://registry.npmjs.org/ --otp=<6位验证码>
 
 on:
   push:
@@ -9,14 +15,79 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  npm-stage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: 升级 npm（stage 命令需要较新 CLI）
+        run: npm install -g npm@latest
+
+      - name: 校验 tag 与 package.json 版本一致
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "::error::tag v$TAG 与 package.json $PKG 不一致"
+            exit 1
+          fi
+          echo "版本校验通过：$PKG"
+
+      - name: 安装构建依赖并构建
+        run: |
+          npm install --no-save --no-audit --no-fund esbuild@^0.28.2 @xmldom/xmldom@^0.9.11
+          node build.mjs
+
+      - name: 校验入库的 lib/client.js 与源码一致
+        run: |
+          if ! git diff --quiet -- lib/client.js; then
+            echo "::error::lib/client.js 与源码不一致，请在本地跑 npm run build 后一并提交"
+            git diff --stat -- lib/client.js
+            exit 1
+          fi
+
+      - name: 快照测试（解析 / 构图 / 布局 / 分词 + 不变量）
+        run: node test/verify.mjs
+
+      - name: 检查该版本是否已发布
+        run: |
+          V="$(node -p "require('./package.json').version")"
+          if npm view "dsh-tableau-twb-viewer@$V" version >/dev/null 2>&1; then
+            echo "::error::dsh-tableau-twb-viewer@$V 已在 npm 上，不能重复发布"
+            exit 1
+          fi
+
+      - name: 暂存发布（2FA 推迟到人工批准）
+        run: |
+          npm stage publish --registry=https://registry.npmjs.org/ | tee /tmp/stage.out
+          ID="$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' /tmp/stage.out | head -1)"
+          {
+            echo "### ⏳ npm 已暂存，等待批准"
+            echo ""
+            echo "版本：\`$(node -p "require('./package.json').version")\` · stage id：\`$ID\`"
+            echo ""
+            echo "本地执行（一次 OTP）："
+            echo ""
+            echo '```bash'
+            echo "npm stage approve $ID --registry=https://registry.npmjs.org/ --otp=<6位验证码>"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  github-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
           cache: npm
 
       - run: npm ci
