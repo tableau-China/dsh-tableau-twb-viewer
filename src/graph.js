@@ -51,11 +51,16 @@ export function buildGraph(model) {
   const nodes = [];
   const edges = [];
   const dsNodes = [];
-  const byName = new Map(); // "dsIdx|内部名" -> 节点 id
-  const byCaption = new Map(); // "dsIdx|caption" -> 节点 id
+  const nodeIds = new Set(); // 节点 id 去重（替代 nodes.find 线性扫描）
+  const byName = new Map(); // "dsIdx|内部名" -> 节点 id（本数据源精确匹配）
+  const byCaption = new Map(); // "dsIdx|caption" -> 节点 id（本数据源精确匹配）
+  // 跨数据源回退索引：先出现者优先，等价于原先对整个 Map 的 endsWith 线性扫描
+  const globalByName = new Map(); // 内部名 -> 节点 id
+  const globalByCaption = new Map(); // caption -> 节点 id
 
   model.datasources.forEach((ds, dsIdx) => {
     const dsId = "ds:" + dsIdx;
+    nodeIds.add(dsId);
     nodes.push({
       id: dsId,
       kind: "datasource",
@@ -67,8 +72,10 @@ export function buildGraph(model) {
 
     // 第一遍：本数据源的全部字段节点 + 数据源 -> 原始字段 边
     for (const col of ds.columns) {
-      const id = "f:" + dsIdx + ":" + stripBrackets(col.name);
+      const bareName = stripBrackets(col.name);
+      const id = "f:" + dsIdx + ":" + bareName;
       const isCalc = !!col.formulaRaw;
+      nodeIds.add(id);
       nodes.push({
         id,
         kind: "field",
@@ -81,8 +88,12 @@ export function buildGraph(model) {
         formula: col.formula,
         formulaRaw: col.formulaRaw
       });
-      byName.set(dsIdx + "|" + stripBrackets(col.name), id);
-      if (col.caption) byCaption.set(dsIdx + "|" + col.caption, id);
+      byName.set(dsIdx + "|" + bareName, id);
+      if (!globalByName.has(bareName)) globalByName.set(bareName, id);
+      if (col.caption) {
+        byCaption.set(dsIdx + "|" + col.caption, id);
+        if (!globalByCaption.has(col.caption)) globalByCaption.set(col.caption, id);
+      }
       if (!isCalc) edges.push({ from: dsId, to: id });
     }
 
@@ -93,34 +104,17 @@ export function buildGraph(model) {
       const seen = new Set();
       for (const ref of formulaRefs(col.formulaRaw)) {
         const key = stripBrackets(ref);
-        let target = byName.get(dsIdx + "|" + key);
-        if (!target) {
-          for (const [k, v] of byName) {
-            if (k.endsWith("|" + key)) {
-              target = v;
-              break;
-            }
-          }
-        }
-        if (!target) {
-          let byCap = byCaption.get(dsIdx + "|" + ref);
-          if (!byCap) {
-            for (const [k, v] of byCaption) {
-              if (k.endsWith("|" + ref)) {
-                byCap = v;
-                break;
-              }
-            }
-          }
-          target = byCap;
-        }
+        // 先本数据源精确匹配，再跨数据源回退（O(1) Map 查询）
+        let target = byName.get(dsIdx + "|" + key) || globalByName.get(key);
+        if (!target) target = byCaption.get(dsIdx + "|" + ref) || globalByCaption.get(ref);
         if (target && target !== id && !seen.has(target)) {
           seen.add(target);
           edges.push({ from: id, to: target });
         } else if (!target && !seen.has(ref)) {
           seen.add(ref);
           const unknownId = "u:" + dsIdx + ":" + key;
-          if (!nodes.find((n) => n.id === unknownId)) {
+          if (!nodeIds.has(unknownId)) {
+            nodeIds.add(unknownId);
             nodes.push({ id: unknownId, kind: "unknown", label: ref, name: ref, dsIdx });
           }
           edges.push({ from: id, to: unknownId });
@@ -192,7 +186,11 @@ export function lineage(id, edges) {
 export function layeredLayout(nodes, edges) {
   // 直接依赖表（跳过 数据源->字段 边，深度只看计算字段之间的引用）
   const childrenOf = new Map();
-  nodes.forEach((n) => childrenOf.set(n.id, new Set()));
+  const nodeById = new Map(); // 预先索引，避免逐节点线性查找
+  nodes.forEach((n) => {
+    childrenOf.set(n.id, new Set());
+    nodeById.set(n.id, n);
+  });
   edges.forEach((e) => {
     if (e.from.startsWith("ds:")) return;
     if (childrenOf.has(e.from)) childrenOf.get(e.from).add(e.to);
@@ -210,7 +208,7 @@ export function layeredLayout(nodes, edges) {
       for (const k of kids) d = Math.max(d, depthOf(k));
       d += 1;
     } else {
-      const node = nodes.find((n) => n.id === id);
+      const node = nodeById.get(id);
       d = node && node.kind === "datasource" ? 0 : 1;
     }
     visiting.delete(id);
