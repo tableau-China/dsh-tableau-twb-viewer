@@ -78,7 +78,13 @@ dsh plugin --profile web add github:tableau-China/dsh-tableau-twb-viewer
 dsh plugin --profile web add https://github.com/tableau-China/dsh-tableau-twb-viewer/releases/download/v0.2.0/dsh-tableau-twb-viewer-0.2.0.tgz
 ```
 
-### 方式三：本地目录（开发调试）
+### 方式三：从 npm 安装
+
+```bash
+dsh plugin --profile web add dsh-tableau-twb-viewer
+```
+
+### 方式四：本地目录（开发调试）
 
 ```bash
 git clone https://github.com/tableau-China/dsh-tableau-twb-viewer.git

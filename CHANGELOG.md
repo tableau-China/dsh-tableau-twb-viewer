@@ -17,6 +17,16 @@
   不再注册 `settings.section`——避免「自定义插件藏在设置里」的认知负担，入口唯一且常驻可见。
 - 移除上传区提示文案「拖拽 .twb 到此处，或点击选择（打开时已自动载入内置示例）」，工具栏更简洁。
 - `package.json` 增加 `publishConfig`（官方 registry + public），避免本机镜像源影响发布。
+- 发布链路：GitHub Release + **npm 包**（走 CI 暂存 `npm stage publish` + 一次 OTP 批准）；README 双语补 npm 安装方式。
+
+## 0.3.1 — 2026-10-11
+
+### 变更
+
+- **移除设置页入口**：唯一入口为左侧栏面板行（`sidebar.panellist` + `main` 整页），
+  不再注册 `settings.section`——避免「自定义插件藏在设置里」的认知负担，入口唯一且常驻可见。
+- 移除上传区提示文案「拖拽 .twb 到此处，或点击选择（打开时已自动载入内置示例）」，工具栏更简洁。
+- `package.json` 增加 `publishConfig`（官方 registry + public），避免本机镜像源影响发布。
 - 发布链路：GitHub Release + **npm 包**（走 CI 暂存 `npm stage publish` + 一次 OTP 批准）。
 
 ## 0.3.0 — 2026-10-11

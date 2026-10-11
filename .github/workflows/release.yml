@@ -65,7 +65,9 @@ jobs:
       - name: 暂存发布（2FA 推迟到人工批准）
         run: |
           npm stage publish --registry=https://registry.npmjs.org/ | tee /tmp/stage.out
-          ID="$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' /tmp/stage.out | head -1)"
+          # 优先从 `staged with id <uuid>` 行提取；取不到再退回第一个 UUID
+          ID="$(grep -oE 'staged with id [0-9a-f-]{36}' /tmp/stage.out | grep -oE '[0-9a-f-]{36}' | head -1)"
+          [ -n "$ID" ] || ID="$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' /tmp/stage.out | head -1)"
           {
             echo "### ⏳ npm 已暂存，等待批准"
             echo ""

@@ -78,7 +78,13 @@ Every release ships an installable tarball — see [Releases](https://github.com
 dsh plugin --profile web add https://github.com/tableau-China/dsh-tableau-twb-viewer/releases/download/v0.2.0/dsh-tableau-twb-viewer-0.2.0.tgz
 ```
 
-### 3. From a local checkout (development)
+### 3. From npm
+
+```bash
+dsh plugin --profile web add dsh-tableau-twb-viewer
+```
+
+### 4. From a local checkout (development)
 
 ```bash
 git clone https://github.com/tableau-China/dsh-tableau-twb-viewer.git
