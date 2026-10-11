@@ -10,26 +10,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      # 版本取自 package.json 的 packageManager 字段
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: pnpm
 
-      - name: 安装构建依赖
-        run: npm install --no-save --no-audit --no-fund esbuild@^0.28.2 @xmldom/xmldom@^0.9.11
+      - name: 安装依赖（含 esbuild 构建脚本放行）
+        run: pnpm install --frozen-lockfile
+
+      - name: 类型检查
+        run: pnpm run check:types
 
       - name: 构建客户端 bundle
-        run: node build.mjs
+        run: pnpm run build
 
       - name: 校验入库的 lib/client.js 与源码一致
         run: |
           if ! git diff --quiet -- lib/client.js; then
-            echo "::error::lib/client.js 与源码不一致，请在本地跑 npm run build 后一并提交"
+            echo "::error::lib/client.js 与源码不一致，请在本地跑 pnpm run build 后一并提交"
             git diff --stat -- lib/client.js
             exit 1
           fi
 
       - name: 快照测试（解析 / 构图 / 布局 / 分词基线 + 不变量）
-        run: node test/verify.mjs
+        run: pnpm run verify
 
       - name: 性能基准（O(n²) 回归护栏）
-        run: node test/bench.mjs
+        run: pnpm run bench

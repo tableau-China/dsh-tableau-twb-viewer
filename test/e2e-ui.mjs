@@ -80,8 +80,10 @@ try {
   await sleep(2000);
 
   // ---- 主入口：左侧栏面板行（用户不必去设置里找）----
-  const panelEntry = await page.waitForSelector('[aria-label="TWb 检视器"]', { timeout: 20000 }).catch(() => null);
-  ok(!!panelEntry, "左侧栏出现「TWb 检视器」面板入口");
+  const panelEntry = await page
+    .waitForSelector('[aria-label="TWb 检视器"], [aria-label="TWb Viewer"]', { timeout: 20000 })
+    .catch(() => null);
+  ok(!!panelEntry, "左侧栏出现「TWb 检视器 / TWb Viewer」面板入口");
   if (panelEntry) {
     await panelEntry.click();
     await sleep(2500);
@@ -99,7 +101,7 @@ try {
   ok(autoLoaded, "打开即自动加载内置示例（未点击「载入示例」）");
 
   const panel = await page.evaluate(() => ({
-    title: document.body.innerText.includes("Tableau .twb 仪表板布局检视器"),
+    title: (document.querySelector(".twb-root--panel .brand h1")?.textContent || "").length > 5,
     summary: document.querySelector(".twb-root--panel .summary-bar")?.innerText.replace(/\n/g, " ").slice(0, 90) || "",
     meta: !!document.querySelector(".twb-root .meta-panel"),
     zones: document.querySelectorAll(".twb-root .canvas-viewport svg rect").length,
@@ -125,7 +127,7 @@ try {
 
   // ---- 引用关系图 + 聚焦控件 ----
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root--panel .view-tabs button")].find((x) => x.textContent.includes("引用关系"));
+    const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[1];
     if (b) b.click();
   });
   await sleep(2500);
@@ -150,14 +152,15 @@ try {
 
   // 切回「全部」聚焦，保证后续断言看到完整图
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root--panel .focus-seg button")].find((x) => x.textContent.trim() === "全部");
+    const segs = [...document.querySelectorAll(".twb-root--panel .focus-seg button")];
+    const b = segs[segs.length - 1];
     if (b) b.click();
   });
   await sleep(1200);
 
   // ---- 全屏 ----
   const fsClicked = await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root button")].find((x) => x.textContent.includes("全屏"));
+    const b = document.querySelector(".twb-root .fs-toggle");
     if (b) {
       b.click();
       return true;
@@ -187,11 +190,11 @@ try {
     fsGone: !document.querySelector(".twb-root.twb-fullscreen"),
     panelStillThere: !!document.querySelector(".twb-root--panel"),
     nodes: document.querySelectorAll(".twb-root--panel .ln-node").length,
-    activeTab: [...document.querySelectorAll(".twb-root--panel .view-tabs button")].find((b) => b.className.includes("active"))?.textContent || ""
+    activeTabIndex: [...document.querySelectorAll(".twb-root--panel .view-tabs button")].findIndex((b) => b.className.includes("active"))
   }));
   ok(afterEsc.fsGone, "Esc 退出全屏");
   ok(afterEsc.panelStillThere && afterEsc.nodes > 0, `退出全屏后主区面板仍在（${afterEsc.nodes} 节点）`);
-  ok(afterEsc.activeTab.includes("引用关系"), `视图已保留（${afterEsc.activeTab}）`);
+  ok(afterEsc.activeTabIndex === 1, `视图已保留（第 ${afterEsc.activeTabIndex + 1} 个页签 = 引用关系）`);
 
   // ---- 设置里不再注册入口（唯一入口 = 左侧栏）----
   const trigger2 = await page.waitForSelector('button[aria-haspopup="dialog"]', { timeout: 15000 }).catch(() => null);
@@ -203,7 +206,10 @@ try {
     const dialog = document.querySelector('[role="dialog"]') || document.body;
     return [...dialog.querySelectorAll("button, [role=button], a")].map((el) => el.textContent.trim());
   });
-  ok(!settingsNav.includes("TWb 检视器"), "设置中不再出现插件入口（唯一入口为左侧栏）");
+  ok(
+    !settingsNav.includes("TWb 检视器") && !settingsNav.includes("TWb Viewer"),
+    "设置中不再出现插件入口（唯一入口为左侧栏）"
+  );
   await page.keyboard.press("Escape");
   await sleep(1500);
   ok(
@@ -229,7 +235,7 @@ try {
     ok(uploaded.file.includes("twb-large-e2e"), `已上传大图 ${fields * 2} 字段（${uploaded.summary}）`);
 
     await page.evaluate(() => {
-      const b = [...document.querySelectorAll(".twb-root--panel .view-tabs button")].find((x) => x.textContent.includes("引用关系"));
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[1];
       if (b) b.click();
     });
     await sleep(6000);
@@ -238,7 +244,8 @@ try {
 
     // 聚焦模式切回「自动」（前面的断言把它设成了「全部」，面板不卸载会保留该状态）
     await page.evaluate(() => {
-      const b = [...document.querySelectorAll(".twb-root--panel .focus-seg button")].find((x) => x.textContent.trim() === "自动");
+      const segs = [...document.querySelectorAll(".twb-root--panel .focus-seg button")];
+      const b = segs[0];
       if (b) b.click();
     });
     await sleep(1200);
@@ -257,12 +264,89 @@ try {
 
     // 切「全部」→ 恢复全量
     await page.evaluate(() => {
-      const b = [...document.querySelectorAll(".twb-root--panel .focus-seg button")].find((x) => x.textContent.trim() === "全部");
+      const segs = [...document.querySelectorAll(".twb-root--panel .focus-seg button")];
+      const b = segs[segs.length - 1];
       if (b) b.click();
     });
     await sleep(4000);
     const back = await page.evaluate(() => document.querySelectorAll(".twb-root--panel .ln-node").length);
     ok(back === all, `切「全部」恢复全量渲染（${back} 节点）`);
+  }
+
+  // ---- 中英切换：在设置里真实切换宿主语言，插件 UI 应随之切换 ----
+  {
+    // 语言行：button[aria-haspopup="menu"]（文本为当前语言）→ 菜单项 role="menuitem"
+    const openLanguageMenu = () =>
+      page.evaluate(() => {
+        const btn = [...document.querySelectorAll('[role="dialog"] button[aria-haspopup="menu"]')].find((b) =>
+          /^(English|中文|简体中文|System|跟随系统)$/i.test((b.textContent || "").trim())
+        );
+        if (!btn) return false;
+        btn.click();
+        return true;
+      });
+    const chooseLanguage = (labelRe) =>
+      page.evaluate((src) => {
+        const re = new RegExp(src, "i");
+        const item = [...document.querySelectorAll('[role="menuitem"]')].find((el) =>
+          re.test((el.textContent || "").trim())
+        );
+        if (!item) return null;
+        item.click();
+        return (item.textContent || "").trim();
+      }, labelRe);
+    const readUi = () =>
+      page.evaluate(() => ({
+        panelLabel:
+          document.querySelector('[aria-label="TWb 检视器"]')?.getAttribute("aria-label") ||
+          document.querySelector('[aria-label="TWb Viewer"]')?.getAttribute("aria-label") ||
+          null,
+        title: document.querySelector(".twb-root--panel .brand h1")?.textContent?.trim() || "",
+        subtitle: document.querySelector(".twb-root--panel .brand .sub")?.textContent?.trim() || "",
+        tabs: [...document.querySelectorAll(".twb-root--panel .view-tabs button")].map((b) =>
+          (b.textContent || "").trim()
+        )
+      }));
+
+    // 打开设置（语言行在「通用」页）
+    const trig = await page.$('button[aria-haspopup="dialog"]');
+    if (trig) {
+      await trig.click();
+      await sleep(2500);
+    }
+    ok(await openLanguageMenu(), "设置里找到语言下拉（button[aria-haspopup=menu]）");
+
+    const zhChosen = await chooseLanguage("^(中文|简体中文|Chinese)");
+    ok(zhChosen !== null, `语言菜单可选「中文」（${zhChosen}）`);
+    await sleep(2200);
+    const uiZh = await readUi();
+    ok(uiZh.panelLabel === "TWb 检视器", `左侧栏面板标签为中文（${uiZh.panelLabel}）`);
+    ok(uiZh.tabs.join("/") === "布局图/引用关系", `页签为中文（${uiZh.tabs.join(" / ")}）`);
+    ok(/仪表板布局检视器/.test(uiZh.title), `标题为中文（${uiZh.title}）`);
+
+    ok(await openLanguageMenu(), "语言下拉可再次打开");
+    const enChosen = await chooseLanguage("^English$");
+    ok(enChosen !== null, `语言菜单可选「English」（${enChosen}）`);
+    await sleep(2200);
+    const uiEn = await readUi();
+    ok(uiEn.panelLabel === "TWb Viewer", `左侧栏面板标签为英文（${uiEn.panelLabel}）`);
+    ok(uiEn.tabs.join("/") === "Layout/Lineage", `页签为英文（${uiEn.tabs.join(" / ")}）`);
+    ok(/Dashboard Inspector/.test(uiEn.title), `标题为英文（${uiEn.title}）`);
+    ok(
+      !/[\u4e00-\u9fa5]/.test(uiEn.title + uiEn.subtitle + uiEn.tabs.join("")),
+      "英文界面无残留中文（标题/副标题/页签）"
+    );
+
+    // 收尾：切回中文并关闭设置
+    await openLanguageMenu();
+    await chooseLanguage("^(中文|简体中文|Chinese)");
+    await sleep(1800);
+    ok(
+      await page.evaluate(() => !!document.querySelector('[aria-label="TWb 检视器"]')),
+      "语言切回中文（面板标签恢复）"
+    );
+    await page.keyboard.press("Escape");
+    await sleep(1500);
   }
 
   // ---- 控制台 ----

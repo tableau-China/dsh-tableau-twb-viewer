@@ -4,10 +4,36 @@
 
 | 版本 | 日期 | DSH 基线 | 说明 |
 |---|---|---|---|
+| 0.4.0 | 2026-10-11 | 0.2.1-alpha.2 | 批 3 工程升级：TypeScript + 组件拆分 + pnpm + 中英双语 |
 | 0.3.1 | 2026-10-11 | 0.2.1-alpha.2 | 移除设置入口（唯一入口=左侧栏）、精简工具栏、接入 npm 发布 |
 | 0.3.0 | 2026-10-11 | 0.2.1-alpha.2 | 入口改进：左侧栏面板行 + 主区整页 |
 | 0.2.0 | 2026-10-11 | 0.2.1-alpha.2 | 性能修复、打开即加载示例、大图聚焦、不解析 .twbx（安全） |
 | 0.1.0 | 2026-08-15 | 0.1.0-rc.6 | 首个发布版本（GitHub Release） |
+
+## 0.4.0 — 2026-10-11
+
+批 3 工程升级：TypeScript 迁移 + 组件拆分 + pnpm + 中英双语界面。
+
+### 新增
+
+- **中英双语界面（i18n）**：文案字典经宿主 `ctx.locale.register(NS, { zh, en })` 注册，
+  面板跟随 DSH 界面语言实时切换（`dsh.client.inject` 增加 `locale`）；面板标签、标题、
+  副标题、页签、按钮、表头、图例、提示语全部双语。工作簿数据（工作表名、字段名）原样呈现。
+  端到端测试新增真实切换验证：设置 → 通用 → 语言 切「中文」/「English」各断言一次。
+- **组件拆分**：`src/app.jsx`（1,465 行）拆为 `app.tsx` + `plugin.tsx` + `components/`（6 个）
+  + `lib/`（持久化 / 导出 / 统计）+ `i18n.tsx` + `types.ts`。
+- **TypeScript 迁移**：全部源码转为 TS（`strict`），新增 `pnpm run check:types`（`tsc --noEmit`，
+  零错误）并接入 CI 与发布流程；测试直接 import `.ts` 源码（Node 24 原生剥离类型，无需构建）。
+- **pnpm 迁移**：`packageManager: pnpm@11.28.2`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`
+  （`allowBuilds: esbuild`），移除 `package-lock.json` 与 npm 专用 `allowScripts`；
+  CI / Release 改用 `pnpm install --frozen-lockfile` 与 `pnpm/action-setup`。
+- 双语截图：`assets/*.png`（英文，README.md 引用）与 `assets/*.zh.png`（中文，README.zh-CN.md 引用），
+  由 `pnpm run screenshots` 按 `TWB_SHOT_LOCALE` 生成。
+
+### 变更
+
+- 行为不变：解析 / 构图 / 布局 / 分词快照与「与原始实现逐字节一致」校验均通过。
+- e2e 断言从 25 项增至 31 项，并改为语言无关（按索引选页签、用 class 选按钮）。
 
 ## 0.3.1 — 2026-10-11
 

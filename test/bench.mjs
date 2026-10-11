@@ -7,8 +7,8 @@
 // 用法：npm run bench
 
 import { DOMParser as XmldomParser } from "@xmldom/xmldom";
-import { parseWorkbook } from "../src/parser.js";
-import { buildGraph, layeredLayout } from "../src/graph.js";
+import { parseWorkbook } from "../src/parser.ts";
+import { buildGraph, layeredLayout } from "../src/graph.ts";
 import { makeTwb } from "./lib/synthetic-twb.mjs";
 
 globalThis.DOMParser = class {

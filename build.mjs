@@ -1,5 +1,5 @@
 // 构建 lib/client.js：把 src/ 打包成 DSH 客户端插件所需的 ModuleLoader 工厂格式。
-// 使用方式：npm run build（需要先 npm install 安装 esbuild）。
+// 使用方式：pnpm run build（依赖由 pnpm 安装；esbuild 构建脚本已在 pnpm-workspace.yaml 放行）。
 
 import { build } from "esbuild";
 import { readFileSync, writeFileSync } from "node:fs";
@@ -8,7 +8,7 @@ const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), 
 const ID = pkg.name;
 
 const result = await build({
-  entryPoints: ["src/app.jsx"],
+  entryPoints: ["src/plugin.tsx"],
   bundle: true,
   format: "cjs",
   platform: "browser",

@@ -24,6 +24,7 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 
 ## Features
 
+- ✅ **English & Chinese UI**: the panel follows the DSH interface language (switch it in Settings → General → Language); dates, numbers and workbook data stay untouched.
 - ✅ **One click from the left sidebar**: the plugin registers its own panel row in the DSH sidebar, so it opens as a full page next to your conversation — no digging through Settings.
 - ✅ **Open and it is already there**: the plugin auto-loads a built-in sample workbook, so you see the whole UI in one second — then drop in your own `.twb` to replace it.
 - ✅ **1:1 dashboard layout**: every dashboard zone is drawn as SVG at true scale (worksheets, containers, text), with zoom / pan and one-click export to **SVG / PNG / Excalidraw** for annotated review decks.
@@ -129,7 +130,7 @@ End-to-end test in a real browser (needs local Chrome and `dsh` on PATH):
 
 ```bash
 ./test/e2e-boot.sh 3199     # terminal A: boots an isolated DSH instance, prints a token URL
-TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 23 assertions
+TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 31 assertions
 
 # also verify large-workbook focus behaviour
 TWB_LARGE_FIELDS=1500 TWB_URL="..." npm run e2e
@@ -162,7 +163,7 @@ dsh-tableau-twb-viewer/
 | DSH version | Status |
 |---|---|
 | `0.1.0-rc.6` | ✅ development baseline (first release) |
-| `0.2.1-alpha.2` | ✅ verified end-to-end (23 assertions incl. auto-loaded sample and large-graph focus) |
+| `0.2.1-alpha.2` | ✅ verified end-to-end (31 assertions incl. zh/en switching, auto-loaded sample, large-graph focus) |
 
 Install mechanisms used: `dsh.bundle.patch` (makes the package a loaded plugin row) and
 `dsh.client` with an exported `./client` bundle (injected into the browser module graph by

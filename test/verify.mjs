@@ -10,9 +10,9 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { DOMParser as XmldomParser } from "@xmldom/xmldom";
-import { parseWorkbook } from "../src/parser.js";
-import { buildGraph, layeredLayout } from "../src/graph.js";
-import { tokenize, tokenClass } from "../src/formula.js";
+import { parseWorkbook } from "../src/parser.ts";
+import { buildGraph, layeredLayout } from "../src/graph.ts";
+import { tokenize, tokenClass } from "../src/formula.ts";
 
 const SAMPLE = new URL("../sample.twb", import.meta.url);
 const GOLDEN = new URL("./fixtures/sample.golden.json", import.meta.url);

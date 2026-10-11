@@ -1,14 +1,16 @@
 // Tableau 计算字段公式的词法高亮：分词器 + 关键字/函数表。
 // 忠实移植自原始实现的 vp / Pc 与 pp / mp / hp 常量。
 
+import type { Token, TokenType } from "./types.ts";
+
 /** Tableau 公式关键字。 */
-export const KEYWORDS = new Set([
+export const KEYWORDS: Set<string> = new Set([
   "IF", "THEN", "ELSE", "ELSEIF", "END", "CASE", "WHEN", "AND", "OR", "NOT",
   "IN", "NULL", "TRUE", "FALSE", "BETWEEN", "LIKE", "IS", "AS"
 ]);
 
 /** Tableau 常用函数。 */
-export const FUNCTIONS = new Set([
+export const FUNCTIONS: Set<string> = new Set([
   "SUM", "AVG", "MIN", "MAX", "COUNT", "COUNTD", "ATTR", "MEDIAN", "STDEV",
   "STDEVP", "VAR", "VARP", "ZN", "MODE", "ABS", "ROUND", "FLOOR", "CEILING",
   "CEIL", "SIGN", "SQRT", "POWER", "EXP", "LN", "LOG", "IFNULL", "ISNULL",
@@ -25,7 +27,7 @@ export const FUNCTIONS = new Set([
 ]);
 
 /** 词法规则（按优先级顺序）。 */
-const TOKEN_RULES = [
+const TOKEN_RULES: ReadonlyArray<readonly [TokenType, RegExp]> = [
   ["comment", /\/\/[^\n]*|\/\*[\s\S]*?\*\//],
   ["string", /'(?:[^'\\]|\\.)*'/],
   ["field", /\[[^\]]*\]/],
@@ -40,8 +42,8 @@ const TOKEN_RULES = [
  * @param {string} formula
  * @returns {{type: string, value: string}[]}
  */
-export function tokenize(formula) {
-  const tokens = [];
+export function tokenize(formula: string): Token[] {
+  const tokens: Token[] = [];
   let rest = formula;
   while (rest.length > 0) {
     let matched = false;
@@ -63,7 +65,7 @@ export function tokenize(formula) {
 }
 
 /** token 对应的 CSS 类名（fh-*）。 */
-export function tokenClass(token) {
+export function tokenClass(token: Token): string {
   switch (token.type) {
     case "comment":
       return "fh-comment";

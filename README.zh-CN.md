@@ -24,6 +24,7 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 
 ## 功能
 
+- ✅ **中英双语界面**：面板文案跟随 DSH 界面语言（设置 → 通用 → 语言 切换），工作簿数据原样呈现。
 - ✅ **左侧栏一键直达**：插件在 DSH 左侧栏注册自己的面板行，点开即在对话旁以整页呈现——不必去「设置」里翻找。
 - ✅ **打开即用**：插件自动加载内置示例工作簿，一秒看到完整界面；换成自己的 `.twb` 即可替换示例。
 - ✅ **1:1 仪表板布局图**：每个仪表板 zone（工作表 / 容器 / 文本）按真实比例绘制为 SVG，支持缩放 / 平移，一键导出 **SVG / PNG / Excalidraw**，方便做批注版交付材料。
@@ -47,19 +48,19 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 
 **入口位置** —— 左侧栏面板行，点开后主区整页呈现检视器
 
-![sidebar entry](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/panel.png)
+![sidebar entry](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/panel.zh.png)
 
 **仪表板布局图** —— 1:1 SVG 渲染全部 zone，可导出 SVG / PNG / Excalidraw
 
-![dashboard layout](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/layout.png)
+![dashboard layout](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/layout.zh.png)
 
 **字段引用关系** —— 数据源 → 原始字段 → 计算字段，点击节点看上下游
 
-![field lineage](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/lineage.png)
+![field lineage](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/lineage.zh.png)
 
 **Metadata** —— 数据源连接、字段角色与高亮后的计算公式
 
-![metadata](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/metadata.png)
+![metadata](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/metadata.zh.png)
 
 ## 安装
 
@@ -116,27 +117,30 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 ## 开发
 
 ```bash
-npm install              # esbuild / xmldom / puppeteer-core（仅开发依赖）
-npm run build            # src/ -> lib/client.js（DSH ModuleLoader 包）
-npm run verify           # 快照测试：解析 / 构图 / 布局 / 分词基线
-npm run verify:update    # 确认变更后重新生成基线
-npm run verify:reference # 可选：与原始实现逐字节差分
-npm run bench            # 性能曲线 + O(n²) 回归护栏
-npm run gen-css          # 从原始 CSS 重新生成作用域化样式
+pnpm install             # esbuild / xmldom / puppeteer-core / typescript（仅开发依赖）
+pnpm run check:types     # tsc --noEmit（strict；src 为 TypeScript）
+pnpm run build           # src/plugin.tsx -> lib/client.js（DSH ModuleLoader 包）
+pnpm run verify          # 快照测试：解析 / 构图 / 布局 / 分词基线
+pnpm run verify:update   # 确认变更后重新生成基线
+pnpm run verify:reference # 可选：与原始实现逐字节差分
+pnpm run bench           # 性能曲线 + O(n²) 回归护栏
+pnpm run gen-css          # 从原始 CSS 重新生成作用域化样式
+pnpm run screenshots      # 重新生成 assets/*.png（TWB_SHOT_LOCALE=zh 出中文截图）
 ```
 
 真实浏览器端到端测试（需本机 Chrome，且 `dsh` 在 PATH）：
 
 ```bash
 ./test/e2e-boot.sh 3199     # 终端 A：启动隔离实例，打印带 token 的 URL
-TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # 终端 B：无头 Chrome，23 项断言
+TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，31 项断言
 
 # 连大图聚焦一起验证
-TWB_LARGE_FIELDS=1500 TWB_URL="..." npm run e2e
+TWB_LARGE_FIELDS=1500 TWB_URL="..." pnpm run e2e
 ```
 
-> npm 11.16+ 默认拦截依赖的构建脚本；`package.json` 已用 `allowScripts` 显式放行 `esbuild`，
-> 否则 `npm install` 后 esbuild 缺少二进制。
+> 包管理为 **pnpm**（`packageManager` 字段；`pnpm-workspace.yaml` 的 `allowBuilds` 放行 esbuild
+> 构建脚本，否则 `pnpm install` 会以 `ERR_PNPM_IGNORED_BUILDS` 失败）。
+> 测试直接 import TypeScript 源码——Node 24 原生剥离类型，测试无需额外构建。
 
 ## 目录结构
 
@@ -146,11 +150,16 @@ dsh-tableau-twb-viewer/
 ├── cordis.patch.yml       # bundle patch：插入插件行
 ├── index.js               # Node 半部：内置示例路由（惰性读取、可降级）
 ├── src/
-│   ├── parser.js          # .twb XML 解析（仪表板 zones / 数据源 / 字段 / 公式）
-│   ├── graph.js           # 引用关系构图 + 分层布局 + 上下游可达性
-│   ├── formula.js         # 计算公式分词与高亮
-│   ├── app.jsx            # 全部 UI 组件 + 插件入口（settings.section）
-│   ├── plugin.css         # 插件自有样式（全屏、聚焦控件）
+│   ├── types.ts           # 共享类型：模型 / 图 / 布局
+│   ├── parser.ts          # .twb XML 解析（仪表板 zones / 数据源 / 字段 / 公式）
+│   ├── graph.ts           # 引用关系构图 + 分层布局 + 上下游可达性
+│   ├── formula.ts         # 计算公式分词与高亮
+│   ├── i18n.tsx           # 中英文案字典 + 取词上下文
+│   ├── app.tsx            # 应用根（状态、自动加载、视图切换）
+│   ├── plugin.tsx         # 插件入口：左侧栏面板行 + 主区整页 + 文案注册
+│   ├── lib/               # 持久化缓存 / 导出工具 / 模型统计
+│   ├── components/        # 上传、布局图、Metadata、字段表、公式、引用关系图
+│   ├── plugin.css         # 插件自有样式（全屏、面板尺寸）
 │   └── style.css          # 作用域化应用样式（.twb-root 前缀，由 gen-css.mjs 生成）
 ├── build.mjs              # esbuild -> lib/client.js（ModuleLoader 工厂格式）
 ├── lib/client.js          # 构建产物（发布内容）
@@ -162,7 +171,7 @@ dsh-tableau-twb-viewer/
 | DSH 版本 | 状态 |
 |---|---|
 | `0.1.0-rc.6` | ✅ 开发基线（首个发布版本） |
-| `0.2.1-alpha.2` | ✅ 端到端实测通过（23 项断言，含自动加载示例与大图聚焦） |
+| `0.2.1-alpha.2` | ✅ 端到端实测通过（31 项断言，含中英切换、自动加载示例与大图聚焦） |
 
 安装机制：`dsh.bundle.patch` 让本包成为已加载的插件行；`dsh.client` + 导出的 `./client`
 构建产物由 `client-modules` 注入浏览器模块图。UI 注册到 `settings.section` 槽位，

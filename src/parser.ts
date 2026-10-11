@@ -9,31 +9,46 @@
 //     datasources: [{ caption, name, connection, columns, groups }]
 //   }
 
+import type {
+  WorkbookConnection,
+  WorkbookColumn,
+  WorkbookDashboard,
+  WorkbookDatasource,
+  WorkbookModel,
+  Zone,
+  ZoneKind
+} from "./types.ts";
+
+/** 可容纳 zone 子元素的容器（Element 或包装对象）。 */
+interface ZoneContainer {
+  children: ArrayLike<Element> & Iterable<Element>;
+}
+
 /** Tableau zone 坐标单位：1 = 1/100000 */
 const ZONE_UNIT = 1e5;
 
 /** 直接子元素中第一个 tag 匹配的元素。 */
-function child(el, tag) {
+function child(el: Element | null | undefined, tag: string): Element | null {
   return el ? [...el.children].find((c) => (c.localName || c.tagName) === tag) || null : null;
 }
 
 /** 直接子元素中所有 tag 匹配的元素。 */
-function children(el, tag) {
+function children(el: Element | null | undefined, tag: string): Element[] {
   return el ? [...el.children].filter((c) => (c.localName || c.tagName) === tag) : [];
 }
 
 /** 读取属性（无元素时返回 null）。 */
-function attr(el, name) {
+function attr(el: Element | null | undefined, name: string): string | null {
   return el ? el.getAttribute(name) : null;
 }
 
 /** 去掉字段名两端的方括号。 */
-export function stripBrackets(value) {
+export function stripBrackets(value: string | null | undefined): string {
   return value ? String(value).replace(/^\[/, "").replace(/\]$/, "") : "";
 }
 
 /** 提取 zone 内 <formatted-text> 的文本（拼接所有 <run>）。 */
-function formattedText(el) {
+function formattedText(el: Element): string {
   const t = child(el, "formatted-text");
   if (!t) return "";
   const runs = [...t.getElementsByTagName("run")];
@@ -41,14 +56,14 @@ function formattedText(el) {
 }
 
 /** 递归解析 <zones> 树。 */
-function parseZones(el, size, worksheetNames) {
+function parseZones(el: ZoneContainer, size: { w: number; h: number }, worksheetNames: string[]): Zone[] {
   return [...(el.children || [])]
     .filter((c) => (c.localName || c.tagName) === "zone")
     .map((z) => parseZone(z, size, worksheetNames));
 }
 
 /** 解析单个 <zone>：把 1/100000 坐标换算为像素，处理固定尺寸与类型分类。 */
-function parseZone(z, size, worksheetNames) {
+function parseZone(z: Element, size: { w: number; h: number }, worksheetNames: string[]): Zone {
   const x = parseFloat(z.getAttribute("x") || "0");
   const y = parseFloat(z.getAttribute("y") || "0");
   const w = parseFloat(z.getAttribute("w") || "0");
@@ -93,13 +108,13 @@ function parseZone(z, size, worksheetNames) {
     type,
     name,
     text,
-    kind,
+    kind: kind as ZoneKind,
     children: kids.length ? parseZones({ children: kids }, size, worksheetNames) : []
   };
 }
 
 /** 列元素判定：<column> 或以 column 结尾的标签，排除 <column-instance>。 */
-function isColumnTag(tag) {
+function isColumnTag(tag: string): boolean {
   return (tag === "column" || tag.endsWith("column")) && tag !== "column-instance";
 }
 
@@ -109,7 +124,7 @@ function isColumnTag(tag) {
  * @returns {object} 结构化工作簿模型。
  * @throws 文件不是有效 twb 时抛出可读错误。
  */
-export function parseWorkbook(text) {
+export function parseWorkbook(text: string): WorkbookModel {
   const doc = new DOMParser().parseFromString(text, "application/xml");
   const parseError = doc.querySelector("parsererror");
   if (parseError) throw new Error("XML 解析失败：" + parseError.textContent);
@@ -121,12 +136,14 @@ export function parseWorkbook(text) {
 
   // ---- 工作表 ----
   const worksheetsEl = child(root, "worksheets");
-  const worksheets = worksheetsEl
-    ? children(worksheetsEl, "worksheet").map((w) => attr(w, "name")).filter(Boolean)
+  const worksheets: string[] = worksheetsEl
+    ? children(worksheetsEl, "worksheet")
+        .map((w) => attr(w, "name"))
+        .filter((n): n is string => typeof n === "string")
     : [];
 
   // ---- 仪表板（zone 树 + 尺寸）----
-  const dashboards = [];
+  const dashboards: WorkbookDashboard[] = [];
   for (const dash of children(child(root, "dashboards"), "dashboard")) {
     const name = attr(dash, "name") || "(未命名仪表板)";
     const sizeEl = child(dash, "size");
@@ -144,7 +161,7 @@ export function parseWorkbook(text) {
   }
 
   // ---- 全量字段 caption 映射（公式展示时把 [内部名] 换成 [显示名]）----
-  const captionByName = {};
+  const captionByName: Record<string, string> = {};
   for (const ds of children(child(root, "datasources"), "datasource")) {
     for (const col of [...ds.children].filter((c) => isColumnTag(c.localName || c.tagName))) {
       const n = attr(col, "name");
@@ -154,13 +171,13 @@ export function parseWorkbook(text) {
   }
 
   // ---- 数据源 ----
-  const datasources = [];
+  const datasources: WorkbookDatasource[] = [];
   for (const ds of children(child(root, "datasources"), "datasource")) {
     const caption = attr(ds, "caption") || attr(ds, "name") || "(未命名数据源)";
     const name = attr(ds, "name");
 
     const connEl = child(ds, "connection");
-    const connection = connEl
+    const connection: WorkbookConnection | null = connEl
       ? {
           class: attr(connEl, "class"),
           type: attr(connEl, "type"),
@@ -170,7 +187,7 @@ export function parseWorkbook(text) {
         }
       : null;
 
-    const columns = [...ds.children]
+    const columns: WorkbookColumn[] = [...ds.children]
       .filter((c) => isColumnTag(c.localName || c.tagName))
       .map((col) => {
         const n = attr(col, "name");
@@ -196,9 +213,11 @@ export function parseWorkbook(text) {
           formulaRaw
         };
       })
-      .filter(Boolean);
+      .filter((c): c is WorkbookColumn => c !== null);
 
-    const groups = children(ds, "group").map((g) => attr(g, "name")).filter(Boolean);
+    const groups = children(ds, "group")
+      .map((g) => attr(g, "name"))
+      .filter((n): n is string => typeof n === "string");
     datasources.push({ caption, name, connection, columns, groups });
   }
 

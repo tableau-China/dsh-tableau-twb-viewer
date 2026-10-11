@@ -37,7 +37,11 @@ const realClick = async (selectorFn, ...args) => {
 };
 
 let failed = false;
+/** 中文截图加 .zh 后缀（英文为默认名，供 README.md 引用）。 */
+const LOCALE_SUFFIX = process.env.TWB_SHOT_LOCALE === 'zh' ? '.zh' : '';
+
 const shot = async (name, assertReady) => {
+  name = name + LOCALE_SUFFIX;
   const ready = await page.evaluate(assertReady);
   if (!ready) {
     console.error(`✗ ${name}: 界面未就绪，跳过`);
@@ -56,22 +60,72 @@ try {
   await page.goto(TARGET, { waitUntil: "networkidle2", timeout: 60000 });
   await sleep(5000);
 
-  // 引导：能点就点
-  for (let i = 0; i < 6; i++) {
-    if (await realClick((t) => [...document.querySelectorAll('[role="dialog"] button')].find((b) => (b.textContent || "").includes(t)) || null, "Configure later")) continue;
-    if (await realClick((t) => [...document.querySelectorAll("button")].find((b) => (b.textContent || "").includes(t)) || null, "Continue")) continue;
-    break;
+  // 引导：能点就点（中英双语按钮都认）
+  const SKIP = ["Configure later", "Continue", "稍后配置", "保存并继续", "继续", "跳过"];
+  for (let i = 0; i < 8; i++) {
+    let clicked = false;
+    for (const label of SKIP) {
+      if (
+        await realClick(
+          (t) => [...document.querySelectorAll('[role="dialog"] button')].find((b) => (b.textContent || "").trim() === t) || null,
+          label
+        )
+      ) {
+        clicked = true;
+        break;
+      }
+    }
+    if (!clicked) break;
+  }
+
+  // 语言：默认英文（README.md 为英文首页）；TWB_SHOT_LOCALE=zh 出中文截图
+  const LOCALE = process.env.TWB_SHOT_LOCALE === "zh" ? "zh" : "en";
+  const wantLabel = LOCALE === "zh" ? /^(中文|简体中文|Chinese)$/i : /^English$/i;
+  const langTrig = await page.$('button[aria-haspopup="dialog"]');
+  if (langTrig) {
+    await langTrig.click();
+    await sleep(2500);
+    const opened = await page.evaluate(() => {
+      const btn = [...document.querySelectorAll('[role="dialog"] button[aria-haspopup="menu"]')].find((b) =>
+        /^(English|中文|简体中文|System|跟随系统)$/i.test((b.textContent || "").trim())
+      );
+      if (!btn) return false;
+      btn.click();
+      return true;
+    });
+    if (opened) {
+      await sleep(1200);
+      await page.evaluate((src) => {
+        const re = new RegExp(src, "i");
+        const item = [...document.querySelectorAll('[role="menuitem"]')].find((el) => re.test((el.textContent || "").trim()));
+        if (item) item.click();
+      }, wantLabel.source);
+      await sleep(2000);
+    }
+    await page.keyboard.press("Escape");
+    await sleep(1500);
   }
 
   // 主入口：左侧栏面板行 → 主区整页（0.3.0 起的主路径）
-  const entry = await page.$('[aria-label="TWb 检视器"]');
+  const entry = await page.$('[aria-label="TWb 检视器"], [aria-label="TWb Viewer"]');
   if (entry) {
     await entry.click();
     await sleep(3000);
   }
 
   // 等内置示例自动加载完成
-  await page.waitForSelector(".twb-root .canvas-viewport svg", { timeout: 25000 });
+  const loaded = await page.waitForSelector(".twb-root .canvas-viewport svg", { timeout: 25000 }).then(() => true).catch(() => false);
+  if (!loaded) {
+    const diag = await page.evaluate(() => ({
+      hasRoot: !!document.querySelector(".twb-root"),
+      hasPanel: !!document.querySelector(".twb-root--panel"),
+      entryExists: !!document.querySelector('[aria-label="TWb 检视器"], [aria-label="TWb Viewer"]'),
+      dialogs: [...document.querySelectorAll('[role="dialog"]')].length,
+      bodyStart: document.body.innerText.slice(0, 160).replace(/\n/g, " | ")
+    }));
+    console.log("✗ 截图：检视器未加载", JSON.stringify(diag));
+    throw new Error("viewer not loaded");
+  }
   await sleep(2500);
 
   // 0) 入口与整页形态：左侧栏面板行 + 主区检视器（全屏之前拍摄）
@@ -79,7 +133,7 @@ try {
 
   // 全屏（让其余截图聚焦插件本身）
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root button")].find((x) => x.textContent.includes("全屏"));
+    const b = document.querySelector(".twb-root .fs-toggle");
     if (b) b.click();
   });
   await sleep(2000);
@@ -89,7 +143,7 @@ try {
 
   // 2) 字段引用关系（选中一个节点，展示上下游）
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root .view-tabs button")].find((x) => x.textContent.includes("引用关系"));
+    const b = document.querySelectorAll(".twb-root .view-tabs button")[1];
     if (b) b.click();
   });
   await sleep(2500);
@@ -103,12 +157,13 @@ try {
 
   // 3) Metadata（回到布局图，切到「计算字段」标签，突出公式高亮）
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root .view-tabs button")].find((x) => x.textContent.includes("布局图"));
+    const b = document.querySelectorAll(".twb-root .view-tabs button")[0];
     if (b) b.click();
   });
   await sleep(2000);
   await page.evaluate(() => {
-    const b = [...document.querySelectorAll(".twb-root .meta-tabs button")].find((x) => x.textContent.includes("计算字段"));
+    // meta 页签顺序固定：overview / fields / calc / sheets → 取第 3 个（计算字段），语言无关
+    const b = document.querySelectorAll(".twb-root .meta-tabs button")[2];
     if (b) b.click();
   });
   await sleep(2000);

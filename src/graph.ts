@@ -2,7 +2,18 @@
 //
 // 忠实移植自原始实现的 Cp（构图）、Mc/jp/_p/Lp（可达性）与 Pp（分层布局）。
 
-import { stripBrackets } from "./parser.js";
+import { stripBrackets } from "./parser.ts";
+import type {
+  FieldGraph,
+  GraphEdge,
+  GraphNode,
+  KindStyle,
+  Lane,
+  LayeredLayout,
+  Lineage,
+  NodeCategory,
+  WorkbookModel
+} from "./types.ts";
 
 // ---- 布局常量（与原始实现一致）----
 export const NODE_W = 176; // 节点宽
@@ -15,7 +26,7 @@ export const DS_OFFSET = 24; // 左侧留白
 export const PER_COL = 20; // 每子列最多节点数
 
 /** 节点类别对应的视觉样式与图例文案。 */
-export const KIND_STYLE = {
+export const KIND_STYLE: Record<NodeCategory, KindStyle> = {
   datasource: { fill: "#e7f5ff", stroke: "#1971c2", tag: "数据源" },
   dimension: { fill: "#ffe8cc", stroke: "#f08c00", tag: "维度" },
   measure: { fill: "#d3f9d8", stroke: "#2f9e44", tag: "度量" },
@@ -24,7 +35,7 @@ export const KIND_STYLE = {
 };
 
 /** 节点 -> 类别键（datasource / dimension / measure / calc / unknown）。 */
-export function nodeCategory(node) {
+export function nodeCategory(node: GraphNode): NodeCategory {
   if (node.kind === "datasource") return "datasource";
   if (node.kind === "unknown") return "unknown";
   if (node.isCalc) return "calc";
@@ -32,7 +43,7 @@ export function nodeCategory(node) {
 }
 
 /** 从公式中提取所有 [字段引用]。 */
-function formulaRefs(formula) {
+function formulaRefs(formula: string | null): string[] {
   if (!formula) return [];
   const out = [];
   const re = /\[([^\]]+)\]/g;
@@ -47,10 +58,10 @@ function formulaRefs(formula) {
  * 边：数据源 -> 原始字段；计算字段 -> 其公式引用的字段（未解析的引用指向 unknown 节点）。
  * @returns {{ nodes: object[], edges: {from,to}[], dsNodes: string[] }}
  */
-export function buildGraph(model) {
-  const nodes = [];
-  const edges = [];
-  const dsNodes = [];
+export function buildGraph(model: WorkbookModel): FieldGraph {
+  const nodes: GraphNode[] = [];
+  const edges: GraphEdge[] = [];
+  const dsNodes: string[] = [];
   const nodeIds = new Set(); // 节点 id 去重（替代 nodes.find 线性扫描）
   const byName = new Map(); // "dsIdx|内部名" -> 节点 id（本数据源精确匹配）
   const byCaption = new Map(); // "dsIdx|caption" -> 节点 id（本数据源精确匹配）
@@ -129,7 +140,7 @@ export function buildGraph(model) {
 // ---- 可达性 ----
 
 /** 邻接表（出边 / 入边）。 */
-export function adjacency(edges) {
+export function adjacency(edges: GraphEdge[]): { out: Map<string, string[]>; inc: Map<string, string[]> } {
   const out = new Map();
   const inc = new Map();
   for (const e of edges) {
@@ -142,12 +153,12 @@ export function adjacency(edges) {
 }
 
 /** 从 id 出发沿出边走，返回可达节点集合（不含自身）。 */
-export function upstream(id, edges) {
+export function upstream(id: string, edges: GraphEdge[]): Set<string> {
   const { out } = adjacency(edges);
-  const seen = new Set();
-  const stack = [...(out.get(id) || [])];
+  const seen = new Set<string>();
+  const stack: string[] = [...(out.get(id) || [])];
   while (stack.length) {
-    const cur = stack.pop();
+    const cur = stack.pop() as string;
     if (!seen.has(cur)) {
       seen.add(cur);
       for (const next of out.get(cur) || []) stack.push(next);
@@ -157,12 +168,12 @@ export function upstream(id, edges) {
 }
 
 /** 沿入边反向可达集合（不含自身）。 */
-export function downstream(id, edges) {
+export function downstream(id: string, edges: GraphEdge[]): Set<string> {
   const { inc } = adjacency(edges);
-  const seen = new Set();
-  const stack = [...(inc.get(id) || [])];
+  const seen = new Set<string>();
+  const stack: string[] = [...(inc.get(id) || [])];
   while (stack.length) {
-    const cur = stack.pop();
+    const cur = stack.pop() as string;
     if (!seen.has(cur)) {
       seen.add(cur);
       for (const next of inc.get(cur) || []) stack.push(next);
@@ -172,7 +183,7 @@ export function downstream(id, edges) {
 }
 
 /** 一个节点的完整血缘：自身 / 上游输入 / 下游依赖。 */
-export function lineage(id, edges) {
+export function lineage(id: string, edges: GraphEdge[]): Lineage {
   return { self: new Set([id]), upstream: upstream(id, edges), downstream: downstream(id, edges) };
 }
 
@@ -183,9 +194,9 @@ export function lineage(id, edges) {
  * 同层按子列打包，返回每个节点的像素坐标与层（lane）信息。
  * @returns {{ pos: Record<string,{x,y}>, lanes: object[], width: number, height: number }}
  */
-export function layeredLayout(nodes, edges) {
+export function layeredLayout(nodes: GraphNode[], edges: GraphEdge[]): LayeredLayout {
   // 直接依赖表（跳过 数据源->字段 边，深度只看计算字段之间的引用）
-  const childrenOf = new Map();
+  const childrenOf = new Map<string, Set<string>>();
   const nodeById = new Map(); // 预先索引，避免逐节点线性查找
   nodes.forEach((n) => {
     childrenOf.set(n.id, new Set());
@@ -193,13 +204,13 @@ export function layeredLayout(nodes, edges) {
   });
   edges.forEach((e) => {
     if (e.from.startsWith("ds:")) return;
-    if (childrenOf.has(e.from)) childrenOf.get(e.from).add(e.to);
+    if (childrenOf.has(e.from)) (childrenOf.get(e.from) as Set<string>).add(e.to);
   });
 
-  const depth = new Map();
-  const visiting = new Set();
-  const depthOf = (id) => {
-    if (depth.has(id)) return depth.get(id);
+  const depth = new Map<string, number>();
+  const visiting = new Set<string>();
+  const depthOf = (id: string): number => {
+    if (depth.has(id)) return depth.get(id) as number;
     if (visiting.has(id)) return 1; // 环保护
     visiting.add(id);
     const kids = childrenOf.get(id);
@@ -217,16 +228,16 @@ export function layeredLayout(nodes, edges) {
   };
   nodes.forEach((n) => depthOf(n.id));
 
-  const byLayer = new Map();
+  const byLayer = new Map<number, GraphNode[]>();
   nodes.forEach((n) => {
-    const d = depth.get(n.id);
+    const d = depth.get(n.id) ?? 0;
     if (!byLayer.has(d)) byLayer.set(d, []);
-    byLayer.get(d).push(n);
+    (byLayer.get(d) as GraphNode[]).push(n);
   });
   // 第 1 层（原始字段）：维度在前、度量在后
   byLayer.forEach((arr, d) => {
     if (d === 1) {
-      arr.sort((a, b) => {
+      arr.sort((a: GraphNode, b: GraphNode) => {
         const ac = a.role === "dimension" ? 0 : 1;
         const bc = b.role === "dimension" ? 0 : 1;
         return ac - bc;
@@ -234,18 +245,18 @@ export function layeredLayout(nodes, edges) {
     }
   });
 
-  const pos = {};
-  const lanes = [];
+  const pos: Record<string, { x: number; y: number }> = {};
+  const lanes: Lane[] = [];
   let cursorX = DS_OFFSET;
   let maxLaneH = 0;
-  const laneRows = [];
+  const laneRows: Array<{ layer: number; arr: GraphNode[]; subCols: number; perCol: number; laneH: number }> = [];
 
   [...byLayer.keys()].sort((a, b) => a - b).forEach((d) => {
-    const arr = byLayer.get(d);
+    const arr = byLayer.get(d) as GraphNode[];
     const count = arr.length;
     const subCols = count > PER_COL ? Math.ceil(count / PER_COL) : 1;
     const perCol = Math.ceil(count / subCols);
-    const colHeights = [];
+    const colHeights: number[] = [];
     for (let i = 0; i < subCols; i++) {
       const n = Math.min(count, (i + 1) * perCol) - i * perCol;
       colHeights.push(n * NODE_H + (n - 1) * ROW_GAP);
