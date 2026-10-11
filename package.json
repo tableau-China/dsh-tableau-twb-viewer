@@ -1,7 +1,7 @@
 {
   "name": "dsh-tableau-twb-viewer",
   "version": "0.2.0",
-  "description": "TWb 检视器：在 DSH Web 中导入 Tableau .twb 工作簿，查看仪表板 1:1 布局图、字段引用关系图与数据源/计算字段 metadata（只读元数据，不解析 .twbx 数据提取）",
+  "description": "DeepSeek Harness (DSH) plugin — inspect a Tableau workbook (.twb) in the browser: 1:1 SVG dashboard layout, field-level lineage graph, datasource / calculated-field metadata. Read-only metadata; .twbx refused by design.",
   "type": "module",
   "main": "index.js",
   "files": [
@@ -10,8 +10,10 @@
     "sample.twb",
     "cordis.patch.yml",
     "src",
+    "README.md",
+    "README.zh-CN.md",
     "CHANGELOG.md",
-    "PROGRESS.md"
+    "LICENSE"
   ],
   "exports": {
     ".": "./index.js",
@@ -26,15 +28,18 @@
     "verify:update": "node test/verify.mjs --update",
     "verify:reference": "node test/verify-reference.mjs",
     "bench": "node test/bench.mjs",
-    "e2e": "node test/e2e-ui.mjs"
+    "e2e": "node test/e2e-ui.mjs",
+    "screenshots": "node test/screenshots.mjs"
   },
   "keywords": [
-    "dsh",
     "deepseek-harness",
-    "plugin",
+    "dsh",
+    "dsh-plugin",
     "tableau",
     "twb",
-    "data-lineage"
+    "workbook",
+    "data-lineage",
+    "visualization"
   ],
   "license": "Apache-2.0",
   "repository": {
@@ -60,8 +65,7 @@
     "client": {
       "platform": "web",
       "inject": [
-        "@deepseek-ai/dsh-client-ui-renderer",
-        "@deepseek-ai/dsh-client-ui-settings"
+        "slots"
       ]
     }
   },
