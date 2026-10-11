@@ -18,3 +18,27 @@
 .fs-toggle {
   white-space: nowrap;
 }
+
+/* 关系图聚焦控件（大图只渲染选中节点 ±N 跳） */
+.twb-root .focus-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--twb-muted);
+}
+.twb-root .focus-seg button {
+  padding: 3px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+.twb-root .focus-seg button.active {
+  background: var(--twb-primary);
+  border-color: var(--twb-primary);
+  color: #fff;
+}
+.twb-root .focus-count {
+  font-size: 12px;
+  color: var(--twb-muted);
+  white-space: nowrap;
+}

@@ -39,13 +39,32 @@ if (typeof document !== "undefined" && !document.querySelector(`style[data-plugi
 const CACHE_KEY = "dsh-tableau-twb-viewer.state.v1";
 let memoryCache = null;
 
+/** 内置示例路由（与 Node 半部 index.js 的 SAMPLE_PATH 保持一致）。 */
+const SAMPLE_URL = "/twb-viewer/sample.twb";
+
+/** 模型形状校验：旧版本 / 损坏的缓存直接丢弃，避免面板白屏。 */
+function isValidModel(model) {
+  if (model === null || typeof model !== "object") return false;
+  if (!Array.isArray(model.dashboards) || !Array.isArray(model.worksheets) || !Array.isArray(model.datasources)) {
+    return false;
+  }
+  return model.datasources.every((ds) => ds && typeof ds === "object" && Array.isArray(ds.columns));
+}
+
+/** 读取持久化状态；形状不合法时返回 null（视为无缓存）。 */
 function loadPersisted() {
   if (memoryCache) return memoryCache;
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
-    if (raw) memoryCache = JSON.parse(raw);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!("model" in parsed) || !isValidModel(parsed.model ?? null)) return null;
+    if (parsed.view !== "layout" && parsed.view !== "lineage") return null;
+    if (!Number.isInteger(parsed.dashIdx) || parsed.dashIdx < 0) return null;
+    memoryCache = parsed;
   } catch {
-    /* sessionStorage 不可用/配额不足时忽略 */
+    /* sessionStorage 不可用 / JSON 损坏时视为无缓存 */
   }
   return memoryCache;
 }
@@ -200,12 +219,22 @@ function wrapLabel(text, per = 10) {
 
 // ---- 上传组件 ----
 
-function Uploader({ onText, onError }) {
+function Uploader({ onText, onError, busy }) {
   const inputRef = useRef(null);
   const [drag, setDrag] = useState(false);
 
   const pick = (file) => {
     if (!file) return;
+    // .twbx 有意不支持：打包工作簿可能内嵌数据提取（.hyper 等），
+    // 只读解析 .twb 元数据可以避免把数据带进检视流程（见 README「数据安全」）。
+    if (/\.twbx$/i.test(file.name)) {
+      if (onError) {
+        onError(
+          "出于数据安全考虑，本插件不解析 .twbx（打包工作簿可能内嵌数据提取）。请在 Tableau 中「另存为」.twb 后再导入。"
+        );
+      }
+      return;
+    }
     if (!/\.twb$/i.test(file.name)) {
       if (onError) onError("请选择 .twb 文件");
       return;
@@ -222,10 +251,10 @@ function Uploader({ onText, onError }) {
 
   const loadSample = async () => {
     try {
-      const res = await fetch("/twb-viewer/sample.twb");
-      if (!res.ok) throw new Error("sample not found");
+      const res = await fetch(SAMPLE_URL);
+      if (!res.ok) throw new Error("HTTP " + res.status);
       const text = await res.text();
-      if (onText) onText(text, "sample.twb（示例）");
+      if (onText) onText(text, "sample.twb（内置示例）");
     } catch (err) {
       if (onError) onError("载入示例失败：" + err.message);
     }
@@ -248,15 +277,17 @@ function Uploader({ onText, onError }) {
       <input
         ref={inputRef}
         type="file"
-        accept=".twb,application/xml,text/xml"
+        accept=".twb"
         style={{ display: "none" }}
         onChange={(e) => pick(e.target.files[0])}
       />
-      <button className="primary" onClick={() => inputRef.current.click()}>
+      <button className="primary" onClick={() => inputRef.current.click()} disabled={busy}>
         选择 .twb 文件
       </button>
-      <button onClick={loadSample}>载入示例</button>
-      <span className="hint">拖拽 .twb 到此处，或点击选择（也可直接载入内置示例）</span>
+      <button onClick={loadSample} disabled={busy}>
+        {busy ? "加载中…" : "载入示例"}
+      </button>
+      <span className="hint">拖拽 .twb 到此处，或点击选择（打开时已自动载入内置示例）</span>
     </div>
   );
 }
@@ -741,19 +772,59 @@ const ROLE_TABS = [
   ["measure", "度量"]
 ];
 
+/** 超过该节点数时，选中节点后自动聚焦（避免一次渲染上万元素）。 */
+const LARGE_GRAPH_NODES = 1200;
+
 function LineageView({ model }) {
   const { nodes, edges } = useMemo(() => buildGraph(model), [model]);
   const nodeById = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
-  const layout = useMemo(() => layeredLayout(nodes, edges), [nodes, edges]);
 
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [focusMode, setFocusMode] = useState("auto");
   const [view, setView] = useState({ x: 40, y: 20, k: 1 });
   const svgRef = useRef(null);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
   const fitScaleRef = useRef(1);
+
+  // 聚焦跳数：auto = 大图选中时自动 ±2 跳，小图不聚焦
+  const focusHops =
+    focusMode === "all"
+      ? Infinity
+      : focusMode === "auto"
+        ? nodes.length > LARGE_GRAPH_NODES
+          ? 2
+          : Infinity
+        : Number(focusMode);
+
+  /** 实际渲染的子图（聚焦时只保留选中节点 ±N 跳的节点与两端都在集合内的边）。 */
+  const visible = useMemo(() => {
+    if (!selected || focusHops === Infinity) return { nodes, edges };
+    const keep = new Set([selected]);
+    let frontier = new Set([selected]);
+    for (let hop = 0; hop < focusHops && frontier.size; hop++) {
+      const next = new Set();
+      for (const e of edges) {
+        if (frontier.has(e.from) && !keep.has(e.to)) {
+          keep.add(e.to);
+          next.add(e.to);
+        } else if (frontier.has(e.to) && !keep.has(e.from)) {
+          keep.add(e.from);
+          next.add(e.from);
+        }
+      }
+      frontier = next;
+    }
+    return {
+      nodes: nodes.filter((n) => keep.has(n.id)),
+      edges: edges.filter((e) => keep.has(e.from) && keep.has(e.to))
+    };
+  }, [nodes, edges, selected, focusHops]);
+
+  const layout = useMemo(() => layeredLayout(visible.nodes, visible.edges), [visible]);
+  const focused = visible.nodes.length !== nodes.length;
 
   const lin = useMemo(() => (selected ? lineage(selected, edges) : null), [selected, edges]);
   const hlSet = useMemo(
@@ -940,6 +1011,29 @@ function LineageView({ model }) {
             <span className="lg-note">箭头方向：上游（左）→ 下游（右）</span>
           </div>
           <div className="toolbar-actions">
+            <span className="focus-seg" title="大图聚焦：只渲染选中节点 ±N 跳的血缘">
+              聚焦
+              {[
+                ["auto", "自动"],
+                ["1", "±1"],
+                ["2", "±2"],
+                ["3", "±3"],
+                ["all", "全部"]
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  className={focusMode === key ? "active" : ""}
+                  onClick={() => setFocusMode(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </span>
+            {focused && (
+              <span className="focus-count">
+                {visible.nodes.length} / {nodes.length} 节点
+              </span>
+            )}
             <button onClick={fit}>适配窗口</button>
             <button onClick={() => setSelected(null)}>清除高亮</button>
           </div>
@@ -977,7 +1071,7 @@ function LineageView({ model }) {
                 </text>
               </g>
             ))}
-            {edges.map((e, i) => {
+            {visible.edges.map((e, i) => {
               const from = layout.pos[e.from];
               const to = layout.pos[e.to];
               if (!from || !to) return null;
@@ -999,7 +1093,7 @@ function LineageView({ model }) {
                 />
               );
             })}
-            {nodes.map((n) => {
+            {visible.nodes.map((n) => {
               const p = layout.pos[n.id];
               if (!p) return null;
               const cat = nodeCategory(n);
@@ -1126,6 +1220,7 @@ function App({ fullscreen = false, onToggleFullscreen }) {
   const [view, setView] = useState(initial?.view ?? "layout");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState(initial?.fileName ?? "");
+  const [sampleLoading, setSampleLoading] = useState(false);
 
   // 模型 / 视图变化时写入缓存
   useEffect(() => {
@@ -1144,6 +1239,33 @@ function App({ fullscreen = false, onToggleFullscreen }) {
       setError(err.message || "解析失败");
     }
   };
+
+  // 打开即用：无缓存时自动加载内置示例（不影响随后上传自己的文件）
+  const autoLoaded = useRef(false);
+  useEffect(() => {
+    if (model || autoLoaded.current) return;
+    autoLoaded.current = true;
+    let cancelled = false;
+    setSampleLoading(true);
+    fetch(SAMPLE_URL)
+      .then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.text();
+      })
+      .then((text) => {
+        if (!cancelled) onText(text, "sample.twb（内置示例）");
+      })
+      .catch((err) => {
+        if (!cancelled) setError("自动加载内置示例失败：" + err.message + "，可手动选择 .twb 文件");
+      })
+      .finally(() => {
+        if (!cancelled) setSampleLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 仅在首次挂载且无缓存时自动加载
+  }, [model]);
 
   const stats = useMemo(() => (model ? summarize(model) : null), [model]);
   const dashboards = model?.dashboards || [];
@@ -1167,7 +1289,7 @@ function App({ fullscreen = false, onToggleFullscreen }) {
               引用关系
             </button>
           </div>
-          <Uploader onText={onText} onError={setError} />
+          <Uploader onText={onText} onError={setError} busy={sampleLoading} />
           {onToggleFullscreen && (
             <button
               className="fs-toggle"
@@ -1185,8 +1307,10 @@ function App({ fullscreen = false, onToggleFullscreen }) {
       {!model && (
         <div className="welcome">
           <div className="welcome-card">
-            <h2>开始使用</h2>
-            <p>上传一个 Tableau 工作簿（.twb）文件，即可：</p>
+            <h2>{sampleLoading ? "正在加载内置示例…" : "开始使用"}</h2>
+            <p>
+              上传一个 Tableau 工作簿（<b>.twb</b>）文件，即可：
+            </p>
             <ul>
               <li>
                 按 <b>1:1 真实比例</b> 用 SVG 绘制仪表板布局，支持缩放 / 平移；
@@ -1198,7 +1322,10 @@ function App({ fullscreen = false, onToggleFullscreen }) {
                 查看 <b>数据源、字段、计算字段公式</b> 等 metadata，便于对客户讲解口径。
               </li>
             </ul>
-            <p className="muted">没有文件？点上方「载入示例」立即体验。</p>
+            <p className="muted">
+              打开时会自动载入内置示例；上传自己的 .twb 会替换示例。
+              出于数据安全考虑，不解析 .twbx（打包工作簿可能内嵌数据提取）。
+            </p>
           </div>
         </div>
       )}
