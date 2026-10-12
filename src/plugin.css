@@ -205,9 +205,18 @@
   pointer-events: none;
 }
 .twb-root .dm-link {
+  fill: none;
   stroke: #94a3b8;
   stroke-width: 1.6;
+  pointer-events: none;
+}
+/* 透明加粗命中层：弧线本身很细，单独给一条 12px 宽的透明路径接收点击 */
+.twb-root .dm-link-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 14;
   cursor: pointer;
+  pointer-events: stroke;
 }
 .twb-root .dm-link.join-inner {
   stroke-dasharray: 0;
@@ -221,20 +230,64 @@
 .twb-root .dm-link.join-full {
   stroke-dasharray: 8 3 2 3;
 }
+/* 对象模型的关系（逻辑关联）：实线 + 略浅，区别于显式 join */
+.twb-root .dm-link.join-relationship {
+  stroke: #a5b4fc;
+  stroke-width: 2;
+}
 .twb-root .dm-edge.active .dm-link {
   stroke: var(--twb-primary, #2563eb);
-  stroke-width: 2.6;
+  stroke-width: 2.8;
 }
-.twb-root .dm-edge-badge {
-  fill: #fff;
-  stroke: #cbd5e1;
-  cursor: pointer;
+
+/* ---- 参数页签 ---- */
+.twb-root .param-tab {
+  padding: 12px;
+  overflow: auto;
+  height: 100%;
 }
-.twb-root .dm-edge-label {
-  font-size: 10.5px;
-  fill: #475569;
-  pointer-events: none;
+.twb-root .param-item {
+  border: 1px solid var(--twb-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
 }
+.twb-root .param-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.twb-root .param-name {
+  font-weight: 600;
+  color: var(--twb-text);
+}
+.twb-root .param-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--twb-primary, #2563eb);
+}
+.twb-root .param-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 11.5px;
+  color: var(--twb-muted);
+}
+.twb-root .param-raw {
+  font-family: var(--twb-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+.twb-root .row-param-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #ddd6fe;
+}
+
 .twb-root .dm-detail {
   width: 300px;
   border-left: 1px solid var(--twb-border, #e2e8f0);

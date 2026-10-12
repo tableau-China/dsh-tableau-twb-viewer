@@ -379,17 +379,67 @@ try {
       if (b) b.click();
     });
     await sleep(2000);
-    const sampleDm = await page.evaluate(() => ({
-      nodes: document.querySelectorAll(".twb-root--panel .dm-node").length,
-      edges: document.querySelectorAll(".twb-root--panel .dm-edge").length,
-      labels: [...document.querySelectorAll(".twb-root--panel .dm-edge-label")].map((e) => e.textContent.trim())
-    }));
+    const sampleDm = await page.evaluate(() => {
+      const nodeBox = (label) => {
+        const g = [...document.querySelectorAll(".twb-root--panel .dm-node")].find(
+          (n) => (n.querySelector(".dm-node-title")?.textContent || "").trim() === label
+        );
+        if (!g) return null;
+        const r = g.getBoundingClientRect();
+        return { centerY: Math.round((r.top + r.bottom) / 2) };
+      };
+      const paths = [...document.querySelectorAll(".twb-root--panel .dm-link")];
+      return {
+        nodes: document.querySelectorAll(".twb-root--panel .dm-node").length,
+        edges: document.querySelectorAll(".twb-root--panel .dm-edge").length,
+        curves: paths.filter((p) => (p.getAttribute("d") || "").includes("C")).length,
+        textLabels: document.querySelectorAll(".twb-root--panel .dm-edge-label, .twb-root--panel .dm-edge-badge").length,
+        order: nodeBox("订单"),
+        person: nodeBox("人员"),
+        ret: nodeBox("退货")
+      };
+    });
     ok(sampleDm.nodes === 5, `示例数据模型：5 张表（实际 ${sampleDm.nodes}）`);
     ok(sampleDm.edges === 2, `示例数据模型：2 条对象模型关系（实际 ${sampleDm.edges}）`);
+    ok(sampleDm.curves === 2, `关系以平衡弧线绘制（${sampleDm.curves}/2 条为三次贝塞尔）`);
+    ok(sampleDm.textLabels === 0, "弧线上不再有「关系」文字标签/徽标");
+    {
+      // 子表（人员 / 退货）应围绕父表（订单）的垂直中心对齐
+      const want = sampleDm.order?.centerY ?? 0;
+      const kidsCenter = ((sampleDm.person?.centerY ?? 0) + (sampleDm.ret?.centerY ?? 0)) / 2;
+      ok(
+        sampleDm.order && sampleDm.person && sampleDm.ret && Math.abs(kidsCenter - want) <= 4,
+        `右侧子表围绕父表中心对齐（父 ${want} / 子组中心 ${Math.round(kidsCenter)}）`
+      );
+    }
+
+    // ---- 参数：值按工作簿格式友好化，不再出现 float64 长小数 ----
+    // 先回到「布局图」视图：metadata 面板只在该视图渲染
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
+      const b = tabs.find((x) => /参数|Parameters/.test(x.textContent || ""));
+      if (b) b.click();
+    });
+    await sleep(1500);
+    const paramTab = await page.evaluate(() => ({
+      present: !!document.querySelector(".twb-root--panel .param-tab"),
+      items: document.querySelectorAll(".twb-root--panel .param-item").length,
+      text: document.querySelector(".twb-root--panel .param-tab")?.innerText.replace(/\n/g, " | ").slice(0, 240) || "",
+      values: [...document.querySelectorAll(".twb-root--panel .param-value")].map((e) => e.textContent.trim())
+    }));
+    ok(paramTab.present && paramTab.items >= 5, `「参数」页签列出 ${paramTab.items} 个参数`);
+    ok(paramTab.values.includes("6.40%"), `流失率显示为 6.40%（实际：${paramTab.values.slice(0, 4).join(" / ")}）`);
     ok(
-      sampleDm.labels.every((l) => /关系|Relationship/.test(l)),
-      `关系类型标注（${sampleDm.labels.join(" / ")}）`
+      !paramTab.values.some((v) => /0\.064000000000000001|0\.59999999999999998|18\.399999999999999/.test(v)),
+      "参数显示值已去掉 float64 往返噪声"
     );
+    ok(/原始值/.test(paramTab.text), "同时保留原始值便于核对");
+    console.log(`  参数: ${paramTab.values.slice(0, 6).join(" / ")}`);
 
     // 上传含 join 与自定义 SQL 的合成工作簿
     const dmInput = await page.$('.twb-root--panel input[type="file"]');
@@ -406,24 +456,25 @@ try {
       view: !!document.querySelector(".twb-root--panel .datamodel-view"),
       nodes: document.querySelectorAll(".twb-root--panel .dm-node").length,
       edges: document.querySelectorAll(".twb-root--panel .dm-edge").length,
-      labels: [...document.querySelectorAll(".twb-root--panel .dm-edge-label")].map((e) => e.textContent.trim()),
+      hitAreas: document.querySelectorAll(".twb-root--panel .dm-link-hit").length,
       hasSqlNode: !!document.querySelector(".twb-root--panel .dm-node.dm-custom-sql"),
       stats: document.querySelector(".twb-root--panel .dm-toolbar")?.innerText.replace(/\n/g, " ").slice(0, 70) || ""
     }));
     ok(dmView.view, "「数据模型」视图已渲染");
     ok(dmView.nodes === 5, `表/自定义 SQL 节点 5 个（实际 ${dmView.nodes}）`);
-    ok(dmView.edges === 3, `连接线 3 条（实际 ${dmView.edges}）`);
+    ok(dmView.edges === 3, `连接弧线 3 条（实际 ${dmView.edges}）`);
+    ok(dmView.hitAreas === 3, `弧线带可点击命中层（${dmView.hitAreas}）`);
     ok(dmView.hasSqlNode, "自定义 SQL 作为独立节点呈现");
-    ok(dmView.labels.some((l) => /连接/.test(l)) && dmView.labels.length === 3, `连接类型标注（${dmView.labels.join(" / ")}）`);
     console.log(`  数据模型: ${dmView.stats}`);
 
-    // 点连接线 → 详情显示 ON 条件与基数说明
+    // 点弧线 → 详情显示连接类型、ON 条件与基数说明
     await page.evaluate(() => {
-      const badge = document.querySelector(".twb-root--panel .dm-edge-badge");
-      if (badge) badge.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      const hit = document.querySelector(".twb-root--panel .dm-link-hit");
+      if (hit) hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     await sleep(1200);
     const edgeDetail = await page.evaluate(() => document.querySelector(".twb-root--panel .dm-detail")?.innerText || "");
+    ok(/内连接|左连接|右连接|Inner|Left|Right/.test(edgeDetail), "详情面板显示连接类型");
     ok(/\[t0\]\.\[id\]/.test(edgeDetail), "连接详情显示 ON 条件表达式");
     ok(/基数|Cardinality/.test(edgeDetail), "连接详情标注基数（文件未记录时给出说明）");
 
@@ -435,7 +486,7 @@ try {
     await sleep(1500);
     await page.evaluate(() => {
       const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
-      const b = tabs[tabs.length - 1];
+      const b = tabs.find((x) => /自定义 SQL|Custom SQL/.test(x.textContent || ""));
       if (b) b.click();
     });
     await sleep(1500);
@@ -447,6 +498,16 @@ try {
     ok(sqlTab.items === 1, `自定义 SQL 清单 1 条（实际 ${sqlTab.items}）`);
     ok(/SELECT/.test(sqlTab.body), "自定义 SQL 全文已展示");
     ok(sqlTab.hasCopy, "提供复制按钮（交付核对用）");
+
+    // 计算字段页签不再混入参数
+    await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
+      const b = tabs.find((x) => /计算字段|Calculations/.test(x.textContent || ""));
+      if (b) b.click();
+    });
+    await sleep(1500);
+    const calcTab = await page.evaluate(() => document.querySelector(".twb-root--panel .calc-tab")?.innerText || "");
+    ok(!/0\.064000000000000001/.test(calcTab), "「计算字段」页签不再出现参数的长小数");
   }
 
   // ---- 控制台 ----

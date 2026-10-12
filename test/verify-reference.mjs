@@ -96,10 +96,25 @@ const projectZone = (z) => ({
   kind: z.kind,
   children: z.children.map(projectZone)
 });
+// 参数列在 0.5.2 起不再携带 formula（Tableau 把参数当前值写进 <calculation formula>，
+// 照抄会被当成公式）。这里把参数列还原成「原始实现」的表示，好让其余字段继续逐字节比对；
+// 参数本身的正确性由 verify.mjs 的专项不变量与 e2e 覆盖。
+const projectColumn = (c) => {
+  if (!c.isParameter) {
+    const { isParameter: _p, parameter: _param, ...rest } = c;
+    return rest;
+  }
+  const value = c.parameter?.value ?? null;
+  const { isParameter: _p, parameter: _param, ...rest } = c;
+  return { ...rest, formula: value, formulaRaw: value };
+};
 const projectModel = (model) => ({
   dashboards: model.dashboards.map((d) => ({ ...d, zones: d.zones.map(projectZone) })),
   worksheets: model.worksheets,
-  datasources: model.datasources.map(({ dataModel: _dataModel, ...rest }) => rest)
+  datasources: model.datasources.map(({ dataModel: _dataModel, ...rest }) => ({
+    ...rest,
+    columns: rest.columns.map(projectColumn)
+  }))
 });
 
 const origModel = original.Sp(sampleText);

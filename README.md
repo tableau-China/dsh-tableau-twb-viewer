@@ -30,7 +30,8 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 - ✅ **One click from the left sidebar**: the plugin registers its own panel row in the DSH sidebar, so it opens as a full page next to your conversation — no digging through Settings.
 - ✅ **Open and it is already there**: the plugin auto-loads a built-in sample workbook, so you see the whole UI in one second — then drop in your own `.twb` to replace it.
 - ✅ **1:1 dashboard layout**: every dashboard zone is drawn as SVG at true scale (worksheets, containers, text), with zoom / pan and one-click export to **SVG / PNG / Excalidraw** for annotated review decks.
-- ✅ **Table-level data model**: every datasource's relation tree is parsed into tables + joins — join type (inner/left/right/full), the ON expression, and cardinality when the file records it — drawn as an ER-style diagram with a detail pane.
+- ✅ **Table-level data model**: every datasource's relation tree is parsed into tables + joins — join type (inner/left/right/full), the ON expression, and cardinality when the file records it — drawn as an arc diagram (balanced curves, children centred on their parent) with a detail pane.
+- ✅ **Parameters, read properly**: Tableau parameters get their own tab, with the current value formatted by the workbook's own number format (`p0.00%` → `6.40%`, `C2052` → `¥50,000`) instead of the raw float64 stored in the file (`0.064000000000000001`); the raw value stays visible for verification.
 - ✅ **Custom SQL inventory**: each `<relation type='text'>` is extracted, listed per datasource and copyable, so agreeing on the query logic takes one screen instead of a Tableau session.
 - ✅ **Zone-level detail**: zone subtypes (worksheet / flow container / basic container / card such as filters and titles / text / empty) are colour-coded with a legend, and hovering a zone shows its size, padding, margin and fill.
 - ✅ **Field lineage graph**: layered dependency graph — datasource → raw fields → calculated fields. Click any node for its **upstream inputs / downstream dependents**, search, and filter by role (dimension / measure / calculation).
@@ -66,6 +67,10 @@ Refusing `.twbx` is a deliberate security decision: a packaged workbook can carr
 **Data model** — tables, join types, ON conditions and cardinality (synthetic workbook; client files never leave the machine)
 
 ![data model](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/datamodel.png)
+
+**Parameters** — current values formatted the way the workbook formats them, raw values kept for verification
+
+![parameters](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/parameters.png)
 
 **Custom SQL** — every custom query in one list, ready for scope confirmation
 
@@ -144,7 +149,7 @@ End-to-end test in a real browser (needs local Chrome and `dsh` on PATH):
 
 ```bash
 ./test/e2e-boot.sh 3199     # terminal A: boots an isolated DSH instance, prints a token URL
-TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 45 assertions
+TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 55 assertions
 
 # also verify large-workbook focus behaviour
 TWB_LARGE_FIELDS=1500 TWB_URL="..." npm run e2e
@@ -177,7 +182,7 @@ dsh-tableau-twb-viewer/
 | DSH version | Status |
 |---|---|
 | `0.1.0-rc.6` | ✅ development baseline (first release) |
-| `0.2.1-alpha.2` | ✅ verified end-to-end (45 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
+| `0.2.1-alpha.2` | ✅ verified end-to-end (55 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
 
 Install mechanisms used: `dsh.bundle.patch` (makes the package a loaded plugin row) and
 `dsh.client` with an exported `./client` bundle (injected into the browser module graph by

@@ -258,11 +258,16 @@ export function parseWorkbook(text: string): WorkbookModel {
 
     const columns: WorkbookColumn[] = [...ds.children]
       .filter((c) => isColumnTag(c.localName || c.tagName))
-      .map((col) => {
+      .map((col): WorkbookColumn | null => {
         const n = attr(col, "name");
         if (!n) return null;
         const calcEl = child(col, "calculation");
-        const formulaRaw = calcEl ? attr(calcEl, "formula") : null;
+        // 参数：Tableau 用 <column param-domain-type='range|list|any'> 表示，
+        // 其 <calculation formula> 存的是**当前值**而不是公式（0.064 会被写成
+        // 0.064000000000000001），因此参数不参与计算字段统计，也不当公式展示。
+        const domainType = attr(col, "param-domain-type");
+        const isParameter = domainType !== null;
+        const formulaRaw = isParameter ? null : calcEl ? attr(calcEl, "formula") : null;
         let formula = formulaRaw;
         if (formulaRaw) {
           formula = formulaRaw.replace(/\[([^\]]+)\]/g, (match, inner) => {
@@ -271,6 +276,7 @@ export function parseWorkbook(text: string): WorkbookModel {
           });
         }
         const cap = attr(col, "caption");
+        const rangeEl = child(col, "range");
         return {
           name: n,
           caption: cap || null,
@@ -279,7 +285,22 @@ export function parseWorkbook(text: string): WorkbookModel {
           role: attr(col, "role"),
           type: attr(col, "type"),
           formula,
-          formulaRaw
+          formulaRaw,
+          isParameter,
+          parameter: isParameter
+            ? {
+                value: attr(col, "value"),
+                defaultFormat: attr(col, "default-format"),
+                domainType,
+                range: rangeEl
+                  ? {
+                      min: attr(rangeEl, "min"),
+                      max: attr(rangeEl, "max"),
+                      granularity: attr(rangeEl, "granularity")
+                    }
+                  : null
+              }
+            : null
         };
       })
       .filter((c): c is WorkbookColumn => c !== null);

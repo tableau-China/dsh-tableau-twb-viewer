@@ -169,6 +169,17 @@ try {
   await sleep(2000);
   await shot("metadata", () => !!document.querySelector(".twb-root .calc-list, .twb-root .calc-item"));
 
+  // 3.5) 参数（值按工作簿格式格式化，不再长小数）
+  {
+    await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root .meta-tabs button")];
+      const b = tabs.find((x) => /参数|Parameters/.test(x.textContent || ""));
+      if (b) b.click();
+    });
+    await sleep(1500);
+    await shot("parameters", () => !!document.querySelector(".twb-root .param-item"));
+  }
+
   // 4) 数据模型（表级 join + 基数）：上传合成的 join 夹具
   {
     const { makeTwb } = await import("./lib/synthetic-twb.mjs");
@@ -189,8 +200,8 @@ try {
     await sleep(2500);
     // 选中一条连接，展示右侧详情
     await page.evaluate(() => {
-      const badge = document.querySelector(".twb-root .dm-edge-badge");
-      if (badge) badge.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      const hit = document.querySelector(".twb-root .dm-link-hit");
+      if (hit) hit.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     await sleep(1200);
     await shot("datamodel", () => document.querySelectorAll(".twb-root .dm-node").length > 0);
@@ -203,7 +214,7 @@ try {
     await sleep(1500);
     await page.evaluate(() => {
       const tabs = [...document.querySelectorAll(".twb-root .meta-tabs button")];
-      const b = tabs[tabs.length - 1];
+      const b = tabs.find((x) => /自定义 SQL|Custom SQL/.test(x.textContent || ""));
       if (b) b.click();
     });
     await sleep(1500);

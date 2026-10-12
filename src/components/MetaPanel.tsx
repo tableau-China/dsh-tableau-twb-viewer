@@ -5,6 +5,7 @@ import type { WorkbookConnection, WorkbookModel } from "../types.ts";
 import { useT, type Translator } from "../i18n.tsx";
 import { FieldsTable } from "./FieldsTable.tsx";
 import { FormulaCode } from "./FormulaCode.tsx";
+import { formatParameterValue, formatRange } from "../lib/format.ts";
 
 /** 数据源连接信息 chip。 */
 function ConnectionChip({ c }: { c: WorkbookConnection | null }) {
@@ -26,7 +27,8 @@ function metaTabs(t: Translator): Array<[string, string]> {
     ["fields", t("tabFields")],
     ["calc", t("tabCalcs")],
     ["sheets", t("tabWorksheets")],
-    ["sql", t("tabCustomSql")]
+    ["sql", t("tabCustomSql")],
+    ["params", t("tabParameters")]
   ];
 }
 
@@ -41,6 +43,11 @@ export function MetaPanel({ model }: MetaPanelProps) {
   /** 全部数据源的自定义 SQL（口径核对清单）。 */
   const customSqlRows = model.datasources.flatMap((d) =>
     (d.dataModel?.customSql ?? []).map((c) => ({ ...c, dsCaption: d.caption }))
+  );
+
+  /** 全部数据源的参数（值已按工作簿格式友好化，原始值另行展示）。 */
+  const parameterRows = model.datasources.flatMap((d) =>
+    d.columns.filter((c) => c.isParameter).map((c) => ({ ...c, dsCaption: d.caption }))
   );
 
   const copySql = (sql: string) => {
@@ -95,6 +102,7 @@ export function MetaPanel({ model }: MetaPanelProps) {
                     <span>{t("overviewTables", { count: dsItem.dataModel?.tables.length ?? 0 })}</span>
                     <span>{t("overviewJoins", { count: dsItem.dataModel?.joins.length ?? 0 })}</span>
                     <span>{t("overviewSql", { count: dsItem.dataModel?.customSql.length ?? 0 })}</span>
+                    <span>{t("overviewParams", { count: dsItem.columns.filter((c) => c.isParameter).length })}</span>
                   </div>
                 </div>
               );
@@ -151,6 +159,29 @@ export function MetaPanel({ model }: MetaPanelProps) {
               ))}
               {calcRows.length === 0 && <p className="muted">{t("noMatchingCalcs")}</p>}
             </div>
+          </div>
+        )}
+        {tab === "params" && (
+          <div className="param-tab">
+            {parameterRows.length === 0 && <p className="muted">{t("paramEmpty")}</p>}
+            {parameterRows.map((p, i) => (
+              <div key={i} className="param-item">
+                <div className="param-head">
+                  <span className="param-name">{p.label}</span>
+                  <span className="param-value">{formatParameterValue(p.parameter?.value, p.parameter?.defaultFormat)}</span>
+                  <span className="sql-ds">{p.dsCaption}</span>
+                </div>
+                <div className="param-meta">
+                  <span>{t("paramDomain")}: {p.parameter?.domainType ?? "—"}</span>
+                  {formatRange(p.parameter?.range) && <span>{t("paramRange")}: {formatRange(p.parameter?.range)}</span>}
+                  <span>{t("paramFormat")}: {p.parameter?.defaultFormat ?? "—"}</span>
+                  <span title={t("paramRawHint")} className="param-raw">
+                    {t("paramRaw")}: {p.parameter?.value ?? "—"}
+                  </span>
+                </div>
+              </div>
+            ))}
+            {parameterRows.length > 0 && <p className="muted sql-note">{t("paramNote")}</p>}
           </div>
         )}
         {tab === "sql" && (

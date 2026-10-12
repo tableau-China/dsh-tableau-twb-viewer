@@ -57,6 +57,18 @@ export interface WorkbookConnection {
   filename: string | null;
 }
 
+/** 参数（Tableau Parameter）：不是字段，但会参与计算字段的引用。 */
+export interface WorkbookParameter {
+  /** 当前值（原始字符串，可能带 float64 往返噪声）。 */
+  value: string | null;
+  /** 工作簿自带的显示格式，如 p0.00% / C2052 / N。 */
+  defaultFormat: string | null;
+  /** 取值域类型：range / list / any。 */
+  domainType: string | null;
+  /** range 型参数的区间。 */
+  range: { min: string | null; max: string | null; granularity: string | null } | null;
+}
+
 /** 字段（列 / 计算字段）。 */
 export interface WorkbookColumn {
   /** 内部名（含方括号）。 */
@@ -69,6 +81,10 @@ export interface WorkbookColumn {
   type: string | null;
   /** 展示用公式（字段名已替换为 caption）。 */
   formula: string | null;
+  /** 参数标记：该列其实是 Tableau 参数（不参与「计算字段」统计）。 */
+  isParameter: boolean;
+  /** 参数详情（isParameter 时有值）。 */
+  parameter?: WorkbookParameter | null;
   /** 原始公式（用于引用解析）。 */
   formulaRaw: string | null;
 }

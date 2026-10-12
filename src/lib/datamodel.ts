@@ -100,32 +100,23 @@ export function buildDataModelGraph(model: WorkbookModel): DataModelGraph {
   return { nodes, edges };
 }
 
-/** 分层布局：无入边的节点在第 0 层，其余取父节点层号 +1。 */
+/** 分层布局：先按最长路径分层，再让**子表对齐父表的垂直中心**。
+ *
+ * 早期版本把每层在画布里平均分布，结果「订单 → 人员 / 退货」这类 1 对多关系里，
+ * 右侧两张表相对整列居中、而不是相对「订单」居中，看起来整体偏上。
+ * 现在：子节点期望位置 = 父节点中心的均值，同层按期望位置排序后就近落位，
+ * 最后整组平移使组中心贴合期望中心（不越上边界、不重叠）。
+ */
 export function layoutDataModel(graph: DataModelGraph): DataModelLayout {
   const { nodes, edges } = graph;
   const incoming = new Map<string, string[]>();
-  const outgoing = new Map<string, string[]>();
-  for (const n of nodes) {
-    incoming.set(n.id, []);
-    outgoing.set(n.id, []);
-  }
-  for (const e of edges) {
-    incoming.get(e.to)?.push(e.from);
-    outgoing.get(e.from)?.push(e.to);
-  }
+  for (const n of nodes) incoming.set(n.id, []);
+  for (const e of edges) incoming.get(e.to)?.push(e.from);
 
+  // ---- 1) 分层（最长路径；无入边为第 0 层）----
   const layer = new Map<string, number>();
-  const queue: string[] = [];
-  for (const n of nodes) {
-    if ((incoming.get(n.id) || []).length === 0) {
-      layer.set(n.id, 0);
-      queue.push(n.id);
-    }
-  }
-  // 全是环（或有入无根）时兜底：把剩余节点按顺序放到第 0 层
+  for (const n of nodes) if ((incoming.get(n.id) || []).length === 0) layer.set(n.id, 0);
   for (const n of nodes) if (!layer.has(n.id)) layer.set(n.id, 0);
-
-  // 松弛求最长路径层号（节点数很少，迭代上限即节点数）
   for (let iter = 0; iter < nodes.length; iter++) {
     let changed = false;
     for (const e of edges) {
@@ -145,24 +136,84 @@ export function layoutDataModel(graph: DataModelGraph): DataModelLayout {
     if (!byLayer.has(l)) byLayer.set(l, []);
     (byLayer.get(l) as DataModelNode[]).push(n);
   }
+  const layerKeys = [...byLayer.keys()].sort((a, b) => a - b);
 
-  const layers = [...byLayer.keys()].sort((a, b) => a - b);
-  const maxRows = Math.max(1, ...layers.map((l) => (byLayer.get(l) as DataModelNode[]).length));
+  // ---- 2) 逐层定位 ----
   const pos: Record<string, { x: number; y: number }> = {};
+  const centerY = (id: string): number => (pos[id]?.y ?? DM_PAD) + DM_NODE_H / 2;
 
-  layers.forEach((l, colIdx) => {
-    const arr = byLayer.get(l) as DataModelNode[];
-    const totalH = arr.length * DM_NODE_H + (arr.length - 1) * DM_ROW_GAP;
-    const offsetY = DM_PAD + (maxRows * DM_NODE_H + (maxRows - 1) * DM_ROW_GAP - totalH) / 2;
-    arr.forEach((n, row) => {
-      pos[n.id] = {
-        x: DM_PAD + colIdx * (DM_NODE_W + DM_COL_GAP),
-        y: offsetY + row * (DM_NODE_H + DM_ROW_GAP)
-      };
+  layerKeys.forEach((key, colIdx) => {
+    const arr = (byLayer.get(key) as DataModelNode[]).slice();
+    const x = DM_PAD + colIdx * (DM_NODE_W + DM_COL_GAP);
+
+    if (key === 0) {
+      let cursor = DM_PAD;
+      for (const n of arr) {
+        pos[n.id] = { x, y: cursor };
+        cursor += DM_NODE_H + DM_ROW_GAP;
+      }
+      return;
+    }
+
+    const desired = arr.map((n) => {
+      const parents = incoming.get(n.id) || [];
+      const centers = parents.map(centerY);
+      const anchor = centers.length ? centers.reduce((a, b) => a + b, 0) / centers.length : DM_PAD + DM_NODE_H / 2;
+      return { node: n, anchor };
     });
+    desired.sort((a, b) => a.anchor - b.anchor);
+
+    const placed: Array<{ id: string; top: number; anchor: number }> = [];
+    let cursor = DM_PAD;
+    for (const d of desired) {
+      const top = Math.max(cursor, d.anchor - DM_NODE_H / 2);
+      placed.push({ id: d.node.id, top, anchor: d.anchor });
+      cursor = top + DM_NODE_H + DM_ROW_GAP;
+    }
+
+    // 整组平移：组中心贴合父节点中心均值
+    const groupTop = placed[0].top;
+    const groupBottom = placed[placed.length - 1].top + DM_NODE_H;
+    const wantCenter = placed.reduce((s, p) => s + p.anchor, 0) / placed.length;
+    const shift = Math.max(wantCenter - (groupTop + groupBottom) / 2, DM_PAD - groupTop);
+    for (const p of placed) pos[p.id] = { x, y: p.top + shift };
   });
 
-  const width = DM_PAD * 2 + layers.length * DM_NODE_W + Math.max(0, layers.length - 1) * DM_COL_GAP;
-  const height = DM_PAD * 2 + maxRows * DM_NODE_H + Math.max(0, maxRows - 1) * DM_ROW_GAP;
-  return { pos, layers: layers.length, width: Math.max(width, 320), height: Math.max(height, 160) };
+  const maxBottom = nodes.length ? Math.max(...nodes.map((n) => pos[n.id].y + DM_NODE_H)) : DM_NODE_H;
+  const width = DM_PAD * 2 + layerKeys.length * DM_NODE_W + Math.max(0, layerKeys.length - 1) * DM_COL_GAP;
+  const height = maxBottom + DM_PAD;
+  return { pos, layers: layerKeys.length, width: Math.max(width, 320), height: Math.max(height, 160) };
+}
+
+/** 连接线路径：源节点右侧中点 → 目标节点左侧中点的**平衡弧线**（三次贝塞尔）。
+ *  同列或反向的边退回向上拱起的二次弧线，避免穿过节点。 */
+export function edgePath(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  nodeW = DM_NODE_W,
+  nodeH = DM_NODE_H
+): string {
+  const x1 = from.x + nodeW;
+  const y1 = from.y + nodeH / 2;
+  const x2 = to.x;
+  const y2 = to.y + nodeH / 2;
+  const gap = x2 - x1;
+  if (gap > 8) {
+    // 两侧控制点水平外推、对称 → 平衡的 S 形弧
+    const dx = Math.min(Math.max(gap * 0.45, 28), 130);
+    return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
+  }
+  const lift = Math.max(56, Math.abs(y2 - y1) / 2 + 40);
+  const midX = (x1 + x2) / 2;
+  return `M ${x1} ${y1} Q ${midX} ${Math.min(y1, y2) - lift}, ${x2} ${y2}`;
+}
+
+/** 连接线中点（放命中区用）。 */
+export function edgeMidpoint(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  nodeW = DM_NODE_W,
+  nodeH = DM_NODE_H
+): { x: number; y: number } {
+  return { x: (from.x + nodeW + to.x) / 2, y: (from.y + to.y) / 2 + nodeH / 2 };
 }

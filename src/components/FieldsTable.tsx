@@ -82,6 +82,7 @@ export function FieldsTable({ columns }: FieldsTableProps) {
                 <td className="fname">
                   <div className="fname-main" title={c.caption ? `内部ID: ${c.name}` : undefined}>
                     {c.label}
+                    {c.isParameter && <span className="row-param-badge">{t("paramBadge")}</span>}
                   </div>
                 </td>
                 <td>

@@ -8,6 +8,7 @@ import type { WorkbookModel } from "../types.ts";
 import {
   DM_NODE_H,
   DM_NODE_W,
+  edgePath,
   buildDataModelGraph,
   layoutDataModel,
   type DataModelEdge,
@@ -47,10 +48,8 @@ export function DataModelView({ model }: DataModelViewProps) {
   const joinCount = graph.edges.length;
   const sqlNodes = graph.nodes.filter((n) => n.kind === "custom-sql");
 
-  const center = (id: string): { x: number; y: number } => {
-    const p = layout.pos[id] ?? { x: 0, y: 0 };
-    return { x: p.x + DM_NODE_W / 2, y: p.y + DM_NODE_H / 2 };
-  };
+  /** 节点左上角坐标（edgePath 内部自行取端口）。 */
+  const pos = (id: string): { x: number; y: number } => layout.pos[id] ?? { x: 0, y: 0 };
 
   return (
     <div className="datamodel-view">
@@ -69,41 +68,28 @@ export function DataModelView({ model }: DataModelViewProps) {
             height={layout.height}
             viewBox={`0 0 ${layout.width} ${layout.height}`}
           >
-            {/* 连接线 */}
+            {/* 连接：平衡弧线（不放文字标签，类型与条件在详情面板/悬停提示里） */}
             {graph.edges.map((e) => {
-              const a = center(e.from);
-              const b = center(e.to);
-              const midX = (a.x + b.x) / 2;
+              const a = pos(e.from);
+              const b = pos(e.to);
               const active = selected?.kind === "edge" && selected.id === e.id;
               const aNode = nodeById.get(e.from);
               const bNode = nodeById.get(e.to);
+              const d = edgePath(a, b);
               return (
                 <g key={e.id} className={`dm-edge${active ? " active" : ""}`}>
-                  <line
-                    x1={a.x}
-                    y1={a.y}
-                    x2={b.x}
-                    y2={b.y}
-                    className={`dm-link join-${e.joinType}`}
+                  {/* 加粗的透明命中层：细弧线也容易点中 */}
+                  <path
+                    d={d}
+                    className="dm-link-hit"
                     onClick={() => setSelected({ kind: "edge", id: e.id })}
                   />
+                  <path d={d} className={`dm-link join-${e.joinType}`} />
                   <title>
-                    {`${aNode?.label ?? "?"} ${joinLabel(t, e.joinType)} ${bNode?.label ?? "?"}\n` +
+                    {`${aNode?.label ?? "?"} — ${joinLabel(t, e.joinType)} — ${bNode?.label ?? "?"}\n` +
                       `${t("dmOn")}: ${e.leftExpr ?? "—"} = ${e.rightExpr ?? "—"}` +
                       (e.cardinality ? `\n${t("dmCardinality")}: ${e.cardinality}` : "")}
                   </title>
-                  <rect
-                    x={midX - 34}
-                    y={(a.y + b.y) / 2 - 10}
-                    width={68}
-                    height={20}
-                    rx={10}
-                    className="dm-edge-badge"
-                    onClick={() => setSelected({ kind: "edge", id: e.id })}
-                  />
-                  <text x={midX} y={(a.y + b.y) / 2 + 4} textAnchor="middle" className="dm-edge-label">
-                    {joinLabel(t, e.joinType)}
-                  </text>
                 </g>
               );
             })}

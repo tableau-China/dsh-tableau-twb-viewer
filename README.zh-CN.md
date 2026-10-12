@@ -30,7 +30,8 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 - ✅ **左侧栏一键直达**：插件在 DSH 左侧栏注册自己的面板行，点开即在对话旁以整页呈现——不必去「设置」里翻找。
 - ✅ **打开即用**：插件自动加载内置示例工作簿，一秒看到完整界面；换成自己的 `.twb` 即可替换示例。
 - ✅ **1:1 仪表板布局图**：每个仪表板 zone（工作表 / 容器 / 文本）按真实比例绘制为 SVG，支持缩放 / 平移，一键导出 **SVG / PNG / Excalidraw**，方便做批注版交付材料。
-- ✅ **表级数据模型**：把每个数据源的 relation 树解析成「表 + 连接」——连接类型（内/左/右/全）、ON 条件表达式、文件记录了基数时一并标注，以 ER 风格图呈现并配详情面板。
+- ✅ **表级数据模型**：把每个数据源的 relation 树解析成「表 + 连接」——连接类型（内/左/右/全）、ON 条件表达式、文件记录了基数时一并标注；连接以**平衡弧线**绘制（去掉文字标签），子表围绕父表中心对齐，类型与条件在详情面板查看。
+- ✅ **参数不再被当成计算字段**：Tableau 参数单独成页签，显示值按工作簿自带的数字格式呈现（`p0.00%` → `6.40%`、`C2052` → `¥50,000`），而不是文件里原样存储的 float64（`0.064000000000000001`）；原始值一并保留便于核对。
 - ✅ **自定义 SQL 清单**：每段 `<relation type='text'>` 都被提取、按数据源列出并可一键复制，核对取数口径从「开 Tableau 翻」变成「一屏看完」。
 - ✅ **zone 级细节**：细分类型（工作表 / 流式容器 / 基础容器 / 卡片（筛选器、标题等）/ 文本 / 空白）分色并配图例；鼠标悬停即可看到尺寸、内边距、外边距与底色。
 - ✅ **字段引用关系图**：分层依赖图——数据源 → 原始字段 → 计算字段。点击任意节点查看**上游输入 / 下游依赖**，支持搜索与角色筛选（维度 / 度量 / 计算字段）。
@@ -66,6 +67,10 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 **数据模型** —— 表、连接类型、ON 条件与基数（图为合成工作簿；客户文件不出本机）
 
 ![data model](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/datamodel.zh.png)
+
+**参数** —— 显示值按工作簿格式呈现，原始值保留可核对
+
+![parameters](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/parameters.zh.png)
 
 **自定义 SQL** —— 全部自定义查询一屏列全，便于核对取数口径
 
@@ -146,7 +151,7 @@ pnpm run screenshots      # 重新生成 assets/*.png（TWB_SHOT_LOCALE=zh 出�
 
 ```bash
 ./test/e2e-boot.sh 3199     # 终端 A：启动隔离实例，打印带 token 的 URL
-TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，45 项断言
+TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，55 项断言
 
 # 连大图聚焦一起验证
 TWB_LARGE_FIELDS=1500 TWB_URL="..." pnpm run e2e
@@ -185,7 +190,7 @@ dsh-tableau-twb-viewer/
 | DSH 版本 | 状态 |
 |---|---|
 | `0.1.0-rc.6` | ✅ 开发基线（首个发布版本） |
-| `0.2.1-alpha.2` | ✅ 端到端实测通过（45 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
+| `0.2.1-alpha.2` | ✅ 端到端实测通过（55 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
 
 安装机制：`dsh.bundle.patch` 让本包成为已加载的插件行；`dsh.client` + 导出的 `./client`
 构建产物由 `client-modules` 注入浏览器模块图。UI 注册到 `settings.section` 槽位，

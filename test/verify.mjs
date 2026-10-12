@@ -96,14 +96,15 @@ for (const key of ["parse", "graph", "layout", "formulaTokens"]) {
 // ---- 显式不变量（防止基线被整体误更新而掩盖回归）----
 const fields = model.datasources.reduce((s, d) => s + d.columns.length, 0);
 const calcs = model.datasources.reduce((s, d) => s + d.columns.filter((c) => c.formula).length, 0);
+const params = model.datasources.reduce((s, d) => s + d.columns.filter((c) => c.isParameter).length, 0);
 const EXPECTED = {
   仪表板: [model.dashboards.length, 6],
   工作表: [model.worksheets.length, 21],
   数据源: [model.datasources.length, 4],
   字段: [fields, 53],
-  计算字段: [calcs, 27],
+  计算字段: [calcs, 21],
   图节点: [graph.nodes.length, 62],
-  图边: [graph.edges.length, 71],
+  图边: [graph.edges.length, 77],
   布局层数: [layout.lanes.length, 5]
 };
 for (const [name, [actual, expected]] of Object.entries(EXPECTED)) {
@@ -123,6 +124,44 @@ const tableCount = model.datasources.reduce((n, d) => n + d.dataModel.tables.len
 const joinCount = model.datasources.reduce((n, d) => n + d.dataModel.joins.length, 0);
 const sqlCount = model.datasources.reduce((n, d) => n + d.dataModel.customSql.length, 0);
 const paddedZones = allZones.filter((z) => z.format.padding !== null).length;
+
+const PARAM_EXPECTED = {
+  "参数总数（6 个，均不再计入计算字段）": [params, 6],
+  "参数当前值含 float64 往返噪声（如 0.064000000000000001）": [
+    model.datasources.flatMap((d) => d.columns).filter((c) => c.isParameter && /0\.064000000000000001/.test(c.parameter?.value ?? "")).length,
+    1
+  ],
+  "参数被误当公式的数量（应为 0）": [
+    model.datasources.flatMap((d) => d.columns).filter((c) => c.isParameter && c.formula !== null).length,
+    0
+  ]
+};
+for (const [name, [actual, expected]] of Object.entries(PARAM_EXPECTED)) {
+  if (actual !== expected) {
+    console.error(`✗ ${name} 期望 ${expected}，实际 ${actual}`);
+    failed = true;
+  }
+}
+
+// 数值格式化：工作簿原值 → 可读值
+{
+  const { formatParameterValue, stripFloatNoise } = await import("../src/lib/format.ts");
+  const fmtChecks = {
+    "0.064000000000000001 + p0.00%": [formatParameterValue("0.064000000000000001", "p0.00%"), "6.40%"],
+    "0.59999999999999998 + p0%": [formatParameterValue("0.59999999999999998", "p0%"), "60%"],
+    "18.399999999999999 + N": [formatParameterValue("18.399999999999999", "N"), "18.4"],
+    "50000 + C2052%": [formatParameterValue("50000", "C2052%"), "¥50,000"],
+    "字符串参数原样返回": [formatParameterValue("\"名称\"", null), "\"名称\""],
+    "去噪 0.064000000000000001": [stripFloatNoise("0.064000000000000001"), 0.064]
+  };
+  for (const [name, [actual, expected]] of Object.entries(fmtChecks)) {
+    if (actual !== expected) {
+      console.error(`✗ 格式化·${name} 期望 ${JSON.stringify(expected)}，实际 ${JSON.stringify(actual)}`);
+      failed = true;
+    }
+  }
+  console.log(`  参数: ${params} 个（计算字段 ${calcs}）· 数值格式化 6 项通过`);
+}
 
 const MODEL_EXPECTED = {
   "数据源表节点（含 collection 下钻）": [tableCount, 5],
