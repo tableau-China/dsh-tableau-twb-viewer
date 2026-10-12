@@ -1,7 +1,7 @@
 # TWb 检视器 for DSH · Tableau 工作簿检视器
 
-> 在 DeepSeek Harness 里检视 Tableau 工作簿（`.twb`）——**不需要装 Tableau Desktop**：1:1 的 SVG 仪表板布局图、字段级引用关系（血缘）图、完整的数据源与计算字段 metadata，全部**在浏览器端解析**。
-> A DeepSeek Harness (DSH) plugin. 只读元数据，**不碰你的数据**。
+> **面向 Tableau 交付顾问的检视工具。** 在 DeepSeek Harness 里检视工作簿（`.twb`）——**不用装 Tableau Desktop，不用许可证，不碰数据**：1:1 的 SVG 布局图（可直接交给客户在白板上批注）、表级数据模型（表之间怎么连的）、字段级引用关系图，以及每个数据源背后的自定义 SQL。
+> 全部**在浏览器端解析**；只读元数据的 DSH 插件，**不碰你的数据**。
 
 [![npm](https://img.shields.io/npm/v/dsh-tableau-twb-viewer?style=flat-square&logo=npm)](https://www.npmjs.com/package/dsh-tableau-twb-viewer)
 [![license](https://img.shields.io/github/license/tableau-China/dsh-tableau-twb-viewer?style=flat-square)](./LICENSE)
@@ -18,7 +18,9 @@
 - **这个仪表板里到底有什么？** 哪些工作表放在哪、多大面积，哪个是容器、哪个是文本区。
 - **这些计算字段怎么串起来的？** 谁引用了谁、改一个公式会牵动什么、一个字段的血缘从哪开始到哪结束。
 - **这个工作簿连的是什么？** 服务器、数据库、文件路径、字段角色与数据类型——不用打开 Tableau 就能看清。
-- **怎么给客户做交付说明？** 一张可以导出到 Excalidraw 手绘批注的布局图，加一张能在会议里顺着讲的引用关系图。
+- **表之间是怎么连的？** 表级数据模型：哪张表连哪张表、连接条件（ON）、连接类型，以及文件里记录了基数时一并标注。
+- **这个数据源背后的 SQL 是什么？** 每段自定义 SQL（`<relation type='text'>`）都被提取成清单，可以逐行和客户核对取数逻辑，不必再打开 Tableau。
+- **怎么给客户做交付说明？** 一张可以导出到 Excalidraw 手绘批注的布局图，加一张能在会议里顺着讲的引用关系图 / 数据模型图。
 
 Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览器里即时呈现，不需要许可，也不需要数据。
 
@@ -28,6 +30,9 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 - ✅ **左侧栏一键直达**：插件在 DSH 左侧栏注册自己的面板行，点开即在对话旁以整页呈现——不必去「设置」里翻找。
 - ✅ **打开即用**：插件自动加载内置示例工作簿，一秒看到完整界面；换成自己的 `.twb` 即可替换示例。
 - ✅ **1:1 仪表板布局图**：每个仪表板 zone（工作表 / 容器 / 文本）按真实比例绘制为 SVG，支持缩放 / 平移，一键导出 **SVG / PNG / Excalidraw**，方便做批注版交付材料。
+- ✅ **表级数据模型**：把每个数据源的 relation 树解析成「表 + 连接」——连接类型（内/左/右/全）、ON 条件表达式、文件记录了基数时一并标注，以 ER 风格图呈现并配详情面板。
+- ✅ **自定义 SQL 清单**：每段 `<relation type='text'>` 都被提取、按数据源列出并可一键复制，核对取数口径从「开 Tableau 翻」变成「一屏看完」。
+- ✅ **zone 级细节**：细分类型（工作表 / 流式容器 / 基础容器 / 卡片（筛选器、标题等）/ 文本 / 空白）分色并配图例；鼠标悬停即可看到尺寸、内边距、外边距与底色。
 - ✅ **字段引用关系图**：分层依赖图——数据源 → 原始字段 → 计算字段。点击任意节点查看**上游输入 / 下游依赖**，支持搜索与角色筛选（维度 / 度量 / 计算字段）。
 - ✅ **为大工作簿设计**：节点数超过 1200 时自动聚焦到选中节点的 ±2 跳血缘（可切 ±1/±2/±3/全部），5000 节点的工作簿依然流畅。
 - ✅ **全屏模式**：一键铺满浏览器窗口（`Esc` 退出），布局图与关系图自动重新适配。
@@ -57,6 +62,14 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 **字段引用关系** —— 数据源 → 原始字段 → 计算字段，点击节点看上下游
 
 ![field lineage](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/lineage.zh.png)
+
+**数据模型** —— 表、连接类型、ON 条件与基数（图为合成工作簿；客户文件不出本机）
+
+![data model](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/datamodel.zh.png)
+
+**自定义 SQL** —— 全部自定义查询一屏列全，便于核对取数口径
+
+![custom SQL](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/customsql.zh.png)
 
 **Metadata** —— 数据源连接、字段角色与高亮后的计算公式
 
@@ -100,10 +113,11 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 
 1. 打开 DSH Web，点左侧栏的 **TWb 检视器**，内置示例会自动加载。
 2. 换成自己的文件：点击 **选择 .twb 文件**，或把 `.twb` 拖到上传区。
-3. **「布局图」**：1:1 仪表板渲染；缩放、平移、适配窗口，导出 SVG / PNG / Excalidraw。
+3. **「布局图」**：1:1 仪表板渲染，带 zone 类型图例（工作表 / 容器 / 卡片 / 文本 / 空白）；缩放、平移、适配窗口，悬停 zone 看尺寸与内边距，导出 SVG / PNG / Excalidraw。
 4. **「引用关系」**：点击节点查看上下游血缘；搜索与筛选字段；用「聚焦」控件切换 ±1/±2/±3/全部。
-5. 大工作簿点 **「⛶ 全屏」**；`Esc` 或 **「✕ 退出全屏」**返回。
-6. 右侧 metadata 面板覆盖数据源、字段、计算字段与工作表。
+5. **「数据模型」**：表 / 自定义 SQL 节点 + 连接关系（连接类型、ON 条件、基数）；点表看所属数据源与物理表名，点连接看详细条件。
+6. 大工作簿点 **「⛶ 全屏」**；`Esc` 或 **「✕ 退出全屏」**返回。
+7. 右侧 metadata 面板覆盖数据源、字段、计算字段、工作表与**自定义 SQL 清单**。
 
 ## 常见问题
 
@@ -132,7 +146,7 @@ pnpm run screenshots      # 重新生成 assets/*.png（TWB_SHOT_LOCALE=zh 出�
 
 ```bash
 ./test/e2e-boot.sh 3199     # 终端 A：启动隔离实例，打印带 token 的 URL
-TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，31 项断言
+TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，42 项断言
 
 # 连大图聚焦一起验证
 TWB_LARGE_FIELDS=1500 TWB_URL="..." pnpm run e2e
@@ -171,7 +185,7 @@ dsh-tableau-twb-viewer/
 | DSH 版本 | 状态 |
 |---|---|
 | `0.1.0-rc.6` | ✅ 开发基线（首个发布版本） |
-| `0.2.1-alpha.2` | ✅ 端到端实测通过（31 项断言，含中英切换、自动加载示例与大图聚焦） |
+| `0.2.1-alpha.2` | ✅ 端到端实测通过（42 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
 
 安装机制：`dsh.bundle.patch` 让本包成为已加载的插件行；`dsh.client` + 导出的 `./client`
 构建产物由 `client-modules` 注入浏览器模块图。UI 注册到 `settings.section` 槽位，

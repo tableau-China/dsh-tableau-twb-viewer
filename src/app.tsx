@@ -10,6 +10,7 @@ import { Uploader } from "./components/Uploader.tsx";
 import { DashboardView } from "./components/DashboardView.tsx";
 import { MetaPanel } from "./components/MetaPanel.tsx";
 import { LineageView } from "./components/LineageView.tsx";
+import { DataModelView } from "./components/DataModelView.tsx";
 
 /** 应用根 props。 */
 export interface AppProps {
@@ -25,7 +26,7 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
   const initial = useRef(loadPersisted()).current;
   const [model, setModel] = useState<WorkbookModel | null>(initial?.model ?? null);
   const [dashIdx, setDashIdx] = useState(initial?.dashIdx ?? 0);
-  const [view, setView] = useState<"layout" | "lineage">(initial?.view ?? "layout");
+  const [view, setView] = useState<"layout" | "lineage" | "data">(initial?.view ?? "layout");
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState(initial?.fileName ?? "");
   const [sampleLoading, setSampleLoading] = useState(false);
@@ -93,6 +94,9 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
             </button>
             <button className={view === "lineage" ? "vt active" : "vt"} onClick={() => setView("lineage")}>
               {t("tabLineage")}
+            </button>
+            <button className={view === "data" ? "vt active" : "vt"} onClick={() => setView("data")}>
+              {t("tabDataModel")}
             </button>
           </div>
           <Uploader onText={onText} onError={setError} busy={sampleLoading} />
@@ -181,6 +185,8 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
       )}
 
       {model && view === "lineage" && <LineageView model={model} />}
+
+      {model && view === "data" && <DataModelView model={model} />}
     </div>
   );
 }

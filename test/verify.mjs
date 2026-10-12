@@ -13,6 +13,8 @@ import { DOMParser as XmldomParser } from "@xmldom/xmldom";
 import { parseWorkbook } from "../src/parser.ts";
 import { buildGraph, layeredLayout } from "../src/graph.ts";
 import { tokenize, tokenClass } from "../src/formula.ts";
+import { buildDataModelGraph } from "../src/lib/datamodel.ts";
+import { makeTwb } from "./lib/synthetic-twb.mjs";
 
 const SAMPLE = new URL("../sample.twb", import.meta.url);
 const GOLDEN = new URL("./fixtures/sample.golden.json", import.meta.url);
@@ -110,9 +112,70 @@ for (const [name, [actual, expected]] of Object.entries(EXPECTED)) {
     failed = true;
   }
 }
+// ---- 批 4 不变量：数据模型（表 / 自定义 SQL / 连接）、zone 细分与格式 ----
+const flatZones = (zs) => zs.flatMap((z) => [z, ...flatZones(z.children)]);
+const allZones = model.dashboards.flatMap((d) => flatZones(d.zones));
+const shapeCount = allZones.reduce((acc, z) => {
+  acc[z.shape] = (acc[z.shape] || 0) + 1;
+  return acc;
+}, {});
+const tableCount = model.datasources.reduce((n, d) => n + d.dataModel.tables.length, 0);
+const joinCount = model.datasources.reduce((n, d) => n + d.dataModel.joins.length, 0);
+const sqlCount = model.datasources.reduce((n, d) => n + d.dataModel.customSql.length, 0);
+const paddedZones = allZones.filter((z) => z.format.padding !== null).length;
+
+const MODEL_EXPECTED = {
+  "数据源表节点（含 collection 下钻）": [tableCount, 5],
+  "数据源连接数（示例无 join）": [joinCount, 0],
+  "自定义 SQL 数（示例无）": [sqlCount, 0],
+  "zone 总数": [allZones.length, 91],
+  "zone·worksheet": [shapeCount.worksheet || 0, 40],
+  "zone·flow 容器": [shapeCount.flow || 0, 28],
+  "zone·basic 容器": [shapeCount.basic || 0, 12],
+  "zone·卡片（筛选器/标题等）": [shapeCount.card || 0, 9],
+  "zone·empty": [shapeCount.empty || 0, 1],
+  "含 padding 的 zone": [paddedZones, 6]
+};
+for (const [name, [actual, expected]] of Object.entries(MODEL_EXPECTED)) {
+  if (actual !== expected) {
+    console.error(`✗ ${name} 期望 ${expected}，实际 ${actual}`);
+    failed = true;
+  }
+}
+
+// ---- 合成夹具：join 链 + 自定义 SQL + zone 格式（真实工作簿不可入库） ----
+{
+  const synthetic = makeTwb({ datasources: 2, fields: 12, worksheets: 3, zones: 2, joins: 3, customSql: 1, formatPadding: true });
+  const sm = parseWorkbook(synthetic);
+  const dm = sm.datasources[0].dataModel;
+  const checks = {
+    "合成·表节点 4 个（t0 + SQL + join2 + join3）": [dm.tables.length, 4],
+    "合成·连接 3 条": [dm.joins.length, 3],
+    "合成·自定义 SQL 1 段": [dm.customSql.length, 1],
+    "合成·首条连接 inner": [dm.joins[0]?.joinType, "inner"],
+    "合成·链式左端解析为自定义 SQL 节点": [dm.joins[1]?.left.name, "自定义 SQL 查询1"],
+    "合成·SQL 文本含 SELECT": [dm.customSql[0]?.sql?.includes("SELECT"), true],
+    "合成·zone padding=4": [sm.dashboards[0].zones[0]?.format?.padding, 4],
+    "合成·zone 底色 #f5f5f5": [sm.dashboards[0].zones[0]?.format?.background, "#f5f5f5"]
+  };
+  for (const [name, [actual, expected]] of Object.entries(checks)) {
+    if (actual !== expected) {
+      console.error(`✗ ${name} 期望 ${JSON.stringify(expected)}，实际 ${JSON.stringify(actual)}`);
+      failed = true;
+    }
+  }
+  const dmGraph = buildDataModelGraph(sm);
+  if (dmGraph.nodes.length !== 5 || dmGraph.edges.length !== 3) {
+    console.error(`✗ 合成·数据模型图 期望 5 节点/3 边，实际 ${dmGraph.nodes.length}/${dmGraph.edges.length}`);
+    failed = true;
+  }
+  console.log(`  数据模型（合成夹具）: ${dmGraph.nodes.length} 节点 / ${dmGraph.edges.length} 连接`);
+}
+
 console.log(
   `  规模: 仪表板 ${model.dashboards.length} · 工作表 ${model.worksheets.length} · 数据源 ${model.datasources.length} · 字段 ${fields} · 计算字段 ${calcs}`
 );
+console.log(`  数据模型（示例）: ${tableCount} 表 / ${joinCount} 连接 / ${sqlCount} 自定义 SQL · zone ${allZones.length}（含 padding ${paddedZones}）`);
 console.log(`  图: ${graph.nodes.length} 节点 / ${graph.edges.length} 边 · 画布 ${layout.width}×${layout.height}`);
 
 if (failed) process.exit(1);

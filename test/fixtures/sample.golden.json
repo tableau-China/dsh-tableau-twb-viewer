@@ -15,6 +15,15 @@
       "name": "",
       "text": "",
       "kind": "container",
+      "shape": "basic",
+      "format": {
+       "padding": null,
+       "margin": 7,
+       "background": null,
+       "borderColor": "#000000",
+       "borderWidth": 0,
+       "borderStyle": "none"
+      },
       "children": [
        {
         "x": 4.1,
@@ -25,6 +34,15 @@
         "name": "",
         "text": "",
         "kind": "container",
+        "shape": "flow",
+        "format": {
+         "padding": null,
+         "margin": null,
+         "background": null,
+         "borderColor": null,
+         "borderWidth": null,
+         "borderStyle": null
+        },
         "children": [
          {
           "x": 4.1,
@@ -35,6 +53,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "basic",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": null,
+           "borderWidth": null,
+           "borderStyle": null
+          },
           "children": [
            {
             "x": 4.1,
@@ -45,6 +72,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": [
              {
               "x": 4.1,
@@ -55,6 +91,15 @@
               "name": "",
               "text": "",
               "kind": "container",
+              "shape": "flow",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": [
                {
                 "x": 4.1,
@@ -65,6 +110,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "card",
+                "format": {
+                 "padding": null,
+                 "margin": 2,
+                 "background": null,
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -76,6 +130,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "flow",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": null,
+                 "borderColor": null,
+                 "borderWidth": null,
+                 "borderStyle": null
+                },
                 "children": [
                  {
                   "x": 4.1,
@@ -86,6 +149,15 @@
                   "name": "",
                   "text": "",
                   "kind": "container",
+                  "shape": "basic",
+                  "format": {
+                   "padding": null,
+                   "margin": null,
+                   "background": null,
+                   "borderColor": null,
+                   "borderWidth": null,
+                   "borderStyle": null
+                  },
                   "children": [
                    {
                     "x": 4.1,
@@ -96,6 +168,15 @@
                     "name": "产品视图",
                     "text": "",
                     "kind": "worksheet",
+                    "shape": "worksheet",
+                    "format": {
+                     "padding": null,
+                     "margin": null,
+                     "background": null,
+                     "borderColor": "#000000",
+                     "borderWidth": 0,
+                     "borderStyle": "none"
+                    },
                     "children": []
                    },
                    {
@@ -107,6 +188,15 @@
                     "name": "",
                     "text": "",
                     "kind": "container",
+                    "shape": "flow",
+                    "format": {
+                     "padding": 4,
+                     "margin": 4,
+                     "background": "#f5f5f5",
+                     "borderColor": "#000000",
+                     "borderWidth": 0,
+                     "borderStyle": "none"
+                    },
                     "children": [
                      {
                       "x": 888.7,
@@ -117,6 +207,15 @@
                       "name": "产品视图",
                       "text": "",
                       "kind": "worksheet",
+                      "shape": "worksheet",
+                      "format": {
+                       "padding": null,
+                       "margin": 4,
+                       "background": "#f5f5f5",
+                       "borderColor": "#000000",
+                       "borderWidth": 0,
+                       "borderStyle": "none"
+                      },
                       "children": []
                      },
                      {
@@ -128,6 +227,15 @@
                       "name": "产品视图",
                       "text": "",
                       "kind": "worksheet",
+                      "shape": "worksheet",
+                      "format": {
+                       "padding": null,
+                       "margin": 4,
+                       "background": null,
+                       "borderColor": "#000000",
+                       "borderWidth": 0,
+                       "borderStyle": "none"
+                      },
                       "children": []
                      },
                      {
@@ -139,6 +247,15 @@
                       "name": "产品详情",
                       "text": "",
                       "kind": "worksheet",
+                      "shape": "worksheet",
+                      "format": {
+                       "padding": null,
+                       "margin": 4,
+                       "background": null,
+                       "borderColor": "#000000",
+                       "borderWidth": 0,
+                       "borderStyle": "none"
+                      },
                       "children": []
                      }
                     ]
@@ -160,6 +277,15 @@
             "name": "产品详情",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": []
            }
           ]
@@ -184,6 +310,15 @@
       "name": "",
       "text": "",
       "kind": "container",
+      "shape": "basic",
+      "format": {
+       "padding": null,
+       "margin": null,
+       "background": null,
+       "borderColor": null,
+       "borderWidth": null,
+       "borderStyle": null
+      },
       "children": [
        {
         "x": 0,
@@ -194,6 +329,15 @@
         "name": "",
         "text": "",
         "kind": "container",
+        "shape": "flow",
+        "format": {
+         "padding": null,
+         "margin": 7,
+         "background": null,
+         "borderColor": "#000000",
+         "borderWidth": 0,
+         "borderStyle": "none"
+        },
         "children": [
          {
           "x": 3.3,
@@ -204,6 +348,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "card",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": null,
+           "borderWidth": null,
+           "borderStyle": null
+          },
           "children": []
          },
          {
@@ -215,6 +368,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "flow",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": null,
+           "borderWidth": null,
+           "borderStyle": null
+          },
           "children": [
            {
             "x": 3.3,
@@ -225,6 +387,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": [
              {
               "x": 3.3,
@@ -235,6 +406,15 @@
               "name": "",
               "text": "输入新的配额、佣金率和底薪，以估计销售额和报酬",
               "kind": "text",
+              "shape": "text",
+              "format": {
+               "padding": null,
+               "margin": 2,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -246,6 +426,15 @@
               "name": "",
               "text": "",
               "kind": "container",
+              "shape": "basic",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": [
                {
                 "x": 3.3,
@@ -256,6 +445,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "flow",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": null,
+                 "borderColor": null,
+                 "borderWidth": null,
+                 "borderStyle": null
+                },
                 "children": [
                  {
                   "x": 3.3,
@@ -266,6 +464,15 @@
                   "name": "",
                   "text": "",
                   "kind": "container",
+                  "shape": "card",
+                  "format": {
+                   "padding": null,
+                   "margin": null,
+                   "background": "#ffffff",
+                   "borderColor": "#000000",
+                   "borderWidth": 0,
+                   "borderStyle": "none"
+                  },
                   "children": []
                  },
                  {
@@ -277,6 +484,15 @@
                   "name": "",
                   "text": "",
                   "kind": "container",
+                  "shape": "card",
+                  "format": {
+                   "padding": null,
+                   "margin": null,
+                   "background": "#ffffff",
+                   "borderColor": "#000000",
+                   "borderWidth": 0,
+                   "borderStyle": "none"
+                  },
                   "children": []
                  }
                 ]
@@ -290,6 +506,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "card",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -301,6 +526,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "empty",
+                "format": {
+                 "padding": null,
+                 "margin": 4,
+                 "background": null,
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -312,6 +546,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "card",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                }
               ]
@@ -325,6 +568,15 @@
               "name": "",
               "text": "",
               "kind": "container",
+              "shape": "flow",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": [
                {
                 "x": 3.3,
@@ -335,6 +587,15 @@
                 "name": "配额实现情况",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": 4,
+                 "background": null,
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -346,6 +607,15 @@
                 "name": "佣金预测",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": 4,
+                 "background": null,
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                }
               ]
@@ -363,6 +633,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "flow",
+          "format": {
+           "padding": 0,
+           "margin": null,
+           "background": null,
+           "borderColor": "#000000",
+           "borderWidth": 0,
+           "borderStyle": "none"
+          },
           "children": [
            {
             "x": 3.3,
@@ -373,6 +652,15 @@
             "name": "配额实现情况",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": null,
+             "margin": 4,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": []
            },
            {
@@ -384,6 +672,15 @@
             "name": "佣金预测",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": null,
+             "margin": 4,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": []
            }
           ]
@@ -397,6 +694,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "flow",
+          "format": {
+           "padding": null,
+           "margin": 4,
+           "background": null,
+           "borderColor": "#b4b4b4",
+           "borderWidth": 1,
+           "borderStyle": "solid"
+          },
           "children": [
            {
             "x": 5.6,
@@ -407,6 +713,15 @@
             "name": "销售额",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": null,
+             "margin": 4,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": []
            },
            {
@@ -418,6 +733,15 @@
             "name": "OTE",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": null,
+             "margin": 4,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": []
            }
           ]
@@ -442,6 +766,15 @@
       "name": "",
       "text": "",
       "kind": "container",
+      "shape": "basic",
+      "format": {
+       "padding": null,
+       "margin": 7,
+       "background": null,
+       "borderColor": "#000000",
+       "borderWidth": 0,
+       "borderStyle": "none"
+      },
       "children": [
        {
         "x": 4.1,
@@ -452,6 +785,15 @@
         "name": "",
         "text": "",
         "kind": "container",
+        "shape": "flow",
+        "format": {
+         "padding": null,
+         "margin": null,
+         "background": null,
+         "borderColor": null,
+         "borderWidth": null,
+         "borderStyle": null
+        },
         "children": [
          {
           "x": 4.1,
@@ -462,6 +804,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "basic",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": null,
+           "borderWidth": null,
+           "borderStyle": null
+          },
           "children": [
            {
             "x": 4.1,
@@ -472,6 +823,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": [
              {
               "x": 4.1,
@@ -482,6 +842,15 @@
               "name": "发货摘要",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -493,6 +862,15 @@
               "name": "发货趋势",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": []
              },
              {
@@ -504,6 +882,15 @@
               "name": "发货天数",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": []
              }
             ]
@@ -517,6 +904,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "card",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": []
            },
            {
@@ -528,6 +924,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": 4,
+             "margin": 4,
+             "background": "#f5f5f5",
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": [
              {
               "x": 878.1,
@@ -538,6 +943,15 @@
               "name": "发货趋势",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -549,6 +963,15 @@
               "name": "发货趋势",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -560,6 +983,15 @@
               "name": "发货趋势",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -571,6 +1003,15 @@
               "name": "发货趋势",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              }
             ]
@@ -597,6 +1038,15 @@
       "name": "",
       "text": "",
       "kind": "container",
+      "shape": "basic",
+      "format": {
+       "padding": null,
+       "margin": 7,
+       "background": null,
+       "borderColor": "#000000",
+       "borderWidth": 0,
+       "borderStyle": "none"
+      },
       "children": [
        {
         "x": 4.1,
@@ -607,6 +1057,15 @@
         "name": "",
         "text": "",
         "kind": "container",
+        "shape": "flow",
+        "format": {
+         "padding": null,
+         "margin": null,
+         "background": null,
+         "borderColor": null,
+         "borderWidth": null,
+         "borderStyle": null
+        },
         "children": [
          {
           "x": 4.1,
@@ -617,6 +1076,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "basic",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": null,
+           "borderWidth": null,
+           "borderStyle": null
+          },
           "children": [
            {
             "x": 4.1,
@@ -627,6 +1095,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "card",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": []
            },
            {
@@ -638,6 +1115,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": [
              {
               "x": 4.1,
@@ -648,6 +1134,15 @@
               "name": "客户散点图",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 2,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -659,6 +1154,15 @@
               "name": "客户排名",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 2,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              }
             ]
@@ -672,6 +1176,15 @@
             "name": "客户概述",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": null,
+             "margin": 4,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": []
            },
            {
@@ -683,6 +1196,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": 4,
+             "margin": 4,
+             "background": "#f5f5f5",
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": [
              {
               "x": 892.7,
@@ -693,6 +1215,15 @@
               "name": "客户散点图",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -704,6 +1235,15 @@
               "name": "客户散点图",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -715,6 +1255,15 @@
               "name": "客户散点图",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": "#f5f5f5",
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -726,6 +1275,15 @@
               "name": "客户散点图",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": 4,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              }
             ]
@@ -752,6 +1310,15 @@
       "name": "",
       "text": "",
       "kind": "container",
+      "shape": "basic",
+      "format": {
+       "padding": null,
+       "margin": null,
+       "background": null,
+       "borderColor": null,
+       "borderWidth": null,
+       "borderStyle": null
+      },
       "children": [
        {
         "x": 0,
@@ -762,6 +1329,15 @@
         "name": "",
         "text": "",
         "kind": "container",
+        "shape": "flow",
+        "format": {
+         "padding": null,
+         "margin": null,
+         "background": null,
+         "borderColor": null,
+         "borderWidth": null,
+         "borderStyle": null
+        },
         "children": [
          {
           "x": 0,
@@ -772,6 +1348,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "flow",
+          "format": {
+           "padding": null,
+           "margin": 7,
+           "background": null,
+           "borderColor": "#000000",
+           "borderWidth": 0,
+           "borderStyle": "none"
+          },
           "children": [
            {
             "x": 3.5,
@@ -782,6 +1367,15 @@
             "name": "总销售额",
             "text": "",
             "kind": "worksheet",
+            "shape": "worksheet",
+            "format": {
+             "padding": 1,
+             "margin": null,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": []
            },
            {
@@ -793,6 +1387,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": [
              {
               "x": 3.5,
@@ -803,6 +1406,15 @@
               "name": "",
               "text": "",
               "kind": "container",
+              "shape": "flow",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": [
                {
                 "x": 3.5,
@@ -813,6 +1425,15 @@
                 "name": "销售地图",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": 4,
+                 "background": null,
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -824,6 +1445,15 @@
                 "name": "",
                 "text": "",
                 "kind": "container",
+                "shape": "flow",
+                "format": {
+                 "padding": 4,
+                 "margin": 4,
+                 "background": "#f5f5f5",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": [
                  {
                   "x": 913.3,
@@ -834,6 +1464,15 @@
                   "name": "销售地图",
                   "text": "",
                   "kind": "worksheet",
+                  "shape": "worksheet",
+                  "format": {
+                   "padding": null,
+                   "margin": 4,
+                   "background": "#f5f5f5",
+                   "borderColor": "#000000",
+                   "borderWidth": 0,
+                   "borderStyle": "none"
+                  },
                   "children": []
                  },
                  {
@@ -845,6 +1484,15 @@
                   "name": "销售地图",
                   "text": "",
                   "kind": "worksheet",
+                  "shape": "worksheet",
+                  "format": {
+                   "padding": null,
+                   "margin": 4,
+                   "background": "#f5f5f5",
+                   "borderColor": "#000000",
+                   "borderWidth": 0,
+                   "borderStyle": "none"
+                  },
                   "children": []
                  },
                  {
@@ -856,6 +1504,15 @@
                   "name": "销售地图",
                   "text": "",
                   "kind": "worksheet",
+                  "shape": "worksheet",
+                  "format": {
+                   "padding": null,
+                   "margin": 4,
+                   "background": "#f5f5f5",
+                   "borderColor": "#000000",
+                   "borderWidth": 0,
+                   "borderStyle": "none"
+                  },
                   "children": []
                  },
                  {
@@ -867,6 +1524,15 @@
                   "name": "销售地图",
                   "text": "",
                   "kind": "worksheet",
+                  "shape": "worksheet",
+                  "format": {
+                   "padding": null,
+                   "margin": 4,
+                   "background": null,
+                   "borderColor": "#000000",
+                   "borderWidth": 0,
+                   "borderStyle": "none"
+                  },
                   "children": []
                  }
                 ]
@@ -884,6 +1550,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": 4,
+             "background": null,
+             "borderColor": "#000000",
+             "borderWidth": 0,
+             "borderStyle": "none"
+            },
             "children": [
              {
               "x": 5.4,
@@ -894,6 +1569,15 @@
               "name": "按细分划分的销售额",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              },
              {
@@ -905,6 +1589,15 @@
               "name": "按产品划分的销售额",
               "text": "",
               "kind": "worksheet",
+              "shape": "worksheet",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": "#000000",
+               "borderWidth": 0,
+               "borderStyle": "none"
+              },
               "children": []
              }
             ]
@@ -931,6 +1624,15 @@
       "name": "",
       "text": "",
       "kind": "container",
+      "shape": "basic",
+      "format": {
+       "padding": null,
+       "margin": null,
+       "background": null,
+       "borderColor": null,
+       "borderWidth": null,
+       "borderStyle": null
+      },
       "children": [
        {
         "x": 0,
@@ -941,6 +1643,15 @@
         "name": "",
         "text": "",
         "kind": "container",
+        "shape": "flow",
+        "format": {
+         "padding": null,
+         "margin": 7,
+         "background": null,
+         "borderColor": "#000000",
+         "borderWidth": 0,
+         "borderStyle": "none"
+        },
         "children": [
          {
           "x": 3.3,
@@ -951,6 +1662,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "card",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": "#000000",
+           "borderWidth": 0,
+           "borderStyle": "none"
+          },
           "children": []
          },
          {
@@ -962,6 +1682,15 @@
           "name": "",
           "text": "",
           "kind": "container",
+          "shape": "flow",
+          "format": {
+           "padding": null,
+           "margin": null,
+           "background": null,
+           "borderColor": null,
+           "borderWidth": null,
+           "borderStyle": null
+          },
           "children": [
            {
             "x": 3.3,
@@ -972,6 +1701,15 @@
             "name": "",
             "text": "",
             "kind": "container",
+            "shape": "flow",
+            "format": {
+             "padding": null,
+             "margin": null,
+             "background": null,
+             "borderColor": null,
+             "borderWidth": null,
+             "borderStyle": null
+            },
             "children": [
              {
               "x": 3.3,
@@ -982,6 +1720,15 @@
               "name": "",
               "text": "",
               "kind": "container",
+              "shape": "flow",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": [
                {
                 "x": 3.3,
@@ -992,6 +1739,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -1003,6 +1759,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -1014,6 +1779,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -1025,6 +1799,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -1036,6 +1819,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                },
                {
@@ -1047,6 +1839,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": "#ffffff",
+                 "borderColor": "#000000",
+                 "borderWidth": 0,
+                 "borderStyle": "none"
+                },
                 "children": []
                }
               ]
@@ -1060,6 +1861,15 @@
               "name": "",
               "text": "",
               "kind": "container",
+              "shape": "basic",
+              "format": {
+               "padding": null,
+               "margin": null,
+               "background": null,
+               "borderColor": null,
+               "borderWidth": null,
+               "borderStyle": null
+              },
               "children": [
                {
                 "x": 3.3,
@@ -1070,6 +1880,15 @@
                 "name": "产品详情表",
                 "text": "",
                 "kind": "worksheet",
+                "shape": "worksheet",
+                "format": {
+                 "padding": null,
+                 "margin": null,
+                 "background": null,
+                 "borderColor": null,
+                 "borderWidth": null,
+                 "borderStyle": null
+                },
                 "children": []
                }
               ]
@@ -1175,7 +1994,12 @@
       "formulaRaw": "500000"
      }
     ],
-    "groups": []
+    "groups": [],
+    "dataModel": {
+     "tables": [],
+     "joins": [],
+     "customSql": []
+    }
    },
    {
     "caption": "销售目标",
@@ -1199,7 +2023,19 @@
       "formulaRaw": null
      }
     ],
-    "groups": []
+    "groups": [],
+    "dataModel": {
+     "tables": [
+      {
+       "name": "Sheet1",
+       "table": "[Sheet1$]",
+       "kind": "table",
+       "sql": null
+      }
+     ],
+     "joins": [],
+     "customSql": []
+    }
    },
    {
     "caption": "销售佣金",
@@ -1343,7 +2179,19 @@
       "formulaRaw": null
      }
     ],
-    "groups": []
+    "groups": [],
+    "dataModel": {
+     "tables": [
+      {
+       "name": "Sales Commission.csv",
+       "table": "[Sales Commission#csv]",
+       "kind": "table",
+       "sql": null
+      }
+     ],
+     "joins": [],
+     "customSql": []
+    }
    },
    {
     "caption": "示例 - 超市",
@@ -1720,7 +2568,31 @@
      "[Action (邮政编码,省/自治区)]",
      "[工具提示 (国家/地区,省/自治区)]",
      "[工具提示 (省/自治区)]"
-    ]
+    ],
+    "dataModel": {
+     "tables": [
+      {
+       "name": "订单",
+       "table": "[订单$]",
+       "kind": "table",
+       "sql": null
+      },
+      {
+       "name": "人员",
+       "table": "[人员$]",
+       "kind": "table",
+       "sql": null
+      },
+      {
+       "name": "退货",
+       "table": "[退货$]",
+       "kind": "table",
+       "sql": null
+      }
+     ],
+     "joins": [],
+     "customSql": []
+    }
    }
   ]
  },

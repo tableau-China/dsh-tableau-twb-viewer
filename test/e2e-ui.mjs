@@ -72,8 +72,10 @@ try {
       await clickButtonText(["Open", "打开"]);
       continue;
     }
+    // 先点「稍后配置」这类关闭型按钮："继续" 是"保存并继续"的子串，
+    // 若先匹配会一直点不开弹窗（真实踩过的坑）
+    if (await clickButtonText(["Configure later", "稍后配置", "Skip", "跳过", "Later", "稍后"])) continue;
     if (await clickButtonText(["Continue", "继续"])) continue;
-    if (await clickButtonText(["Configure later", "稍后配置"])) continue;
     const after = await page.evaluate(() => document.body.innerText.slice(0, 120));
     if (after === before) break;
   }
@@ -321,7 +323,7 @@ try {
     await sleep(2200);
     const uiZh = await readUi();
     ok(uiZh.panelLabel === "TWb 检视器", `左侧栏面板标签为中文（${uiZh.panelLabel}）`);
-    ok(uiZh.tabs.join("/") === "布局图/引用关系", `页签为中文（${uiZh.tabs.join(" / ")}）`);
+    ok(uiZh.tabs.join("/") === "布局图/引用关系/数据模型", `页签为中文（${uiZh.tabs.join(" / ")}）`);
     ok(/仪表板布局检视器/.test(uiZh.title), `标题为中文（${uiZh.title}）`);
 
     ok(await openLanguageMenu(), "语言下拉可再次打开");
@@ -330,7 +332,7 @@ try {
     await sleep(2200);
     const uiEn = await readUi();
     ok(uiEn.panelLabel === "TWb Viewer", `左侧栏面板标签为英文（${uiEn.panelLabel}）`);
-    ok(uiEn.tabs.join("/") === "Layout/Lineage", `页签为英文（${uiEn.tabs.join(" / ")}）`);
+    ok(uiEn.tabs.join("/") === "Layout/Lineage/Data model", `页签为英文（${uiEn.tabs.join(" / ")}）`);
     ok(/Dashboard Inspector/.test(uiEn.title), `标题为英文（${uiEn.title}）`);
     ok(
       !/[\u4e00-\u9fa5]/.test(uiEn.title + uiEn.subtitle + uiEn.tabs.join("")),
@@ -347,6 +349,86 @@ try {
     );
     await page.keyboard.press("Escape");
     await sleep(1500);
+  }
+
+  // ---- 批 4：数据模型（表级 join / 基数）与自定义 SQL ----
+  {
+    const { makeTwb } = await import("./lib/synthetic-twb.mjs");
+    const { writeFileSync } = await import("node:fs");
+    const dmPath = "/tmp/twb-datamodel-e2e.twb";
+    writeFileSync(
+      dmPath,
+      makeTwb({ datasources: 2, fields: 12, worksheets: 3, zones: 2, joins: 3, customSql: 1, formatPadding: true })
+    );
+
+    // 布局图例（zone 细分类型）——需先回到「布局图」页签
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    const legend = await page.evaluate(() => {
+      const el = document.querySelector(".twb-root--panel .zone-legend");
+      return { present: !!el, items: el ? el.querySelectorAll(".zl-item").length : 0 };
+    });
+    ok(legend.present && legend.items >= 6, `布局图例已渲染（${legend.items} 类 zone）`);
+
+    // 上传含 join 与自定义 SQL 的合成工作簿
+    const dmInput = await page.$('.twb-root--panel input[type="file"]');
+    await dmInput.uploadFile(dmPath);
+    await sleep(4000);
+
+    // 切到「数据模型」页签（第三个）
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[2];
+      if (b) b.click();
+    });
+    await sleep(2500);
+    const dmView = await page.evaluate(() => ({
+      view: !!document.querySelector(".twb-root--panel .datamodel-view"),
+      nodes: document.querySelectorAll(".twb-root--panel .dm-node").length,
+      edges: document.querySelectorAll(".twb-root--panel .dm-edge").length,
+      labels: [...document.querySelectorAll(".twb-root--panel .dm-edge-label")].map((e) => e.textContent.trim()),
+      hasSqlNode: !!document.querySelector(".twb-root--panel .dm-node.dm-custom-sql"),
+      stats: document.querySelector(".twb-root--panel .dm-toolbar")?.innerText.replace(/\n/g, " ").slice(0, 70) || ""
+    }));
+    ok(dmView.view, "「数据模型」视图已渲染");
+    ok(dmView.nodes === 5, `表/自定义 SQL 节点 5 个（实际 ${dmView.nodes}）`);
+    ok(dmView.edges === 3, `连接线 3 条（实际 ${dmView.edges}）`);
+    ok(dmView.hasSqlNode, "自定义 SQL 作为独立节点呈现");
+    ok(dmView.labels.some((l) => /连接/.test(l)) && dmView.labels.length === 3, `连接类型标注（${dmView.labels.join(" / ")}）`);
+    console.log(`  数据模型: ${dmView.stats}`);
+
+    // 点连接线 → 详情显示 ON 条件与基数说明
+    await page.evaluate(() => {
+      const badge = document.querySelector(".twb-root--panel .dm-edge-badge");
+      if (badge) badge.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(1200);
+    const edgeDetail = await page.evaluate(() => document.querySelector(".twb-root--panel .dm-detail")?.innerText || "");
+    ok(/\[t0\]\.\[id\]/.test(edgeDetail), "连接详情显示 ON 条件表达式");
+    ok(/基数|Cardinality/.test(edgeDetail), "连接详情标注基数（文件未记录时给出说明）");
+
+    // Metadata 面板 → 自定义 SQL 页签
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
+      const b = tabs[tabs.length - 1];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    const sqlTab = await page.evaluate(() => ({
+      items: document.querySelectorAll(".twb-root--panel .sql-item").length,
+      body: document.querySelector(".twb-root--panel .sql-body")?.textContent || "",
+      hasCopy: !!document.querySelector(".twb-root--panel .sql-copy")
+    }));
+    ok(sqlTab.items === 1, `自定义 SQL 清单 1 条（实际 ${sqlTab.items}）`);
+    ok(/SELECT/.test(sqlTab.body), "自定义 SQL 全文已展示");
+    ok(sqlTab.hasCopy, "提供复制按钮（交付核对用）");
   }
 
   // ---- 控制台 ----

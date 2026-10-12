@@ -10,13 +10,18 @@
 //   }
 
 import type {
+  DataJoinEdge,
+  DataTableRef,
+  DatasourceDataModel,
   WorkbookConnection,
   WorkbookColumn,
   WorkbookDashboard,
   WorkbookDatasource,
   WorkbookModel,
   Zone,
-  ZoneKind
+  ZoneFormat,
+  ZoneKind,
+  ZoneShape
 } from "./types.ts";
 
 /** 可容纳 zone 子元素的容器（Element 或包装对象）。 */
@@ -94,6 +99,9 @@ function parseZone(z: Element, size: { w: number; h: number }, worksheetNames: s
   if (type === "text") kind = "text";
   else if (name && worksheetNames.includes(name)) kind = "worksheet";
 
+  const shape = zoneShape(type, kind as ZoneKind);
+  const format = zoneFormat(z);
+
   // 子 zone：优先取 <zones> 容器，否则取直属 zone 子元素
   const zonesEl = child(z, "zones");
   const kids = zonesEl
@@ -109,7 +117,68 @@ function parseZone(z: Element, size: { w: number; h: number }, worksheetNames: s
     name,
     text,
     kind: kind as ZoneKind,
+    shape,
+    format,
     children: kids.length ? parseZones({ children: kids }, size, worksheetNames) : []
+  };
+}
+
+/** 卡片类 zone（筛选器 / 图例 / 标题 / 参数控件等，非布局容器也非工作表）。 */
+const CARD_TYPES = new Set([
+  "filter",
+  "color",
+  "title",
+  "paramctrl",
+  "legend",
+  "highlight",
+  "page",
+  "dashboard-title",
+  "size",
+  "shape",
+  "text-object"
+]);
+
+/** 由 type-v2 与粗分类推导细分类型（决定布局图配色与图例）。 */
+function zoneShape(typeV2: string, kind: ZoneKind): ZoneShape {
+  if (kind === "worksheet") return "worksheet";
+  if (typeV2 === "text") return "text";
+  if (typeV2 === "empty") return "empty";
+  if (typeV2 === "image" || typeV2 === "bitmap") return "image";
+  if (typeV2 === "layout-flow") return "flow";
+  if (typeV2 === "layout-vertical") return "vertical";
+  if (typeV2 === "layout-horizontal") return "horizontal";
+  if (typeV2 === "layout-basic") return "basic";
+  if (CARD_TYPES.has(typeV2)) return "card";
+  return "other";
+}
+
+/** 读取 zone 的 <format attr='...' value='...'/> 子集（padding / margin / 底色 / 边框）。 */
+function zoneFormat(z: Element): ZoneFormat {
+  const read: Record<string, string> = {};
+  // 格式既可能直接挂在 <zone> 下，也可能包在 <zone-style> 里
+  const styleEl = child(z, "zone-style");
+  const containers = styleEl ? [z, styleEl] : [z];
+  const formatEls = containers.flatMap((el) =>
+    [...el.children].filter((c) => (c.localName || c.tagName) === "format")
+  );
+  for (const f of formatEls) {
+    const attrName = f.getAttribute("attr");
+    const value = f.getAttribute("value");
+    if (attrName && value !== null) read[attrName] = value;
+  }
+  const num = (key: string): number | null => {
+    const v = read[key];
+    if (v === undefined) return null;
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  return {
+    padding: num("padding"),
+    margin: num("margin"),
+    background: read["background-color"] ?? null,
+    borderColor: read["border-color"] ?? null,
+    borderWidth: num("border-width"),
+    borderStyle: read["border-style"] ?? null
   };
 }
 
@@ -218,8 +287,126 @@ export function parseWorkbook(text: string): WorkbookModel {
     const groups = children(ds, "group")
       .map((g) => attr(g, "name"))
       .filter((n): n is string => typeof n === "string");
-    datasources.push({ caption, name, connection, columns, groups });
+    const dataModel = parseDataModel(ds);
+    datasources.push({ caption, name, connection, columns, groups, dataModel });
   }
 
   return { dashboards, worksheets, datasources };
 }
+
+// ---- 数据模型：表 / 自定义 SQL / 连接关系 ----
+
+/** 收集数据源 <connection> 下的顶层 <relation>（Tableau 新版会带 `_.fcp.*` 命名空间前缀，localName 已剥离）。 */
+function relationRoots(ds: Element): Element[] {
+  const roots: Element[] = [];
+  const walk = (el: Element, insideRelation: boolean): void => {
+    for (const c of [...el.children]) {
+      const tag = c.localName || c.tagName;
+      if (tag === "relation") {
+        if (!insideRelation) roots.push(c);
+        walk(c, true);
+      } else if (!insideRelation) {
+        walk(c, false);
+      }
+    }
+  };
+  const conn = child(ds, "connection");
+  if (conn) walk(conn, false);
+  return roots;
+}
+
+/** 把一个叶子 <relation> 描述为数据模型节点。 */
+function describeTable(rel: Element): DataTableRef {
+  const type = attr(rel, "type");
+  const name = attr(rel, "name") || "(unnamed)";
+  if (type === "text") {
+    return { name, table: null, kind: "custom-sql", sql: (rel.textContent || "").trim() || null };
+  }
+  return { name, table: attr(rel, "table"), kind: "table", sql: null };
+}
+
+/** 读取 <clause type='join'> 的 ON 条件（左 / 右表达式）与基数。 */
+function parseJoinClause(rel: Element): { leftExpr: string | null; rightExpr: string | null; cardinality: string | null } {
+  const clause = child(rel, "clause");
+  if (!clause) return { leftExpr: null, rightExpr: null, cardinality: null };
+  const cardinality = attr(clause, "cardinality");
+  const outer = child(clause, "expression");
+  const parts = outer ? children(outer, "expression") : [];
+  return {
+    leftExpr: parts[0] ? attr(parts[0], "op") : null,
+    rightExpr: parts[1] ? attr(parts[1], "op") : attr(outer, "op"),
+    cardinality
+  };
+}
+
+/** 递归解析 relation 树，产出表节点与连接边（join 可嵌套）。 */
+function parseDataModel(ds: Element): DatasourceDataModel {
+  const joins: DataJoinEdge[] = [];
+  const tableMap = new Map<string, DataTableRef>();
+  const customSql: Array<{ name: string; sql: string }> = [];
+
+  const keyOf = (t: DataTableRef): string => `${t.kind}:${t.name}:${t.table ?? ""}`;
+  const remember = (t: DataTableRef): DataTableRef => {
+    const k = keyOf(t);
+    if (!tableMap.has(k)) tableMap.set(k, t);
+    if (t.kind === "custom-sql" && t.sql && !customSql.some((x) => x.name === t.name && x.sql === t.sql)) {
+      customSql.push({ name: t.name, sql: t.sql });
+    }
+    return tableMap.get(k) as DataTableRef;
+  };
+
+  /** 由 `[表].[字段]` 形式的表达式反查表节点（找不到返回 null）。 */
+  const resolveQualifier = (expr: string | null): DataTableRef | null => {
+    if (!expr) return null;
+    const m = /^\[([^\]]+)\]/.exec(expr.trim());
+    if (!m) return null;
+    const qualifier = m[1];
+    for (const t of tableMap.values()) {
+      if (t.name === qualifier) return t;
+      if (t.table && t.table.replace(/[\[\]]/g, "") === qualifier.replace(/[\[\]]/g, "")) return t;
+    }
+    return null;
+  };
+
+  const visit = (rel: Element): DataTableRef => {
+    const relType = attr(rel, "type") || "table";
+
+    // 集合 / 并集：自身不是表，递归到子 relation（多表 extract 常见）
+    if (relType === "collection" || relType === "union") {
+      let first: DataTableRef | null = null;
+      for (const kid of children(rel, "relation")) {
+        const t = visit(kid);
+        if (!first) first = t;
+      }
+      return first ?? remember({ name: attr(rel, "name") || "(collection)", table: null, kind: "table", sql: null });
+    }
+
+    if (relType !== "join") return remember(describeTable(rel));
+
+    const kids = children(rel, "relation");
+    const left = kids[0] ? visit(kids[0]) : null;
+    const right = kids[1] ? visit(kids[1]) : null;
+    for (const extra of kids.slice(2)) visit(extra);
+
+    const { leftExpr, rightExpr, cardinality } = parseJoinClause(rel);
+    if (left && right) {
+      // ON 条件里写明了参与比较的表（[表].[字段]）：优先按它解析两端，
+      // 链式 join 的左操作数是「上一段 join 的结果」，用限定符比子树首叶子准确。
+      const leftTable = resolveQualifier(leftExpr) ?? left;
+      const rightTable = resolveQualifier(rightExpr) ?? right;
+      joins.push({
+        left: leftTable,
+        right: rightTable,
+        joinType: attr(rel, "join") || "inner",
+        leftExpr,
+        rightExpr,
+        cardinality
+      });
+    }
+    return left ?? right ?? remember({ name: "(join)", table: null, kind: "table", sql: null });
+  };
+
+  for (const root of relationRoots(ds)) visit(root);
+  return { tables: [...tableMap.values()], joins, customSql };
+}
+

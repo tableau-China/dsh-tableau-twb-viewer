@@ -1,7 +1,7 @@
 # TWb Viewer for DSH · Tableau Workbook Inspector
 
-> Inspect a Tableau workbook (`.twb`) inside DeepSeek Harness — **no Tableau Desktop needed**: a 1:1 SVG dashboard layout, a field-level lineage graph, and full data-source / calculated-field metadata, all parsed **in your browser**.
-> A DeepSeek Harness (DSH) plugin. Read-only metadata, **never touches your data**.
+> **A delivery tool for Tableau consultants.** Inspect a workbook (`.twb`) inside DeepSeek Harness — **no Tableau Desktop, no license, no data**: a 1:1 SVG dashboard layout you can hand to a client as a whiteboard file, a table-level data model showing how the tables are joined, a field-level lineage graph, and the custom SQL behind each datasource.
+> Everything is parsed **in your browser**; a DeepSeek Harness (DSH) plugin that reads metadata only and **never touches your data**.
 
 [![npm](https://img.shields.io/npm/v/dsh-tableau-twb-viewer?style=flat-square&logo=npm)](https://www.npmjs.com/package/dsh-tableau-twb-viewer)
 [![license](https://img.shields.io/github/license/tableau-China/dsh-tableau-twb-viewer?style=flat-square)](./LICENSE)
@@ -17,6 +17,8 @@ Workbooks are the hardest thing to explain about a Tableau deployment. You have 
 
 - **What is actually in this dashboard?** Which worksheets sit where, how big are they, what is a container vs. a worksheet vs. a text zone.
 - **How do these calculated fields connect?** Which field feeds which, what breaks if I change a formula, where a field's lineage starts and ends.
+- **How are the tables joined?** A table-level data model: which table joins which, the ON condition, the join type, and the cardinality when Tableau records it.
+- **What SQL is behind this datasource?** Every custom SQL (`<relation type='text'>`) pulled out and listed, so you can confirm the query logic line by line instead of opening Tableau.
 - **What is this workbook wired to?** Server, database, file path, field roles and data types — without opening Tableau.
 - **How do I document it for a client?** A layout you can export to Excalidraw/SVG and annotate, plus a lineage diagram you can walk through in a meeting.
 
@@ -28,6 +30,9 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 - ✅ **One click from the left sidebar**: the plugin registers its own panel row in the DSH sidebar, so it opens as a full page next to your conversation — no digging through Settings.
 - ✅ **Open and it is already there**: the plugin auto-loads a built-in sample workbook, so you see the whole UI in one second — then drop in your own `.twb` to replace it.
 - ✅ **1:1 dashboard layout**: every dashboard zone is drawn as SVG at true scale (worksheets, containers, text), with zoom / pan and one-click export to **SVG / PNG / Excalidraw** for annotated review decks.
+- ✅ **Table-level data model**: every datasource's relation tree is parsed into tables + joins — join type (inner/left/right/full), the ON expression, and cardinality when the file records it — drawn as an ER-style diagram with a detail pane.
+- ✅ **Custom SQL inventory**: each `<relation type='text'>` is extracted, listed per datasource and copyable, so agreeing on the query logic takes one screen instead of a Tableau session.
+- ✅ **Zone-level detail**: zone subtypes (worksheet / flow container / basic container / card such as filters and titles / text / empty) are colour-coded with a legend, and hovering a zone shows its size, padding, margin and fill.
 - ✅ **Field lineage graph**: layered dependency graph — datasource → raw fields → calculated fields. Click any node for its **upstream inputs / downstream dependents**, search, and filter by role (dimension / measure / calculation).
 - ✅ **Built for large workbooks**: above 1,200 nodes the graph auto-focuses on the selected node's ±2 hops (switchable ±1/±2/±3/all), so a 5,000-node workbook stays smooth instead of freezing the panel.
 - ✅ **Full-screen mode**: one click fills the browser window (`Esc` to exit); layout and lineage refit automatically.
@@ -57,6 +62,14 @@ Refusing `.twbx` is a deliberate security decision: a packaged workbook can carr
 **Field lineage** — datasource → raw fields → calculated fields; click a node for up/downstream
 
 ![field lineage](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/lineage.png)
+
+**Data model** — tables, join types, ON conditions and cardinality (synthetic workbook; client files never leave the machine)
+
+![data model](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/datamodel.png)
+
+**Custom SQL** — every custom query in one list, ready for scope confirmation
+
+![custom SQL](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/customsql.png)
 
 **Metadata** — datasource connections, field roles, and highlighted calculation formulas
 
@@ -100,10 +113,11 @@ dsh plugin --profile web add ./dsh-tableau-twb-viewer
 
 1. Open DSH Web and click **TWb Viewer** in the **left sidebar**. The built-in sample loads automatically.
 2. Replace it with your own file: click **Choose .twb file** or drag a `.twb` onto the uploader.
-3. **Layout** tab: 1:1 dashboard rendering; zoom, pan, fit, and export SVG / PNG / Excalidraw.
+3. **Layout** tab: 1:1 dashboard rendering with a zone-type legend (worksheet / container / card / text / empty); zoom, pan, fit, hover a zone for its size and padding, and export SVG / PNG / Excalidraw.
 4. **Lineage** tab: click any node to see upstream/downstream lineage; search and filter fields; use the *Focus* control to show ±1/±2/±3 hops or the whole graph.
-5. **⛶ Full screen** for large workbooks; `Esc` or **✕ Exit full screen** to come back.
-6. The right-hand metadata panel covers datasources, fields, calculations, and worksheets.
+5. **Data model** tab: tables, join types, ON conditions and cardinality; click a table for its datasource and physical name, or a join for its detail.
+6. **⛶ Full screen** for large workbooks; `Esc` or **✕ Exit full screen** to come back.
+7. The right-hand metadata panel covers datasources, fields, calculations, worksheets, and the **Custom SQL** inventory.
 
 ## Troubleshooting
 
@@ -130,7 +144,7 @@ End-to-end test in a real browser (needs local Chrome and `dsh` on PATH):
 
 ```bash
 ./test/e2e-boot.sh 3199     # terminal A: boots an isolated DSH instance, prints a token URL
-TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 31 assertions
+TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 42 assertions
 
 # also verify large-workbook focus behaviour
 TWB_LARGE_FIELDS=1500 TWB_URL="..." npm run e2e
@@ -163,7 +177,7 @@ dsh-tableau-twb-viewer/
 | DSH version | Status |
 |---|---|
 | `0.1.0-rc.6` | ✅ development baseline (first release) |
-| `0.2.1-alpha.2` | ✅ verified end-to-end (31 assertions incl. zh/en switching, auto-loaded sample, large-graph focus) |
+| `0.2.1-alpha.2` | ✅ verified end-to-end (42 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
 
 Install mechanisms used: `dsh.bundle.patch` (makes the package a loaded plugin row) and
 `dsh.client` with an exported `./client` bundle (injected into the browser module graph by

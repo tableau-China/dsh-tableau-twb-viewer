@@ -82,9 +82,48 @@ const check = (name, a, b) => {
   }
 };
 
+// 批 4 起我们的模型多了 zone.shape / zone.format / datasource.dataModel。
+// 差分仍要证明「原有语义逐字节不变」，因此先把这些**新增字段投影掉**再比，
+// 新增字段本身另用断言保证真的解析出来了（不是空壳）。
+const projectZone = (z) => ({
+  x: z.x,
+  y: z.y,
+  w: z.w,
+  h: z.h,
+  type: z.type,
+  name: z.name,
+  text: z.text,
+  kind: z.kind,
+  children: z.children.map(projectZone)
+});
+const projectModel = (model) => ({
+  dashboards: model.dashboards.map((d) => ({ ...d, zones: d.zones.map(projectZone) })),
+  worksheets: model.worksheets,
+  datasources: model.datasources.map(({ dataModel: _dataModel, ...rest }) => rest)
+});
+
 const origModel = original.Sp(sampleText);
 const myModel = parseWorkbook(sampleText);
-check("parseWorkbook", origModel, myModel);
+check("parseWorkbook（原有字段）", origModel, projectModel(myModel));
+
+// 新增字段必须真实存在（防空壳回归）
+{
+  const flat = (zs) => zs.flatMap((z) => [z, ...flat(z.children)]);
+  const zones = myModel.dashboards.flatMap((d) => flat(d.zones));
+  const withShape = zones.filter((z) => typeof z.shape === "string").length;
+  const withFormat = zones.filter((z) => z.format && typeof z.format === "object").length;
+  const withModel = myModel.datasources.filter((d) => d.dataModel && Array.isArray(d.dataModel.tables)).length;
+  const problems = [];
+  if (withShape !== zones.length) problems.push(`shape 缺失 ${zones.length - withShape} 个`);
+  if (withFormat !== zones.length) problems.push(`format 缺失 ${zones.length - withFormat} 个`);
+  if (withModel !== myModel.datasources.length) problems.push(`dataModel 缺失 ${myModel.datasources.length - withModel} 个`);
+  if (problems.length) {
+    console.error("✗ 批 4 新增字段不完整：" + problems.join("；"));
+    failed = true;
+  } else {
+    console.log(`✓ 批 4 新增字段（${zones.length} zone 的 shape/format · ${myModel.datasources.length} 个数据源的 dataModel）`);
+  }
+}
 
 const origGraph = original.Cp(origModel);
 const myGraph = buildGraph(origModel);

@@ -10,7 +10,7 @@ export interface ViewerState {
   model: WorkbookModel | null;
   dashIdx: number;
   /** 当前视图：布局图 / 引用关系。 */
-  view: "layout" | "lineage";
+  view: "layout" | "lineage" | "data";
   fileName: string;
 }
 
@@ -45,7 +45,7 @@ export function loadPersisted(): ViewerState | null {
     const parsed = JSON.parse(raw) as Partial<ViewerState> & { model?: unknown };
     if (!parsed || typeof parsed !== "object") return null;
     if (!("model" in parsed) || !isValidModel(parsed.model ?? null)) return null;
-    if (parsed.view !== "layout" && parsed.view !== "lineage") return null;
+    if (parsed.view !== "layout" && parsed.view !== "lineage" && parsed.view !== "data") return null;
     if (!Number.isInteger(parsed.dashIdx) || (parsed.dashIdx as number) < 0) return null;
     memoryCache = parsed as ViewerState;
   } catch {

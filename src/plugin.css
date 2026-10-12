@@ -52,3 +52,260 @@
   color: var(--twb-muted);
   white-space: nowrap;
 }
+
+/* ---- 布局图例（zone 细分类型，与 ZONE_STYLE 同源） ---- */
+.twb-root .zone-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--twb-muted);
+  border-bottom: 1px solid var(--twb-border, #e2e8f0);
+  background: #fff;
+}
+.twb-root .zl-title {
+  font-weight: 600;
+  color: var(--twb-text);
+}
+.twb-root .zl-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.twb-root .zl-swatch {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  border-width: 1px;
+  border-style: solid;
+  display: inline-block;
+}
+
+/* ---- 数据源卡片的数据模型计数 ---- */
+.twb-root .ds-model-stats {
+  border-top: 1px dashed var(--twb-border, #e2e8f0);
+  margin-top: 4px;
+  padding-top: 4px;
+  color: var(--twb-muted);
+}
+
+/* ---- 自定义 SQL 页签 ---- */
+.twb-root .sql-tab {
+  padding: 12px;
+  overflow: auto;
+  height: 100%;
+}
+.twb-root .sql-item {
+  border: 1px solid var(--twb-border, #e2e8f0);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.twb-root .sql-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--twb-border, #e2e8f0);
+  font-size: 12px;
+}
+.twb-root .sql-name {
+  font-weight: 600;
+  color: var(--twb-text);
+}
+.twb-root .sql-ds {
+  color: var(--twb-muted);
+  flex: 1;
+}
+.twb-root .sql-copy {
+  padding: 2px 8px;
+  font-size: 11px;
+}
+.twb-root .sql-body {
+  margin: 0;
+  padding: 10px;
+  font-family: var(--twb-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 260px;
+  overflow: auto;
+  color: #0f172a;
+}
+.twb-root .sql-note {
+  font-size: 12px;
+}
+
+/* ---- 数据模型视图 ---- */
+.twb-root .datamodel-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: #fff;
+}
+.twb-root .dm-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--twb-border, #e2e8f0);
+  font-size: 12px;
+}
+.twb-root .dm-stat {
+  font-weight: 600;
+  color: var(--twb-text);
+}
+.twb-root .dm-hint {
+  color: var(--twb-muted);
+}
+.twb-root .dm-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.twb-root .dm-canvas {
+  flex: 1;
+  overflow: auto;
+  background:
+    linear-gradient(#f8fafc 1px, transparent 1px) 0 0 / 100% 24px,
+    linear-gradient(90deg, #f8fafc 1px, transparent 1px) 0 0 / 24px 100%,
+    #fff;
+}
+.twb-root .dm-svg {
+  display: block;
+}
+.twb-root .dm-node rect {
+  fill: #eff6ff;
+  stroke: #3b82f6;
+  stroke-width: 1.5;
+  cursor: pointer;
+}
+.twb-root .dm-node.dm-custom-sql rect {
+  fill: #f5f3ff;
+  stroke: #8b5cf6;
+}
+.twb-root .dm-node.active rect {
+  stroke-width: 3;
+}
+.twb-root .dm-node-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  fill: #0f172a;
+  pointer-events: none;
+}
+.twb-root .dm-node-sub {
+  font-size: 10.5px;
+  fill: #64748b;
+  pointer-events: none;
+}
+.twb-root .dm-link {
+  stroke: #94a3b8;
+  stroke-width: 1.6;
+  cursor: pointer;
+}
+.twb-root .dm-link.join-inner {
+  stroke-dasharray: 0;
+}
+.twb-root .dm-link.join-left {
+  stroke-dasharray: 6 4;
+}
+.twb-root .dm-link.join-right {
+  stroke-dasharray: 2 4;
+}
+.twb-root .dm-link.join-full {
+  stroke-dasharray: 8 3 2 3;
+}
+.twb-root .dm-edge.active .dm-link {
+  stroke: var(--twb-primary, #2563eb);
+  stroke-width: 2.6;
+}
+.twb-root .dm-edge-badge {
+  fill: #fff;
+  stroke: #cbd5e1;
+  cursor: pointer;
+}
+.twb-root .dm-edge-label {
+  font-size: 10.5px;
+  fill: #475569;
+  pointer-events: none;
+}
+.twb-root .dm-detail {
+  width: 300px;
+  border-left: 1px solid var(--twb-border, #e2e8f0);
+  padding: 12px;
+  overflow: auto;
+  font-size: 12px;
+  background: #fff;
+}
+.twb-root .dm-detail-empty {
+  color: var(--twb-muted);
+}
+.twb-root .dm-detail-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--twb-text);
+}
+.twb-root .dm-detail dl {
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: 4px 8px;
+  margin: 0;
+}
+.twb-root .dm-detail dt {
+  color: var(--twb-muted);
+}
+.twb-root .dm-detail dd {
+  margin: 0;
+  word-break: break-word;
+}
+.twb-root .dm-detail .mono,
+.twb-root .dm-sql {
+  font-family: var(--twb-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+}
+.twb-root .dm-sql-title {
+  margin: 10px 0 4px;
+  font-weight: 600;
+}
+.twb-root .dm-sql {
+  background: #f8fafc;
+  border: 1px solid var(--twb-border, #e2e8f0);
+  border-radius: 6px;
+  padding: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 240px;
+  overflow: auto;
+  font-size: 11.5px;
+  margin: 0;
+}
+.twb-root .dm-legend {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--twb-muted);
+}
+.twb-root .dm-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.twb-root .dm-swatch {
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
+  border: 1.5px solid #3b82f6;
+  background: #eff6ff;
+  display: inline-block;
+}
+.twb-root .dm-swatch.dm-custom-sql {
+  border-color: #8b5cf6;
+  background: #f5f3ff;
+}

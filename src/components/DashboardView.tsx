@@ -1,28 +1,63 @@
 // 仪表板布局：1:1 SVG 渲染 + 缩放 / 平移 + 导出 SVG / PNG / Excalidraw。
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { WorkbookDashboard, Zone } from "../types.ts";
+import type { WorkbookDashboard, Zone, ZoneShape } from "../types.ts";
 import { SVG_NS, downloadBlob, excalidrawJson } from "../lib/exporters.ts";
-import { useT } from "../i18n.tsx";
+import { useT, type Translator } from "../i18n.tsx";
+
+/** zone 细分类型的视觉样式（与图例共用同一张表）。 */
+export const ZONE_STYLE: Record<ZoneShape, { fill: string; stroke: string; dash?: string }> = {
+  worksheet: { fill: "#dbeafe", stroke: "#3b82f6" },
+  text: { fill: "#ffffff", stroke: "#94a3b8" },
+  flow: { fill: "#f1f5f9", stroke: "#cbd5e1", dash: "5 4" },
+  vertical: { fill: "#f5f3ff", stroke: "#c4b5fd", dash: "5 4" },
+  horizontal: { fill: "#eff6ff", stroke: "#bfdbfe", dash: "5 4" },
+  basic: { fill: "#f8fafc", stroke: "#cbd5e1" },
+  card: { fill: "#fef9c3", stroke: "#facc15" },
+  image: { fill: "#ecfdf5", stroke: "#6ee7b7" },
+  empty: { fill: "none", stroke: "#e2e8f0", dash: "3 3" },
+  other: { fill: "#f8fafc", stroke: "#cbd5e1" }
+};
+
+/** 图例文案键（与 ZONE_STYLE 一一对应）。 */
+const ZONE_LEGEND_KEY: Record<string, string> = {
+  worksheet: "zoneWorksheet",
+  flow: "zoneFlow",
+  basic: "zoneBasic",
+  card: "zoneCard",
+  text: "zoneText",
+  empty: "zoneEmpty"
+};
 
 /** 单个 zone 的 SVG 渲染（递归）。 */
-function ZoneNode({ z, depth }: { z: Zone; depth: number }) {
+function ZoneNode({ z, depth, t }: { z: Zone; depth: number; t: Translator }) {
   const isWs = z.kind === "worksheet";
   const isText = z.kind === "text";
-  const fill = isWs ? "#dbeafe" : isText ? "#ffffff" : "#f8fafc";
-  const stroke = isWs ? "#3b82f6" : "#cbd5e1";
-  const dash = z.kind === "container" && z.type.includes("flow") ? "5 4" : "";
+  const style = ZONE_STYLE[z.shape] ?? ZONE_STYLE.other;
+  const dash = style.dash ?? "";
   const fontSize = isWs ? Math.max(9, Math.min(15, z.h * 0.16)) : 13;
+
+  // 交付场景：hover 即可看到类型、尺寸与内边距
+  const tip = [
+    z.name || z.type || t("zoneBasic"),
+    `${Math.round(z.w)} × ${Math.round(z.h)}`,
+    z.format.padding !== null ? t("zonePadding", { value: z.format.padding }) : null,
+    z.format.margin !== null ? t("zoneMargin", { value: z.format.margin }) : null,
+    z.format.background ? `${t("zoneColor")} ${z.format.background}` : null
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   return (
     <g>
+      <title>{tip}</title>
       <rect
         x={z.x}
         y={z.y}
         width={Math.max(1, z.w)}
         height={Math.max(1, z.h)}
-        fill={fill}
-        stroke={stroke}
+        fill={style.fill}
+        stroke={style.stroke}
         strokeWidth={1}
         strokeDasharray={dash}
         rx={2}
@@ -51,7 +86,7 @@ function ZoneNode({ z, depth }: { z: Zone; depth: number }) {
         </text>
       )}
       {z.children &&
-        z.children.map((kid, i) => <ZoneNode key={i} z={kid} depth={depth + 1} />)}
+        z.children.map((kid, i) => <ZoneNode key={i} z={kid} depth={depth + 1} t={t} />)}
     </g>
   );
 }
@@ -176,7 +211,7 @@ export function DashboardView({ dashboard }: DashboardViewProps) {
   };
 
   if (!dashboard) {
-    return <div className="canvas-empty">请选择或上传一个包含仪表板的 .twb 文件</div>;
+    return <div className="canvas-empty">{t("noDashboard")}</div>;
   }
 
   return (
@@ -201,6 +236,22 @@ export function DashboardView({ dashboard }: DashboardViewProps) {
           </button>
         </div>
       </div>
+      <div className="zone-legend">
+        <span className="zl-title">{t("zoneLegendTitle")}</span>
+        {(["worksheet", "flow", "basic", "card", "text", "empty"] as ZoneShape[]).map((shape) => (
+          <span key={shape} className="zl-item">
+            <span
+              className="zl-swatch"
+              style={{
+                background: ZONE_STYLE[shape].fill === "none" ? "transparent" : ZONE_STYLE[shape].fill,
+                borderColor: ZONE_STYLE[shape].stroke,
+                borderStyle: ZONE_STYLE[shape].dash ? "dashed" : "solid"
+              }}
+            />
+            {t(ZONE_LEGEND_KEY[shape])}
+          </span>
+        ))}
+      </div>
       <div
         ref={viewportRef}
         className="canvas-viewport"
@@ -218,7 +269,7 @@ export function DashboardView({ dashboard }: DashboardViewProps) {
           <rect x={0} y={0} width={width} height={height} fill="#ffffff" />
           <g ref={zonesRef}>
             {dashboard.zones.map((z, i) => (
-              <ZoneNode key={i} z={z} depth={0} />
+              <ZoneNode key={i} z={z} depth={0} t={t} />
             ))}
           </g>
         </svg>

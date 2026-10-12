@@ -25,7 +25,8 @@ function metaTabs(t: Translator): Array<[string, string]> {
     ["overview", t("tabOverview")],
     ["fields", t("tabFields")],
     ["calc", t("tabCalcs")],
-    ["sheets", t("tabWorksheets")]
+    ["sheets", t("tabWorksheets")],
+    ["sql", t("tabCustomSql")]
   ];
 }
 
@@ -35,6 +36,22 @@ export function MetaPanel({ model }: MetaPanelProps) {
   const [dsIdx, setDsIdx] = useState(0);
   const [calcSearch, setCalcSearch] = useState("");
   const ds = model.datasources[dsIdx];
+  const [copied, setCopied] = useState<string | null>(null);
+
+  /** 全部数据源的自定义 SQL（口径核对清单）。 */
+  const customSqlRows = model.datasources.flatMap((d) =>
+    (d.dataModel?.customSql ?? []).map((c) => ({ ...c, dsCaption: d.caption }))
+  );
+
+  const copySql = (sql: string) => {
+    void navigator.clipboard?.writeText(sql).then(
+      () => {
+        setCopied(sql);
+        setTimeout(() => setCopied(null), 1600);
+      },
+      () => undefined
+    );
+  };
 
   const calcRows = (ds ? ds.columns.filter((c) => c.formula) : []).filter((c) => {
     const q = calcSearch.trim().toLowerCase();
@@ -73,6 +90,11 @@ export function MetaPanel({ model }: MetaPanelProps) {
                     <span>{t("fieldCount", { count: dsItem.columns.length })}</span>
                     <span>{t("calcCount", { count: calcCount })}</span>
                     <span>{t("groupCount", { count: dsItem.groups.length })}</span>
+                  </div>
+                  <div className="ds-stats ds-model-stats">
+                    <span>{t("overviewTables", { count: dsItem.dataModel?.tables.length ?? 0 })}</span>
+                    <span>{t("overviewJoins", { count: dsItem.dataModel?.joins.length ?? 0 })}</span>
+                    <span>{t("overviewSql", { count: dsItem.dataModel?.customSql.length ?? 0 })}</span>
                   </div>
                 </div>
               );
@@ -129,6 +151,24 @@ export function MetaPanel({ model }: MetaPanelProps) {
               ))}
               {calcRows.length === 0 && <p className="muted">{t("noMatchingCalcs")}</p>}
             </div>
+          </div>
+        )}
+        {tab === "sql" && (
+          <div className="sql-tab">
+            {customSqlRows.length === 0 && <p className="muted">{t("sqlEmpty")}</p>}
+            {customSqlRows.map((row, i) => (
+              <div key={i} className="sql-item">
+                <div className="sql-head">
+                  <span className="sql-name">{row.name}</span>
+                  <span className="sql-ds">{row.dsCaption}</span>
+                  <button className="sql-copy" onClick={() => copySql(row.sql)}>
+                    {copied === row.sql ? t("sqlCopied") : t("sqlCopy")}
+                  </button>
+                </div>
+                <pre className="sql-body">{row.sql}</pre>
+              </div>
+            ))}
+            {customSqlRows.length > 0 && <p className="muted sql-note">{t("sqlNote")}</p>}
           </div>
         )}
         {tab === "sheets" && (

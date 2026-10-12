@@ -168,6 +168,47 @@ try {
   });
   await sleep(2000);
   await shot("metadata", () => !!document.querySelector(".twb-root .calc-list, .twb-root .calc-item"));
+
+  // 4) 数据模型（表级 join + 基数）：上传合成的 join 夹具
+  {
+    const { makeTwb } = await import("./lib/synthetic-twb.mjs");
+    const { writeFileSync } = await import("node:fs");
+    const dmPath = "/tmp/twb-datamodel-shot.twb";
+    writeFileSync(
+      dmPath,
+      makeTwb({ datasources: 2, fields: 14, worksheets: 4, zones: 3, joins: 3, customSql: 1, formatPadding: true })
+    );
+    const input = await page.$(".twb-root--panel input[type=file], .twb-root input[type=file]");
+    if (input) await input.uploadFile(dmPath);
+    await sleep(4000);
+
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root .view-tabs button")[2];
+      if (b) b.click();
+    });
+    await sleep(2500);
+    // 选中一条连接，展示右侧详情
+    await page.evaluate(() => {
+      const badge = document.querySelector(".twb-root .dm-edge-badge");
+      if (badge) badge.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(1200);
+    await shot("datamodel", () => document.querySelectorAll(".twb-root .dm-node").length > 0);
+
+    // 5) 自定义 SQL 清单（口径核对）
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root .view-tabs button")[0];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root .meta-tabs button")];
+      const b = tabs[tabs.length - 1];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    await shot("customsql", () => !!document.querySelector(".twb-root .sql-body"));
+  }
 } finally {
   await browser.close();
 }

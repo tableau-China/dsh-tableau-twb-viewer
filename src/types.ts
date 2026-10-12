@@ -16,10 +16,37 @@ export interface Zone {
   /** 文本 zone 的文本内容。 */
   text: string;
   kind: ZoneKind;
+  /** 细分类别（用于布局图配色与图例）。 */
+  shape: ZoneShape;
+  /** zone 的格式属性（padding / margin / 底色 / 边框，读自 <format>）。 */
+  format: ZoneFormat;
   children: Zone[];
 }
 
 export type ZoneKind = "worksheet" | "container" | "text";
+
+/** zone 细分类型：容器子类型、卡片（筛选器/标题/图例等）、图像、空对象。 */
+export type ZoneShape =
+  | "worksheet"
+  | "text"
+  | "empty"
+  | "image"
+  | "flow"
+  | "vertical"
+  | "horizontal"
+  | "basic"
+  | "card"
+  | "other";
+
+/** zone 格式属性（`<format attr='...' value='...'/>` 子集）。 */
+export interface ZoneFormat {
+  padding: number | null;
+  margin: number | null;
+  background: string | null;
+  borderColor: string | null;
+  borderWidth: number | null;
+  borderStyle: string | null;
+}
 
 /** 数据源连接信息（Tableau `<connection>` 属性子集）。 */
 export interface WorkbookConnection {
@@ -52,6 +79,44 @@ export interface WorkbookDatasource {
   connection: WorkbookConnection | null;
   columns: WorkbookColumn[];
   groups: string[];
+  /** 数据模型：表 / 自定义 SQL 节点 + 连接关系。 */
+  dataModel: DatasourceDataModel;
+}
+
+/** 数据模型里的一个节点：物理表或自定义 SQL。 */
+export interface DataTableRef {
+  /** 展示名（relation 的 name 属性，自定义 SQL 时通常是「自定义 SQL 查询」）。 */
+  name: string;
+  /** 物理表名（relation 的 table 属性，形如 [Sheet1$]）；自定义 SQL 时为 null。 */
+  table: string | null;
+  /** 节点类型。 */
+  kind: "table" | "custom-sql";
+  /** 自定义 SQL 文本（kind === "custom-sql"）。 */
+  sql: string | null;
+}
+
+/** 一次表连接（join）及其条件。 */
+export interface DataJoinEdge {
+  left: DataTableRef;
+  right: DataTableRef;
+  /** Tableau relation 的 join 属性：inner / left / right / full 等。 */
+  joinType: string;
+  /** ON 条件左侧表达式（形如 [表].[字段]）。 */
+  leftExpr: string | null;
+  /** ON 条件右侧表达式。 */
+  rightExpr: string | null;
+  /** 基数（Tableau 写入时才有，如 many-to-one）。 */
+  cardinality: string | null;
+}
+
+/** 数据源的数据模型（表级）。 */
+export interface DatasourceDataModel {
+  /** 去重后的节点（表 / 自定义 SQL）。 */
+  tables: DataTableRef[];
+  /** 表间连接。 */
+  joins: DataJoinEdge[];
+  /** 自定义 SQL 清单（便于口径核对）。 */
+  customSql: Array<{ name: string; sql: string }>;
 }
 
 export interface WorkbookDashboard {
