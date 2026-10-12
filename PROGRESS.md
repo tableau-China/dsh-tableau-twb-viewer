@@ -46,6 +46,18 @@
 
 ## 环境坑与绕法
 
+### npm 发布（2026-10-12 事故记录）
+
+- **`npm stage publish | tee` 会用 tee 的退出码掩盖 npm 的失败**：v0.5.0 发布时 NPM_TOKEN 已失效
+  （`E401 Unable to authenticate, your authentication token seems to be invalid.`），
+  但 `release` 工作流仍显示 **success**。修复：暂存步骤加 `set -o pipefail` + stage id 非空校验
+  （已用真实失效 token 复现：修复前退出码 0 / 修复后 1）。
+- **NPM_TOKEN 会随账号轮换失效**：仓库 secret 里的 token 于 2026-10-11 有效（v0.3.1 暂存成功），
+  2026-10-12 已 401。轮换后需更新仓库 Secret，再用
+  `gh workflow run release.yml -f tag=vX.Y.Z` 重跑暂存（**无需重新打 tag**）。
+- **本机 `.npmrc` 指向 npmmirror 镜像**：发布必须显式 `--registry=https://registry.npmjs.org/`；
+  `package.json` 的 `publishConfig` 已固定官方源。
+
 ### pnpm 11（本机 11.28.2）
 
 - **设置项已搬离 package.json**：`pnpm` 字段不再读取，`pnpm-workspace.yaml` 才是新家。
