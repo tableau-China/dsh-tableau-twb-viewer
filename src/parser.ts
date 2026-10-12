@@ -320,9 +320,9 @@ function describeTable(rel: Element): DataTableRef {
   const type = attr(rel, "type");
   const name = attr(rel, "name") || "(unnamed)";
   if (type === "text") {
-    return { name, table: null, kind: "custom-sql", sql: (rel.textContent || "").trim() || null };
+    return { name, table: null, kind: "custom-sql", sql: (rel.textContent || "").trim() || null, objectId: null };
   }
-  return { name, table: attr(rel, "table"), kind: "table", sql: null };
+  return { name, table: attr(rel, "table"), kind: "table", sql: null, objectId: null };
 }
 
 /** 读取 <clause type='join'> 的 ON 条件（左 / 右表达式）与基数。 */
@@ -339,8 +339,85 @@ function parseJoinClause(rel: Element): { leftExpr: string | null; rightExpr: st
   };
 }
 
+/** 取子树里第一个 <relation>（对象模型把 relation 放在 <properties> 内）。 */
+function firstRelation(el: Element): Element | null {
+  for (const c of [...el.children]) {
+    if ((c.localName || c.tagName) === "relation") return c;
+    const deeper = firstRelation(c);
+    if (deeper) return deeper;
+  }
+  return null;
+}
+
+/** 解析新版对象模型：<object-graph> 里的 objects（表）+ relationships（表间关系）。
+ *
+ * 结构（Tableau 2020.2+，含中文示例工作簿）：
+ *   <object-graph><objects>
+ *     <object caption='订单' id='订单_6D2E…'><properties><relation …/></properties></object>
+ *   </objects><relationships>
+ *     <relationship><expression op='='>…</expression>
+ *       <first-end-point object-id='订单_6D2E…'/><second-end-point object-id='人员_37AF…'/></relationship>
+ *   </relationships></object-graph>
+ */
+function parseObjectGraph(ds: Element): DatasourceDataModel | null {
+  const graph = child(ds, "object-graph");
+  if (!graph) return null;
+
+  const tableMap = new Map<string, DataTableRef>();
+  const customSql: Array<{ name: string; sql: string }> = [];
+  const byObjectId = new Map<string, DataTableRef>();
+
+  for (const obj of children(child(graph, "objects"), "object")) {
+    const objectId = attr(obj, "id");
+    const rel = firstRelation(obj);
+    const relName = rel ? attr(rel, "name") : null;
+    const caption = attr(obj, "caption") || relName || "(object)";
+    const relType = rel ? attr(rel, "type") : null;
+    const ref: DataTableRef =
+      relType === "text"
+        ? {
+            name: caption,
+            table: null,
+            kind: "custom-sql",
+            sql: rel ? (rel.textContent || "").trim() || null : null,
+            objectId
+          }
+        : { name: caption, table: rel ? attr(rel, "table") : null, kind: "table", sql: null, objectId };
+    tableMap.set("obj:" + (objectId || caption), ref);
+    if (objectId) byObjectId.set(objectId, ref);
+    if (ref.kind === "custom-sql" && ref.sql) customSql.push({ name: ref.name, sql: ref.sql });
+  }
+  if (tableMap.size === 0) return null;
+
+  const joins: DataJoinEdge[] = [];
+  for (const relEl of children(child(graph, "relationships"), "relationship")) {
+    const outer = child(relEl, "expression");
+    const parts = outer ? children(outer, "expression") : [];
+    const first = child(relEl, "first-end-point");
+    const second = child(relEl, "second-end-point");
+    const left = byObjectId.get(attr(first, "object-id") || "");
+    const right = byObjectId.get(attr(second, "object-id") || "");
+    if (!left || !right) continue;
+    joins.push({
+      left,
+      right,
+      // 逻辑关系（Tableau 在查询时才决定实际连接方式），无 join 关键字
+      joinType: "relationship",
+      leftExpr: parts[0] ? attr(parts[0], "op") : null,
+      rightExpr: parts[1] ? attr(parts[1], "op") : null,
+      cardinality: attr(relEl, "cardinality") || null
+    });
+  }
+
+  return { tables: [...tableMap.values()], joins, customSql };
+}
+
 /** 递归解析 relation 树，产出表节点与连接边（join 可嵌套）。 */
 function parseDataModel(ds: Element): DatasourceDataModel {
+  // 新版对象模型信息更全（含表间关系），能解析就优先用它
+  const fromObjectGraph = parseObjectGraph(ds);
+  if (fromObjectGraph) return fromObjectGraph;
+
   const joins: DataJoinEdge[] = [];
   const tableMap = new Map<string, DataTableRef>();
   const customSql: Array<{ name: string; sql: string }> = [];
@@ -378,7 +455,7 @@ function parseDataModel(ds: Element): DatasourceDataModel {
         const t = visit(kid);
         if (!first) first = t;
       }
-      return first ?? remember({ name: attr(rel, "name") || "(collection)", table: null, kind: "table", sql: null });
+      return first ?? remember({ name: attr(rel, "name") || "(collection)", table: null, kind: "table", sql: null, objectId: null });
     }
 
     if (relType !== "join") return remember(describeTable(rel));
@@ -403,7 +480,7 @@ function parseDataModel(ds: Element): DatasourceDataModel {
         cardinality
       });
     }
-    return left ?? right ?? remember({ name: "(join)", table: null, kind: "table", sql: null });
+    return left ?? right ?? remember({ name: "(join)", table: null, kind: "table", sql: null, objectId: null });
   };
 
   for (const root of relationRoots(ds)) visit(root);

@@ -63,11 +63,11 @@ export function buildDataModelGraph(model: WorkbookModel): DataModelGraph {
     const dm = ds.dataModel;
     if (!dm || dm.tables.length === 0) return;
     const dsName = ds.caption || `#${dsIdx + 1}`;
-    const idOf = (name: string, table: string | null, kind: string): string =>
-      `ds${dsIdx}:${kind}:${name}:${table ?? ""}`;
+    const idOf = (name: string, table: string | null, kind: string, objectId?: string | null): string =>
+      `ds${dsIdx}:${kind}:${name}:${table ?? ""}:${objectId ?? ""}`;
 
     for (const t of dm.tables) {
-      const id = idOf(t.name, t.table, t.kind);
+      const id = idOf(t.name, t.table, t.kind, t.objectId);
       if (seen.has(id)) continue;
       seen.add(id);
       nodes.push({
@@ -81,8 +81,8 @@ export function buildDataModelGraph(model: WorkbookModel): DataModelGraph {
     }
 
     dm.joins.forEach((j, i) => {
-      const from = idOf(j.left.name, j.left.table, j.left.kind);
-      const to = idOf(j.right.name, j.right.table, j.right.kind);
+      const from = idOf(j.left.name, j.left.table, j.left.kind, j.left.objectId);
+      const to = idOf(j.right.name, j.right.table, j.right.kind, j.right.objectId);
       if (!seen.has(from) || !seen.has(to)) return;
       edges.push({
         id: `ds${dsIdx}:join${i}`,

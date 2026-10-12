@@ -373,6 +373,24 @@ try {
     });
     ok(legend.present && legend.items >= 6, `布局图例已渲染（${legend.items} 类 zone）`);
 
+    // 内置示例走的是新版对象模型：示例-超市 的 3 张表应有 2 条 relationship
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[2];
+      if (b) b.click();
+    });
+    await sleep(2000);
+    const sampleDm = await page.evaluate(() => ({
+      nodes: document.querySelectorAll(".twb-root--panel .dm-node").length,
+      edges: document.querySelectorAll(".twb-root--panel .dm-edge").length,
+      labels: [...document.querySelectorAll(".twb-root--panel .dm-edge-label")].map((e) => e.textContent.trim())
+    }));
+    ok(sampleDm.nodes === 5, `示例数据模型：5 张表（实际 ${sampleDm.nodes}）`);
+    ok(sampleDm.edges === 2, `示例数据模型：2 条对象模型关系（实际 ${sampleDm.edges}）`);
+    ok(
+      sampleDm.labels.every((l) => /关系|Relationship/.test(l)),
+      `关系类型标注（${sampleDm.labels.join(" / ")}）`
+    );
+
     // 上传含 join 与自定义 SQL 的合成工作簿
     const dmInput = await page.$('.twb-root--panel input[type="file"]');
     await dmInput.uploadFile(dmPath);

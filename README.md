@@ -144,7 +144,7 @@ End-to-end test in a real browser (needs local Chrome and `dsh` on PATH):
 
 ```bash
 ./test/e2e-boot.sh 3199     # terminal A: boots an isolated DSH instance, prints a token URL
-TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 42 assertions
+TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 45 assertions
 
 # also verify large-workbook focus behaviour
 TWB_LARGE_FIELDS=1500 TWB_URL="..." npm run e2e
@@ -177,7 +177,7 @@ dsh-tableau-twb-viewer/
 | DSH version | Status |
 |---|---|
 | `0.1.0-rc.6` | ✅ development baseline (first release) |
-| `0.2.1-alpha.2` | ✅ verified end-to-end (42 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
+| `0.2.1-alpha.2` | ✅ verified end-to-end (45 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
 
 Install mechanisms used: `dsh.bundle.patch` (makes the package a loaded plugin row) and
 `dsh.client` with an exported `./client` bundle (injected into the browser module graph by

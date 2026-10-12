@@ -126,7 +126,7 @@ const paddedZones = allZones.filter((z) => z.format.padding !== null).length;
 
 const MODEL_EXPECTED = {
   "数据源表节点（含 collection 下钻）": [tableCount, 5],
-  "数据源连接数（示例无 join）": [joinCount, 0],
+  "数据源连接/关系数（示例：对象模型 2 条 relationship）": [joinCount, 2],
   "自定义 SQL 数（示例无）": [sqlCount, 0],
   "zone 总数": [allZones.length, 91],
   "zone·worksheet": [shapeCount.worksheet || 0, 40],

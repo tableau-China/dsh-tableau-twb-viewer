@@ -93,6 +93,8 @@ export interface DataTableRef {
   kind: "table" | "custom-sql";
   /** 自定义 SQL 文本（kind === "custom-sql"）。 */
   sql: string | null;
+  /** 新版对象模型（object-graph）里的对象 id；relationship 的端点用它引用表。 */
+  objectId?: string | null;
 }
 
 /** 一次表连接（join）及其条件。 */

@@ -21,7 +21,8 @@ function joinLabel(t: Translator, joinType: string): string {
     inner: t("joinInner"),
     left: t("joinLeft"),
     right: t("joinRight"),
-    full: t("joinFull")
+    full: t("joinFull"),
+    relationship: t("joinRelationship")
   };
   return map[joinType] ?? joinType;
 }

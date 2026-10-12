@@ -4,7 +4,7 @@
 
 ## 当前状态（2026-10-11）
 
-- 版本：`0.5.0`（`package.json` ↔ CHANGELOG 已交叉核对）
+- 版本：`0.5.1`（`package.json` ↔ CHANGELOG 已交叉核对）
 - DSH 兼容：`0.1.0-rc.6`（开发基线）与 `0.2.1-alpha.2`（端到端实测通过）
 - 已发布：GitHub `tableau-China/dsh-tableau-twb-viewer`
   - `v0.1.0`（2026-08-15）与 `v0.2.0`（2026-10-11）Release 均在架，附可安装 tarball
@@ -22,6 +22,7 @@
 | — | 移除设置入口、精简工具栏、接入 npm 发布（0.3.1） | ✅ 完成（2026-10-11） |
 | 批 3 | TypeScript 迁移 + 组件拆分 + pnpm + 中英双语（0.4.0） | ✅ 完成（2026-10-11） |
 | 批 4 | 自定义 SQL、表级数据模型（join/基数）、zone 细分 + padding（0.5.0） | ✅ 完成（2026-10-12） |
+| 批 4.1 | 解析新版对象模型 object-graph，补回表间关系（0.5.1） | ✅ 完成（2026-10-12） |
 | — | 移除设置入口、精简工具栏、接入 npm 发布（0.3.1） | ✅ 完成（2026-10-11） |
 | 批 3 | TypeScript 迁移、`app.jsx` 组件拆分、pnpm 迁移、`node:test` 单测 | ⏳ 待排期 |
 | 批 4 | Mermaid/CSV 导出、i18n、紧凑布局（分块 + 换行） | ⏳ 待排期 |
@@ -38,6 +39,7 @@
 | 大图聚焦阈值 1200 节点、自动 ±2 跳 | 实测 5,382 节点全量 SVG 渲染明显卡顿；聚焦后 907 节点流畅。阈值可通过常量调整（`app.jsx` 的 `LARGE_GRAPH_NODES`）。 |
 | TS 用 Node 24 原生类型剥离跑测试（直接 import `.ts`） | 避免为测试再引入 tsx/esbuild 构建步骤；`.ts` 显式导入同时被 esbuild 与 tsc 接受（`allowImportingTsExtensions` + `noEmit`）。 |
 | i18n 走宿主 `ctx.locale`（`register` + `bind`）而非自建状态 | 语言切换由宿主统一驱动，槽位注册带 `locale: NS` 时组件直接拿到 `t`；组件树内部用 React context 传递，未挂 Provider 时退回内置字典，便于单测。 |
+| 数据模型**优先解析对象模型**（`<object-graph>`），legacy relation 树作为回退 | Tableau 2020.2+ 把表与表间关系写在 `<objects><object>` + `<relationships><relationship>`（端点用 object-id），而 `<connection>` 下的 relation 树只是旧视图、不含关系；只解析后者会让多表数据源在图上散成孤点（用户实测反馈）。两条路径都有夹具覆盖。 |
 | 数据模型连接两端按 ON 限定符解析，而非子树叶节点 | 链式 join（t0 ⋈ SQL1 ⋈ join2）里，外层 join 的左操作数是「上一段 join 的结果」，用子树叶节点会把 3 条连接都记成 t0；ON 表达式本身写了 `[表].[字段]`，按它反查最准，查不到再回退到子树。 |
 | 数据模型夹具一律合成 | 真实工作簿含服务器名、库表名、SQL 与字段名，属客户资产，不进公开仓库；`test/lib/synthetic-twb.mjs` 支持 joins / customSql / formatPadding 选项生成同构夹具。 |
 | **唯一入口**放左侧栏（`sidebar.panellist` + `main` 整页），设置分区已移除 | 设置里藏插件要求用户主动去找；DSH 0.2.x 的生态惯例是左侧栏面板行 + 主区整页（plugin-manager / schedule 同构），入口常驻可见。唯一入口避免「两处入口、状态各一份」的困惑。 |

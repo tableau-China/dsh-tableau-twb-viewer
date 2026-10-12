@@ -146,7 +146,7 @@ pnpm run screenshots      # 重新生成 assets/*.png（TWB_SHOT_LOCALE=zh 出�
 
 ```bash
 ./test/e2e-boot.sh 3199     # 终端 A：启动隔离实例，打印带 token 的 URL
-TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，42 项断言
+TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，45 项断言
 
 # 连大图聚焦一起验证
 TWB_LARGE_FIELDS=1500 TWB_URL="..." pnpm run e2e
@@ -185,7 +185,7 @@ dsh-tableau-twb-viewer/
 | DSH 版本 | 状态 |
 |---|---|
 | `0.1.0-rc.6` | ✅ 开发基线（首个发布版本） |
-| `0.2.1-alpha.2` | ✅ 端到端实测通过（42 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
+| `0.2.1-alpha.2` | ✅ 端到端实测通过（45 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
 
 安装机制：`dsh.bundle.patch` 让本包成为已加载的插件行；`dsh.client` + 导出的 `./client`
 构建产物由 `client-modules` 注入浏览器模块图。UI 注册到 `settings.section` 槽位，
