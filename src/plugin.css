@@ -432,3 +432,70 @@
   color: #64748b;
   word-break: break-all;
 }
+
+/* ---- 右侧栏宽度统一：布局图 / 数据模型 与引用关系一致（实测 280px） ---- */
+.twb-root .right {
+  width: 280px;
+  min-width: 280px;
+  flex: 0 0 280px;
+}
+.twb-root .dm-detail {
+  flex: 0 0 280px;
+  width: 280px;
+  padding: 12px;
+  font-size: 13px;
+}
+/* 画布允许收缩，否则会把右侧详情挤扁（实测会压到 191px） */
+.twb-root .dm-canvas {
+  min-width: 0;
+}
+.twb-root .dm-detail-title {
+  font-size: 16px;
+  line-height: 22px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.twb-root .dm-detail dl {
+  grid-template-columns: 58px 1fr;
+  gap: 6px 8px;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.twb-root .dm-detail dt {
+  color: var(--twb-muted);
+}
+.twb-root .dm-sql {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.twb-root .dm-sql-list-title {
+  font-size: 12.5px;
+}
+.twb-root .dm-sql-item {
+  font-size: 12.5px;
+  padding: 6px 8px;
+}
+.twb-root .dm-legend {
+  font-size: 12px;
+}
+
+/* ---- 右栏：当前仪表板的工作表 / 高亮态 ---- */
+.twb-root .wb-sheet.highlight {
+  background: #dbeafe;
+  border-color: #1d4ed8;
+  font-weight: 600;
+  color: #1e3a8a;
+}
+.twb-root .wb-sheet.highlight::after {
+  content: "◉";
+  margin-left: 6px;
+  color: #1d4ed8;
+  font-size: 11px;
+}
+.twb-root .wb-note {
+  margin: 8px 0 0;
+  font-size: 11.5px;
+  color: var(--twb-muted);
+}

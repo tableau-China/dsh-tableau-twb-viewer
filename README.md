@@ -36,9 +36,9 @@ Tableau Desktop shows you this by opening the workbook; DSH's plugin shows it in
 - ✅ **Zone-level detail**: zone subtypes (worksheet / flow container / basic container / card such as filters and titles / text / empty) are colour-coded with a legend, and hovering a zone shows its size, padding, margin and fill.
 - ✅ **Field lineage graph**: layered dependency graph — datasource → raw fields → calculated fields. Click any node for its **upstream inputs / downstream dependents**, search, and filter by role (dimension / measure / calculation).
 - ✅ **Built for large workbooks**: above 1,200 nodes the graph auto-focuses on the selected node's ±2 hops (switchable ±1/±2/±3/all), so a 5,000-node workbook stays smooth instead of freezing the panel.
-- ✅ **Full-screen mode**: one click fills the browser window (`Esc` to exit); layout and lineage refit automatically.
+- ✅ **Full-screen mode** (and no accidental zooming: the lineage graph pans and fits, but no longer zooms on scroll): one click fills the browser window (`Esc` to exit); layout and lineage refit automatically.
 - ✅ **State persisted**: the parsed workbook is cached (with shape validation), so switching panels or reloading the page brings back your file and current view.
-- ✅ **Workbook panel**: the layout view's right side lists **dashboards** (size and worksheet count; click to switch) and **worksheets** (badged with how many dashboards use them) — nothing else competing for attention.
+- ✅ **Workbook panel**: the layout view's right side lists **dashboards** (worksheet count; click to switch) and the **worksheets of the selected dashboard** — click one to highlight its zones in the 1:1 layout (click again to clear). Nothing else competes for attention.
 - ✅ **Custom SQL in context**: every custom-SQL datasource sits on the right of the **data model**; the first one is selected on entry, so the full query is one click (or zero) away, with a copy button and the datasource/connection it belongs to.
 - ✅ **Parameters as their own class**: in the lineage graph parameters are a separate category (own colour, own filter) — never counted as dimensions or measures — and selecting one shows the value formatted by the workbook's own format plus the raw value.
 - ✅ **Read-only and private**: parsing happens **in the browser**; the file is never uploaded. The Node half only serves a built-in sample route.
@@ -151,7 +151,7 @@ End-to-end test in a real browser (needs local Chrome and `dsh` on PATH):
 
 ```bash
 ./test/e2e-boot.sh 3199     # terminal A: boots an isolated DSH instance, prints a token URL
-TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 65 assertions
+TWB_URL="http://127.0.0.1:3199/?token=..." npm run e2e   # terminal B: headless Chrome, 72 assertions
 
 # also verify large-workbook focus behaviour
 TWB_LARGE_FIELDS=1500 TWB_URL="..." npm run e2e
@@ -184,7 +184,7 @@ dsh-tableau-twb-viewer/
 | DSH version | Status |
 |---|---|
 | `0.1.0-rc.6` | ✅ development baseline (first release) |
-| `0.2.1-alpha.2` | ✅ verified end-to-end (65 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
+| `0.2.1-alpha.2` | ✅ verified end-to-end (72 assertions incl. zh/en switching, data model, custom SQL, auto-loaded sample, large-graph focus) |
 
 Install mechanisms used: `dsh.bundle.patch` (makes the package a loaded plugin row) and
 `dsh.client` with an exported `./client` bundle (injected into the browser module graph by

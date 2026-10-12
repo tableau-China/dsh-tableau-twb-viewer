@@ -351,7 +351,70 @@ try {
     await sleep(1500);
   }
 
-  // ---- 布局图右栏：只保留仪表板列表与工作表列表 ----
+  // ---- 右侧栏宽度一致 + 引用关系不再滚轮缩放 ----
+  {
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
+      if (b) b.click();
+    });
+    await sleep(1500);
+    const layoutW = await page.evaluate(() =>
+      Math.round(document.querySelector(".twb-root--panel .right")?.getBoundingClientRect().width || 0)
+    );
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[1];
+      if (b) b.click();
+    });
+    await sleep(2000);
+    const lineageW = await page.evaluate(() =>
+      Math.round(document.querySelector(".twb-root--panel .lineage-detail")?.getBoundingClientRect().width || 0)
+    );
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[2];
+      if (b) b.click();
+    });
+    await sleep(2000);
+    const dmW = await page.evaluate(() =>
+      Math.round(document.querySelector(".twb-root--panel .dm-detail")?.getBoundingClientRect().width || 0)
+    );
+    ok(
+      layoutW > 0 && layoutW === lineageW && lineageW === dmW,
+      `三个右侧栏宽度一致（布局 ${layoutW} / 引用 ${lineageW} / 数据模型 ${dmW}）`
+    );
+
+    // 数据模型右栏内容不再被挤扁
+    const dmCramped = await page.evaluate(() => {
+      const title = document.querySelector(".twb-root--panel .dm-detail-title");
+      if (!title) return null;
+      const r = title.getBoundingClientRect();
+      return { h: Math.round(r.height), w: Math.round(r.width) };
+    });
+    ok(dmCramped === null || dmCramped.w > 200, `数据模型详情标题有正常宽度（${JSON.stringify(dmCramped)}）`);
+
+    // 滚轮不再缩放
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[1];
+      if (b) b.click();
+    });
+    await sleep(2000);
+    const before = await page.evaluate(() =>
+      document.querySelector(".twb-root--panel .lineage-svg g[transform]")?.getAttribute("transform") || ""
+    );
+    await page.evaluate(() => {
+      const svg = document.querySelector(".twb-root--panel .lineage-svg");
+      if (svg) {
+        svg.dispatchEvent(new WheelEvent("wheel", { deltaY: -240, bubbles: true, cancelable: true }));
+        svg.dispatchEvent(new WheelEvent("wheel", { deltaY: -240, bubbles: true, cancelable: true }));
+      }
+    });
+    await sleep(900);
+    const after = await page.evaluate(() =>
+      document.querySelector(".twb-root--panel .lineage-svg g[transform]")?.getAttribute("transform") || ""
+    );
+    ok(before !== "" && before === after, `滚轮不再改变缩放（${after.slice(0, 34)}…）`);
+  }
+
+  // ---- 布局图右栏：仪表板列表 + 当前仪表板的工作表（点击高亮） ----
   {
     // 前面的用例把视图停在「引用关系」，先回到「布局图」
     await page.evaluate(() => {
@@ -368,11 +431,40 @@ try {
     }));
     ok(wb.present, "布局图右栏为工作簿面板（仪表板 / 工作表）");
     ok(wb.dashboards >= 6, `仪表板列表 ${wb.dashboards} 项`);
-    ok(wb.sheets === 21, `工作表列表 21 项（实际 ${wb.sheets}）`);
+    ok(wb.sheets > 0 && wb.sheets < 10, `工作表只列当前仪表板的 ${wb.sheets} 个（不是全部 21 个）`);
     ok(wb.oldTabs === 0, "右栏不再有数据源总览/字段/计算字段等旧页签");
-    console.log(`  右栏: ${wb.dashboards} 个仪表板 · ${wb.sheets} 个工作表 · 当前「${wb.activeName}」`);
+    console.log(`  右栏: ${wb.dashboards} 个仪表板 · 当前「${wb.activeName}」含 ${wb.sheets} 个工作表`);
 
-    // 点第二个仪表板 → 切换成功（布局图标题随之变化）
+    // 点击工作表 → 左侧布局图高亮对应 zone
+    const sheetName = await page.evaluate(() => {
+      const b = document.querySelector(".twb-root--panel .wb-sheet");
+      if (!b) return null;
+      const n = b.querySelector(".wb-item-name")?.textContent?.trim() || "";
+      b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      return n;
+    });
+    await sleep(1500);
+    const hl = await page.evaluate(() => ({
+      active: !!document.querySelector(".twb-root--panel .wb-sheet.highlight"),
+      thick: [...document.querySelectorAll(".twb-root--panel .canvas-viewport svg rect")].filter(
+        (r) => r.getAttribute("stroke-width") === "3"
+      ).length
+    }));
+    ok(hl.active, `点击工作表「${sheetName}」在右栏标记为高亮`);
+    ok(hl.thick > 0, `左侧布局图有 ${hl.thick} 个 zone 被高亮（描边加粗）`);
+
+    // 再点一次取消高亮
+    await page.evaluate(() => {
+      const b = document.querySelector(".twb-root--panel .wb-sheet.highlight");
+      if (b) b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(1200);
+    ok(
+      await page.evaluate(() => document.querySelectorAll(".twb-root--panel .wb-sheet.highlight").length === 0),
+      "再次点击取消高亮"
+    );
+
+    // 切换仪表板后，工作表列表随之变化
     const switched = await page.evaluate(() => {
       const items = [...document.querySelectorAll(".twb-root--panel .wb-section:nth-of-type(1) .wb-item")];
       const target = items[1];
@@ -384,11 +476,16 @@ try {
     await sleep(1800);
     const afterSwitch = await page.evaluate(() => ({
       activeName: document.querySelector(".twb-root--panel .wb-item.active .wb-item-name")?.textContent?.trim() || "",
+      sheets: [...document.querySelectorAll(".twb-root--panel .wb-sheet .wb-item-name")].map((e) => e.textContent.trim()),
       canvasTitle: document.querySelector(".twb-root--panel .dash-title")?.textContent?.trim() || ""
     }));
     ok(
       switched !== null && afterSwitch.activeName === switched,
       `点击仪表板可切换（${switched} → 画布「${afterSwitch.canvasTitle}」）`
+    );
+    ok(
+      afterSwitch.sheets.length > 0 && afterSwitch.sheets.length !== wb.sheets,
+      `工作表列表随仪表板变化（${afterSwitch.sheets.join(" / ")}）`
     );
   }
 

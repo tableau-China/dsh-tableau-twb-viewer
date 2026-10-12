@@ -161,7 +161,13 @@ try {
     if (b) b.click();
   });
   await sleep(2000);
-  await shot("workbook", () => document.querySelectorAll(".twb-root .wb-item").length > 5);
+  // 点击第一个工作表 → 左侧布局图高亮，截图同时展示联动效果
+  await page.evaluate(() => {
+    const b = document.querySelector(".twb-root .wb-sheet");
+    if (b) b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await sleep(1500);
+  await shot("workbook", () => !!document.querySelector(".twb-root .wb-sheet.highlight"));
 
   // 3.5) 参数（引用关系里的独立分类 + 按工作簿格式格式化的值）
   {

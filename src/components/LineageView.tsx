@@ -9,7 +9,6 @@ import {
   useRef,
   useState,
   type PointerEvent as ReactPointerEvent,
-  type WheelEvent as ReactWheelEvent
 } from "react";
 import type { GraphNode, Lineage, WorkbookModel } from "../types.ts";
 import {
@@ -80,7 +79,6 @@ export function LineageView({ model }: LineageViewProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const dragRef = useRef<{ x: number; y: number; vx: number; vy: number; moved?: boolean } | null>(null);
   const movedRef = useRef(false);
-  const fitScaleRef = useRef(1);
 
   // 聚焦跳数：auto = 大图选中时自动 ±2 跳，小图不聚焦
   const focusHops =
@@ -131,7 +129,6 @@ export function LineageView({ model }: LineageViewProps) {
     const rect = el.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
     const k = Math.min((rect.width - 24) / layout.width, (rect.height - 24) / layout.height, 1);
-    fitScaleRef.current = k;
     setView({ x: Math.max(8, (rect.width - layout.width * k) / 2), y: 12, k });
   };
 
@@ -149,18 +146,8 @@ export function LineageView({ model }: LineageViewProps) {
     return () => ro.disconnect();
   }, [fit]);
 
-  const onWheel = (e: ReactWheelEvent<SVGSVGElement>) => {
-    e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
-    setView((v) => {
-      const next = Math.min(3, Math.max(0.8 * fitScaleRef.current, v.k * factor));
-      const rect = svgRef.current?.getBoundingClientRect();
-      if (!rect) return v;
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      return { k: next, x: mx - (mx - v.x) * (next / v.k), y: my - (my - v.y) * (next / v.k) };
-    });
-  };
+  // 滚轮缩放已移除：视图在小/大图之间会因缩放重算而闪烁，交付演示时反而干扰。
+  // 保留「适配窗口」与拖拽平移；需要看细节用聚焦（±1/±2/±3）或全屏。
 
   const onPointerMove = useCallback((e: PointerEvent) => {
     if (!dragRef.current) return;
@@ -337,7 +324,6 @@ export function LineageView({ model }: LineageViewProps) {
         <svg
           ref={svgRef}
           className="lineage-svg"
-          onWheel={onWheel}
           onPointerDown={onPointerDown}
           onClick={onClickCanvas}
         >

@@ -30,6 +30,8 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState(initial?.fileName ?? "");
   const [sampleLoading, setSampleLoading] = useState(false);
+  /** 布局图上高亮的工作表（由右栏工作表列表点击设置）。 */
+  const [highlightSheet, setHighlightSheet] = useState<string | null>(null);
 
   // 模型 / 视图变化时写入缓存
   useEffect(() => {
@@ -176,10 +178,19 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
       {model && view === "layout" && (
         <div className="main">
           <section className="left">
-            <DashboardView dashboard={dashboard} />
+            <DashboardView dashboard={dashboard} highlightSheet={highlightSheet} />
           </section>
           <aside className="right">
-            <WorkbookPanel model={model} dashIdx={dashIdx} onSelectDashboard={setDashIdx} />
+            <WorkbookPanel
+              model={model}
+              dashIdx={dashIdx}
+              onSelectDashboard={(i) => {
+                setDashIdx(i);
+                setHighlightSheet(null);
+              }}
+              highlightSheet={highlightSheet}
+              onHighlightSheet={setHighlightSheet}
+            />
           </aside>
         </div>
       )}

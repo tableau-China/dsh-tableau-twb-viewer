@@ -30,7 +30,21 @@ const ZONE_LEGEND_KEY: Record<string, string> = {
 };
 
 /** 单个 zone 的 SVG 渲染（递归）。 */
-function ZoneNode({ z, depth, t }: { z: Zone; depth: number; t: Translator }) {
+function ZoneNode({
+  z,
+  depth,
+  t,
+  highlightName,
+  highlight
+}: {
+  z: Zone;
+  depth: number;
+  t: Translator;
+  /** 需要高亮的工作表名（null = 不高亮）。 */
+  highlightName: string | null;
+  /** 该 zone 是否为右栏选中的工作表（选中时描边加粗）。 */
+  highlight?: boolean;
+}) {
   const isWs = z.kind === "worksheet";
   const isText = z.kind === "text";
   const style = ZONE_STYLE[z.shape] ?? ZONE_STYLE.other;
@@ -57,8 +71,8 @@ function ZoneNode({ z, depth, t }: { z: Zone; depth: number; t: Translator }) {
         width={Math.max(1, z.w)}
         height={Math.max(1, z.h)}
         fill={style.fill}
-        stroke={style.stroke}
-        strokeWidth={1}
+        stroke={highlight ? "#1d4ed8" : style.stroke}
+        strokeWidth={highlight ? 3 : 1}
         strokeDasharray={dash}
         rx={2}
       />
@@ -86,7 +100,16 @@ function ZoneNode({ z, depth, t }: { z: Zone; depth: number; t: Translator }) {
         </text>
       )}
       {z.children &&
-        z.children.map((kid, i) => <ZoneNode key={i} z={kid} depth={depth + 1} t={t} />)}
+        z.children.map((kid, i) => (
+          <ZoneNode
+            key={i}
+            z={kid}
+            depth={depth + 1}
+            t={t}
+            highlightName={highlightName}
+            highlight={highlightName !== null && kid.kind === "worksheet" && kid.name === highlightName}
+          />
+        ))}
     </g>
   );
 }
@@ -95,9 +118,11 @@ function ZoneNode({ z, depth, t }: { z: Zone; depth: number; t: Translator }) {
 /** 仪表板视图 props。 */
 export interface DashboardViewProps {
   dashboard: WorkbookDashboard | null | undefined;
+  /** 右栏选中的工作表：对应 zone 描边加粗（null = 不高亮）。 */
+  highlightSheet?: string | null;
 }
 
-export function DashboardView({ dashboard }: DashboardViewProps) {
+export function DashboardView({ dashboard, highlightSheet = null }: DashboardViewProps) {
   const t = useT();
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const zonesRef = useRef<SVGGElement | null>(null);
@@ -269,7 +294,14 @@ export function DashboardView({ dashboard }: DashboardViewProps) {
           <rect x={0} y={0} width={width} height={height} fill="#ffffff" />
           <g ref={zonesRef}>
             {dashboard.zones.map((z, i) => (
-              <ZoneNode key={i} z={z} depth={0} t={t} />
+              <ZoneNode
+                key={i}
+                z={z}
+                depth={0}
+                t={t}
+                highlightName={highlightSheet ?? null}
+                highlight={highlightSheet !== null && z.kind === "worksheet" && z.name === highlightSheet}
+              />
             ))}
           </g>
         </svg>
