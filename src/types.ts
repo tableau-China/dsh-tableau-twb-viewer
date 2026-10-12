@@ -173,6 +173,10 @@ export interface GraphNode {
   caption?: string | null;
   role?: string | null;
   isCalc?: boolean;
+  /** 该节点是 Tableau 参数（既不是维度也不是度量）。 */
+  isParameter?: boolean;
+  /** 参数详情（isParameter 时有值）。 */
+  parameter?: WorkbookParameter | null;
   dsIdx?: number;
   formula?: string | null;
   formulaRaw?: string | null;
@@ -190,7 +194,7 @@ export interface FieldGraph {
 }
 
 /** 节点类别（决定配色与图例）。 */
-export type NodeCategory = "datasource" | "dimension" | "measure" | "calc" | "unknown";
+export type NodeCategory = "datasource" | "dimension" | "measure" | "calc" | "parameter" | "unknown";
 
 /** 节点类别对应的图形样式（图例同源）。 */
 export interface KindStyle {

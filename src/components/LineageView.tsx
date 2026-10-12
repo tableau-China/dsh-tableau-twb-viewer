@@ -26,6 +26,7 @@ import {
 } from "../graph.ts";
 import { useT, type Translator } from "../i18n.tsx";
 import { wrapLabel } from "../lib/model.ts";
+import { formatParameterValue, formatRange } from "../lib/format.ts";
 import { FormulaCode } from "./FormulaCode.tsx";
 
 /** 节点类别图例（顺序固定）。 */
@@ -35,6 +36,7 @@ function legendItems(t: Translator): Array<[string, string]> {
     ["dimension", t("legendDimension")],
     ["measure", t("legendMeasure")],
     ["calc", t("legendCalc")],
+    ["parameter", t("legendParameter")],
     ["unknown", t("legendUnknown")]
   ];
 }
@@ -45,7 +47,8 @@ function roleTabs(t: Translator): Array<[string, string]> {
     ["all", t("focusAll")],
     ["calc", t("colCalc")],
     ["dimension", t("roleDimension")],
-    ["measure", t("roleMeasure")]
+    ["measure", t("roleMeasure")],
+    ["parameter", t("legendParameter")]
   ];
 }
 
@@ -206,9 +209,11 @@ export function LineageView({ model }: LineageViewProps) {
   const filteredFields = useMemo(() => {
     const q = search.trim().toLowerCase();
     return fields.filter((f) => {
-      if (roleFilter === "calc" && !f.isCalc) return false;
-      if (roleFilter === "dimension" && f.role !== "dimension") return false;
-      if (roleFilter === "measure" && f.role !== "measure") return false;
+      // 参数既不算维度也不算度量：单独一类，且不被「计算字段」筛走
+      if (roleFilter === "parameter" && !f.isParameter) return false;
+      if (roleFilter === "calc" && (!f.isCalc || f.isParameter)) return false;
+      if (roleFilter === "dimension" && (f.isParameter || f.role !== "dimension")) return false;
+      if (roleFilter === "measure" && (f.isParameter || f.role !== "measure")) return false;
       if (
         q &&
         !String(f.label).toLowerCase().includes(q) &&
@@ -435,7 +440,7 @@ export function LineageView({ model }: LineageViewProps) {
               <span className={`pill cat-${nodeCategory(selectedNode)}`}>
                 {KIND_STYLE[nodeCategory(selectedNode)].tag}
               </span>
-              {selectedNode.kind === "field" && (
+              {selectedNode.kind === "field" && !selectedNode.isParameter && (
                 <span className="pill">
                   {selectedNode.role === "dimension"
                     ? t("roleDimension")
@@ -445,6 +450,27 @@ export function LineageView({ model }: LineageViewProps) {
                 </span>
               )}
             </div>
+            {/* 参数：既不是维度也不是度量 —— 展示当前值（按工作簿格式）与取值域 */}
+            {selectedNode.isParameter && (
+              <div className="detail-param">
+                <div className="dp-value">
+                  <span className="dp-label">{t("paramValue")}</span>
+                  <span className="dp-num">
+                    {formatParameterValue(selectedNode.parameter?.value, selectedNode.parameter?.defaultFormat)}
+                  </span>
+                </div>
+                <div className="dp-meta">
+                  <span>{t("paramDomain")}: {selectedNode.parameter?.domainType ?? "—"}</span>
+                  {formatRange(selectedNode.parameter?.range) && (
+                    <span>{t("paramRange")}: {formatRange(selectedNode.parameter?.range)}</span>
+                  )}
+                  <span>{t("paramFormat")}: {selectedNode.parameter?.defaultFormat ?? "—"}</span>
+                </div>
+                <div className="dp-raw" title={t("paramRawHint")}>
+                  {t("paramRaw")}: {selectedNode.parameter?.value ?? "—"}
+                </div>
+              </div>
+            )}
             {selectedNode.kind === "field" && (
               <div className="detail-internal" title={selectedNode.name ?? undefined}>
                 {t("internalName", { name: selectedNode.name ?? "" })}

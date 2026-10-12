@@ -155,29 +155,33 @@ try {
   await sleep(1500);
   await shot("lineage", () => document.querySelectorAll(".twb-root .ln-node").length > 0);
 
-  // 3) Metadata（回到布局图，切到「计算字段」标签，突出公式高亮）
+  // 3) 工作簿右栏（仪表板列表 + 工作表列表）
   await page.evaluate(() => {
     const b = document.querySelectorAll(".twb-root .view-tabs button")[0];
     if (b) b.click();
   });
   await sleep(2000);
-  await page.evaluate(() => {
-    // meta 页签顺序固定：overview / fields / calc / sheets → 取第 3 个（计算字段），语言无关
-    const b = document.querySelectorAll(".twb-root .meta-tabs button")[2];
-    if (b) b.click();
-  });
-  await sleep(2000);
-  await shot("metadata", () => !!document.querySelector(".twb-root .calc-list, .twb-root .calc-item"));
+  await shot("workbook", () => document.querySelectorAll(".twb-root .wb-item").length > 5);
 
-  // 3.5) 参数（值按工作簿格式格式化，不再长小数）
+  // 3.5) 参数（引用关系里的独立分类 + 按工作簿格式格式化的值）
   {
     await page.evaluate(() => {
-      const tabs = [...document.querySelectorAll(".twb-root .meta-tabs button")];
-      const b = tabs.find((x) => /参数|Parameters/.test(x.textContent || ""));
+      const b = document.querySelectorAll(".twb-root .view-tabs button")[1];
+      if (b) b.click();
+    });
+    await sleep(2200);
+    await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root .rt")];
+      const b = tabs.find((x) => /参数|Parameter/.test(x.textContent || ""));
       if (b) b.click();
     });
     await sleep(1500);
-    await shot("parameters", () => !!document.querySelector(".twb-root .param-item"));
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll(".twb-root .picker-item")].find((e) => /流失率/.test(e.textContent || ""));
+      if (b) b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(1500);
+    await shot("parameters", () => !!document.querySelector(".twb-root .detail-param"));
   }
 
   // 4) 数据模型（表级 join + 基数）：上传合成的 join 夹具
@@ -206,19 +210,18 @@ try {
     await sleep(1200);
     await shot("datamodel", () => document.querySelectorAll(".twb-root .dm-node").length > 0);
 
-    // 5) 自定义 SQL 清单（口径核对）
+    // 5) 自定义 SQL（数据模型右侧：清单 + 过程）
     await page.evaluate(() => {
-      const b = document.querySelectorAll(".twb-root .view-tabs button")[0];
+      const b = document.querySelectorAll(".twb-root .view-tabs button")[2];
       if (b) b.click();
     });
-    await sleep(1500);
+    await sleep(2000);
     await page.evaluate(() => {
-      const tabs = [...document.querySelectorAll(".twb-root .meta-tabs button")];
-      const b = tabs.find((x) => /自定义 SQL|Custom SQL/.test(x.textContent || ""));
-      if (b) b.click();
+      const b = document.querySelector(".twb-root .dm-sql-item");
+      if (b) b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
-    await sleep(1500);
-    await shot("customsql", () => !!document.querySelector(".twb-root .sql-body"));
+    await sleep(1200);
+    await shot("customsql", () => !!document.querySelector(".twb-root .dm-sql"))
   }
 } finally {
   await browser.close();

@@ -38,7 +38,9 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 - ✅ **为大工作簿设计**：节点数超过 1200 时自动聚焦到选中节点的 ±2 跳血缘（可切 ±1/±2/±3/全部），5000 节点的工作簿依然流畅。
 - ✅ **全屏模式**：一键铺满浏览器窗口（`Esc` 退出），布局图与关系图自动重新适配。
 - ✅ **状态持久化**：解析结果带形状校验地缓存，切换面板或刷新页面后自动恢复文件与当前视图。
-- ✅ **Metadata 面板**：数据源连接信息、字段角色与数据类型、计算字段公式（语法高亮）、工作表清单。
+- ✅ **工作簿右栏**：布局图右侧只放**仪表板列表**（尺寸 + 工作表数，点击即切换）与**工作表列表**（角标显示被几个仪表板使用）——不再堆页签。
+- ✅ **自定义 SQL 就地查看**：数据模型**右侧**常驻自定义 SQL 清单，进入视图即默认选中第一段，SQL 过程一步可见，带复制按钮与所属数据源/连接信息。
+- ✅ **参数单独一类**：引用关系图里参数自成分类（专属配色与筛选项），**不计入维度/度量**；选中即显示按工作簿格式格式化后的值与原始值。
 - ✅ **只读且私密**：解析**全部在浏览器端**完成，文件不会上传；Node 半部只提供一个内置示例路由。
 
 ## 数据安全：只读 `.twb`，`twbx` 被有意拒绝
@@ -76,9 +78,9 @@ Tableau Desktop 要靠打开工作簿才能看到这些；这个插件在浏览�
 
 ![custom SQL](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/customsql.zh.png)
 
-**Metadata** —— 数据源连接、字段角色与高亮后的计算公式
+**工作簿右栏** —— 只有仪表板与工作表：点仪表板即切换，点工作表跳到它所在的仪表板
 
-![metadata](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/metadata.zh.png)
+![workbook panel](https://raw.githubusercontent.com/tableau-China/dsh-tableau-twb-viewer/main/assets/workbook.zh.png)
 
 ## 安装
 
@@ -151,7 +153,7 @@ pnpm run screenshots      # 重新生成 assets/*.png（TWB_SHOT_LOCALE=zh 出�
 
 ```bash
 ./test/e2e-boot.sh 3199     # 终端 A：启动隔离实例，打印带 token 的 URL
-TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，55 项断言
+TWB_URL="http://127.0.0.1:3199/?token=..." pnpm run e2e   # 终端 B：无头 Chrome，65 项断言
 
 # 连大图聚焦一起验证
 TWB_LARGE_FIELDS=1500 TWB_URL="..." pnpm run e2e
@@ -190,7 +192,7 @@ dsh-tableau-twb-viewer/
 | DSH 版本 | 状态 |
 |---|---|
 | `0.1.0-rc.6` | ✅ 开发基线（首个发布版本） |
-| `0.2.1-alpha.2` | ✅ 端到端实测通过（55 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
+| `0.2.1-alpha.2` | ✅ 端到端实测通过（65 项断言，含中英切换、数据模型、自定义 SQL、自动加载示例与大图聚焦） |
 
 安装机制：`dsh.bundle.patch` 让本包成为已加载的插件行；`dsh.client` + 导出的 `./client`
 构建产物由 `client-modules` 注入浏览器模块图。UI 注册到 `settings.section` 槽位，

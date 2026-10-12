@@ -3,7 +3,7 @@
 // 输入是「表 / 自定义 SQL 节点 + join 边」，输出每个节点的坐标与画布尺寸。
 // 表数量级很小（几张到几十张），用 BFS 分层即可，不引入图布局依赖。
 
-import type { WorkbookModel } from "../types.ts";
+import type { WorkbookConnection, WorkbookModel } from "../types.ts";
 
 /** 数据模型视图里的节点（表或自定义 SQL）。 */
 export interface DataModelNode {
@@ -16,6 +16,8 @@ export interface DataModelNode {
   kind: "table" | "custom-sql";
   /** 所属数据源展示名。 */
   datasource: string;
+  /** 所属数据源的连接信息（交付核对时看服务器/库名）。 */
+  connection: WorkbookConnection | null;
   /** 自定义 SQL 文本。 */
   sql: string | null;
 }
@@ -76,6 +78,7 @@ export function buildDataModelGraph(model: WorkbookModel): DataModelGraph {
         sublabel: t.table || null,
         kind: t.kind,
         datasource: dsName,
+        connection: ds.connection ?? null,
         sql: t.sql
       });
     }

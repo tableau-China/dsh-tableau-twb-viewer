@@ -2815,6 +2815,13 @@
     "name": "[Parameter 1 1]",
     "role": "measure",
     "isCalc": false,
+    "isParameter": true,
+    "parameter": {
+     "value": "\"名称\"",
+     "defaultFormat": null,
+     "domainType": "list",
+     "range": null
+    },
     "dsIdx": 0,
     "formula": null,
     "formulaRaw": null
@@ -2827,6 +2834,17 @@
     "name": "[Parameter 1]",
     "role": "measure",
     "isCalc": false,
+    "isParameter": true,
+    "parameter": {
+     "value": "0.59999999999999998",
+     "defaultFormat": "p0%",
+     "domainType": "range",
+     "range": {
+      "min": "0.0",
+      "max": "1.0",
+      "granularity": "0.01"
+     }
+    },
     "dsIdx": 0,
     "formula": null,
     "formulaRaw": null
@@ -2839,6 +2857,17 @@
     "name": "[Parameter 2]",
     "role": "measure",
     "isCalc": false,
+    "isParameter": true,
+    "parameter": {
+     "value": "0.064000000000000001",
+     "defaultFormat": "p0.00%",
+     "domainType": "range",
+     "range": {
+      "min": "0.0",
+      "max": "0.25",
+      "granularity": "0.001"
+     }
+    },
     "dsIdx": 0,
     "formula": null,
     "formulaRaw": null
@@ -2851,6 +2880,17 @@
     "name": "[佣金率]",
     "role": "measure",
     "isCalc": false,
+    "isParameter": true,
+    "parameter": {
+     "value": "18.399999999999999",
+     "defaultFormat": "N",
+     "domainType": "range",
+     "range": {
+      "min": "1.0",
+      "max": "100.0",
+      "granularity": "0.10000000000000001"
+     }
+    },
     "dsIdx": 0,
     "formula": null,
     "formulaRaw": null
@@ -2863,6 +2903,17 @@
     "name": "[底薪]",
     "role": "measure",
     "isCalc": false,
+    "isParameter": true,
+    "parameter": {
+     "value": "50000",
+     "defaultFormat": "C2052%",
+     "domainType": "range",
+     "range": {
+      "min": "0",
+      "max": null,
+      "granularity": "1000"
+     }
+    },
     "dsIdx": 0,
     "formula": null,
     "formulaRaw": null
@@ -2875,6 +2926,17 @@
     "name": "[新配额]",
     "role": "measure",
     "isCalc": false,
+    "isParameter": true,
+    "parameter": {
+     "value": "500000",
+     "defaultFormat": "C2052%",
+     "domainType": "range",
+     "range": {
+      "min": "100000",
+      "max": null,
+      "granularity": "25000"
+     }
+    },
     "dsIdx": 0,
     "formula": null,
     "formulaRaw": null

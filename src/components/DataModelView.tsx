@@ -3,7 +3,7 @@
 // 面向交付场景：与客户核对「数据是怎么连起来的」「口径取自哪段 SQL」。
 // 只读渲染，不做编辑；点击表或连接线在右侧看详情。
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { WorkbookModel } from "../types.ts";
 import {
   DM_NODE_H,
@@ -38,8 +38,35 @@ export function DataModelView({ model }: DataModelViewProps) {
   const graph = useMemo(() => buildDataModelGraph(model), [model]);
   const layout = useMemo(() => layoutDataModel(graph), [graph]);
   const [selected, setSelected] = useState<{ kind: "node" | "edge"; id: string } | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copySql = (sql: string) => {
+    void navigator.clipboard?.writeText(sql).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1600);
+      },
+      () => undefined
+    );
+  };
 
   const nodeById = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n])), [graph.nodes]);
+
+  // 进入数据模型视图时，若有自定义 SQL 就默认选中第一个 —— 右侧直接给出 SQL 过程
+  useEffect(() => {
+    setSelected((cur) => {
+      if (cur) return cur;
+      const first = graph.nodes.find((n) => n.kind === "custom-sql");
+      return first ? { kind: "node", id: first.id } : cur;
+    });
+  }, [graph.nodes]);
+
+  /** 数据源连接摘要（服务器 / 库 / 文件）。 */
+  const connectionText = (n: DataModelNode): string => {
+    const c = n.connection;
+    if (!c) return "";
+    return [c.class, c.type, c.server, c.dbname, c.filename].filter(Boolean).join(" · ");
+  };
   const selectedNode: DataModelNode | null =
     selected?.kind === "node" ? nodeById.get(selected.id) ?? null : null;
   const selectedEdge: DataModelEdge | null =
@@ -124,10 +151,13 @@ export function DataModelView({ model }: DataModelViewProps) {
 
           {selectedNode && (
             <div className="dm-detail-card">
-              <div className="dm-detail-title">{selectedNode.label}</div>
+              <div className="dm-detail-title">
+                {selectedNode.label}
+                <span className={`dm-kind-badge ${selectedNode.kind}`}>
+                  {selectedNode.kind === "custom-sql" ? t("dmSqlBadge") : t("dmTableBadge")}
+                </span>
+              </div>
               <dl>
-                <dt>{t("dmKind")}</dt>
-                <dd>{selectedNode.kind === "custom-sql" ? t("dmSqlBadge") : t("dmTableBadge")}</dd>
                 <dt>{t("dmDatasource")}</dt>
                 <dd>{selectedNode.datasource}</dd>
                 {selectedNode.sublabel && (
@@ -136,10 +166,21 @@ export function DataModelView({ model }: DataModelViewProps) {
                     <dd className="mono">{selectedNode.sublabel}</dd>
                   </>
                 )}
+                {connectionText(selectedNode) && (
+                  <>
+                    <dt>{t("dmConnection")}</dt>
+                    <dd className="mono">{connectionText(selectedNode)}</dd>
+                  </>
+                )}
               </dl>
               {selectedNode.sql && (
                 <>
-                  <div className="dm-sql-title">{t("dmSqlText")}</div>
+                  <div className="dm-sql-title">
+                    {t("dmSqlText")}
+                    <button className="sql-copy" onClick={() => copySql(selectedNode.sql as string)}>
+                      {copied ? t("sqlCopied") : t("sqlCopy")}
+                    </button>
+                  </div>
                   <pre className="dm-sql">{selectedNode.sql}</pre>
                 </>
               )}
@@ -164,18 +205,37 @@ export function DataModelView({ model }: DataModelViewProps) {
             </div>
           )}
 
-          {sqlNodes.length > 0 && !selected && (
-            <div className="dm-legend">
-              <div className="dm-legend-item">
-                <span className="dm-swatch dm-table" />
-                {t("dmTableBadge")}
+          {/* 自定义 SQL 常驻清单：部分「表」其实是自定义 SQL，点开即看完整过程 */}
+          {sqlNodes.length > 0 && (
+            <div className="dm-sql-list">
+              <div className="dm-sql-list-title">
+                {t("dmSqlList")}
+                <span className="wb-count">{sqlNodes.length}</span>
               </div>
-              <div className="dm-legend-item">
-                <span className="dm-swatch dm-custom-sql" />
-                {t("dmSqlBadge")}
-              </div>
+              {sqlNodes.map((n) => (
+                <button
+                  key={n.id}
+                  className={`dm-sql-item${selected?.kind === "node" && selected.id === n.id ? " active" : ""}`}
+                  onClick={() => setSelected({ kind: "node", id: n.id })}
+                  title={n.datasource}
+                >
+                  {n.label}
+                </button>
+              ))}
             </div>
           )}
+
+          <div className="dm-legend">
+            <div className="dm-legend-item">
+              <span className="dm-swatch dm-table" />
+              {t("dmTableBadge")}
+            </div>
+            <div className="dm-legend-item">
+              <span className="dm-swatch dm-custom-sql" />
+              {t("dmSqlBadge")}
+            </div>
+            <div className="dm-legend-item dm-legend-hint">{t("dmSelectHint")}</div>
+          </div>
         </aside>
       </div>
     </div>

@@ -8,7 +8,7 @@ import { summarize } from "./lib/model.ts";
 import { useT } from "./i18n.tsx";
 import { Uploader } from "./components/Uploader.tsx";
 import { DashboardView } from "./components/DashboardView.tsx";
-import { MetaPanel } from "./components/MetaPanel.tsx";
+import { WorkbookPanel } from "./components/WorkbookPanel.tsx";
 import { LineageView } from "./components/LineageView.tsx";
 import { DataModelView } from "./components/DataModelView.tsx";
 
@@ -179,7 +179,7 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
             <DashboardView dashboard={dashboard} />
           </section>
           <aside className="right">
-            <MetaPanel model={model} />
+            <WorkbookPanel model={model} dashIdx={dashIdx} onSelectDashboard={setDashIdx} />
           </aside>
         </div>
       )}

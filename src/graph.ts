@@ -31,6 +31,7 @@ export const KIND_STYLE: Record<NodeCategory, KindStyle> = {
   dimension: { fill: "#ffe8cc", stroke: "#f08c00", tag: "维度" },
   measure: { fill: "#d3f9d8", stroke: "#2f9e44", tag: "度量" },
   calc: { fill: "#f3e8ff", stroke: "#7048e8", tag: "计算字段" },
+  parameter: { fill: "#cffafe", stroke: "#0891b2", tag: "参数" },
   unknown: { fill: "#f1f3f5", stroke: "#ced4da", tag: "未知" }
 };
 
@@ -38,6 +39,8 @@ export const KIND_STYLE: Record<NodeCategory, KindStyle> = {
 export function nodeCategory(node: GraphNode): NodeCategory {
   if (node.kind === "datasource") return "datasource";
   if (node.kind === "unknown") return "unknown";
+  // 参数单列一类：Tableau 里参数既不是维度也不是度量
+  if (node.isParameter) return "parameter";
   if (node.isCalc) return "calc";
   return node.role === "dimension" ? "dimension" : "measure";
 }
@@ -95,6 +98,9 @@ export function buildGraph(model: WorkbookModel): FieldGraph {
         name: col.name,
         role: col.role,
         isCalc,
+        // 参数单列一类（既不是维度也不是度量），并把详情带上供 UI 展示
+        isParameter: col.isParameter ? true : undefined,
+        parameter: col.isParameter ? col.parameter ?? null : undefined,
         dsIdx,
         formula: col.formula,
         formulaRaw: col.formulaRaw

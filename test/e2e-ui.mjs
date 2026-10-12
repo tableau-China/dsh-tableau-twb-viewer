@@ -105,13 +105,13 @@ try {
   const panel = await page.evaluate(() => ({
     title: (document.querySelector(".twb-root--panel .brand h1")?.textContent || "").length > 5,
     summary: document.querySelector(".twb-root--panel .summary-bar")?.innerText.replace(/\n/g, " ").slice(0, 90) || "",
-    meta: !!document.querySelector(".twb-root .meta-panel"),
+    meta: !!document.querySelector(".twb-root .wb-panel"),
     zones: document.querySelectorAll(".twb-root .canvas-viewport svg rect").length,
     fileName: document.querySelector(".twb-root--panel .summary-bar .sf")?.textContent || ""
   }));
   ok(panel.title, "检视器面板已渲染");
   ok(panel.zones > 5, `布局图已渲染（${panel.zones} 个 zone）`);
-  ok(panel.meta, "Metadata 面板已渲染");
+  ok(panel.meta, "右侧工作簿面板已渲染（仪表板 / 工作表）");
   ok(panel.fileName.includes("sample"), `已加载示例文件（${panel.fileName}）`);
   console.log(`  概要: ${panel.summary}`);
 
@@ -351,6 +351,47 @@ try {
     await sleep(1500);
   }
 
+  // ---- 布局图右栏：只保留仪表板列表与工作表列表 ----
+  {
+    // 前面的用例把视图停在「引用关系」，先回到「布局图」
+    await page.evaluate(() => {
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
+      if (b) b.click();
+    });
+    await sleep(1800);
+    const wb = await page.evaluate(() => ({
+      present: !!document.querySelector(".twb-root--panel .wb-panel"),
+      dashboards: document.querySelectorAll(".twb-root--panel .wb-section:nth-of-type(1) .wb-item").length,
+      sheets: document.querySelectorAll(".twb-root--panel .wb-sheet").length,
+      activeName: document.querySelector(".twb-root--panel .wb-item.active .wb-item-name")?.textContent?.trim() || "",
+      oldTabs: document.querySelectorAll(".twb-root--panel .meta-tabs, .twb-root--panel .field-table").length
+    }));
+    ok(wb.present, "布局图右栏为工作簿面板（仪表板 / 工作表）");
+    ok(wb.dashboards >= 6, `仪表板列表 ${wb.dashboards} 项`);
+    ok(wb.sheets === 21, `工作表列表 21 项（实际 ${wb.sheets}）`);
+    ok(wb.oldTabs === 0, "右栏不再有数据源总览/字段/计算字段等旧页签");
+    console.log(`  右栏: ${wb.dashboards} 个仪表板 · ${wb.sheets} 个工作表 · 当前「${wb.activeName}」`);
+
+    // 点第二个仪表板 → 切换成功（布局图标题随之变化）
+    const switched = await page.evaluate(() => {
+      const items = [...document.querySelectorAll(".twb-root--panel .wb-section:nth-of-type(1) .wb-item")];
+      const target = items[1];
+      if (!target) return null;
+      const name = target.querySelector(".wb-item-name")?.textContent?.trim() || "";
+      target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      return name;
+    });
+    await sleep(1800);
+    const afterSwitch = await page.evaluate(() => ({
+      activeName: document.querySelector(".twb-root--panel .wb-item.active .wb-item-name")?.textContent?.trim() || "",
+      canvasTitle: document.querySelector(".twb-root--panel .dash-title")?.textContent?.trim() || ""
+    }));
+    ok(
+      switched !== null && afterSwitch.activeName === switched,
+      `点击仪表板可切换（${switched} → 画布「${afterSwitch.canvasTitle}」）`
+    );
+  }
+
   // ---- 批 4：数据模型（表级 join / 基数）与自定义 SQL ----
   {
     const { makeTwb } = await import("./lib/synthetic-twb.mjs");
@@ -413,33 +454,69 @@ try {
       );
     }
 
-    // ---- 参数：值按工作簿格式友好化，不再出现 float64 长小数 ----
-    // 先回到「布局图」视图：metadata 面板只在该视图渲染
+    // ---- 参数：在「引用关系」里是独立分类，值按工作簿格式显示 ----
     await page.evaluate(() => {
-      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
+      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[1];
       if (b) b.click();
     });
-    await sleep(1500);
-    await page.evaluate(() => {
-      const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
-      const b = tabs.find((x) => /参数|Parameters/.test(x.textContent || ""));
-      if (b) b.click();
+    await sleep(2000);
+    const paramFilter = await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root--panel .rt")];
+      const b = tabs.find((x) => /参数|Parameter/.test(x.textContent || ""));
+      if (!b) return { found: false };
+      b.click();
+      return { found: true };
     });
+    ok(paramFilter.found, "「引用关系」筛选里有独立的「参数」分类（不在维度/度量里）");
     await sleep(1500);
-    const paramTab = await page.evaluate(() => ({
-      present: !!document.querySelector(".twb-root--panel .param-tab"),
-      items: document.querySelectorAll(".twb-root--panel .param-item").length,
-      text: document.querySelector(".twb-root--panel .param-tab")?.innerText.replace(/\n/g, " | ").slice(0, 240) || "",
-      values: [...document.querySelectorAll(".twb-root--panel .param-value")].map((e) => e.textContent.trim())
-    }));
-    ok(paramTab.present && paramTab.items >= 5, `「参数」页签列出 ${paramTab.items} 个参数`);
-    ok(paramTab.values.includes("6.40%"), `流失率显示为 6.40%（实际：${paramTab.values.slice(0, 4).join(" / ")}）`);
-    ok(
-      !paramTab.values.some((v) => /0\.064000000000000001|0\.59999999999999998|18\.399999999999999/.test(v)),
-      "参数显示值已去掉 float64 往返噪声"
+    const paramPicker = await page.evaluate(() =>
+      [...document.querySelectorAll(".twb-root--panel .picker-item")].map((e) => ({
+        label: (e.querySelector("div")?.textContent || e.textContent || "").trim(),
+        cat: e.getAttribute("class") || ""
+      }))
     );
-    ok(/原始值/.test(paramTab.text), "同时保留原始值便于核对");
-    console.log(`  参数: ${paramTab.values.slice(0, 6).join(" / ")}`);
+    ok(paramPicker.length === 6, `参数分类下恰好 6 个参数（实际 ${paramPicker.length}）`);
+    ok(
+      paramPicker.every((p) => p.cat.includes("cat-parameter")),
+      "参数节点使用独立的参数配色（cat-parameter）"
+    );
+    // 选中「流失率」查看格式化后的值
+    await page.evaluate(() => {
+      const b = [...document.querySelectorAll(".twb-root--panel .picker-item")].find((e) =>
+        /流失率/.test(e.textContent || "")
+      );
+      if (b) b.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(1500);
+    const paramDetail = await page.evaluate(() => {
+      const el = document.querySelector(".twb-root--panel .detail-param");
+      return {
+        present: !!el,
+        value: el?.querySelector(".dp-num")?.textContent?.trim() || "",
+        text: el?.innerText.replace(/\n/g, " | ") || ""
+      };
+    });
+    ok(paramDetail.present, "参数节点详情展示参数信息块");
+    ok(paramDetail.value === "6.40%", `流失率显示为 6.40%（实际：${paramDetail.value}）`);
+    ok(!/0\.064000000000000001/.test(paramDetail.value), "显示值不含 float64 往返噪声");
+    ok(/原始值/.test(paramDetail.text), "同时保留原始值便于核对");
+    console.log(`  参数分类: ${paramPicker.length} 个 · 流失率 = ${paramDetail.value}`);
+
+    // 维度/度量分类不应混入参数
+    const dimOnly = await page.evaluate(() => {
+      const tabs = [...document.querySelectorAll(".twb-root--panel .rt")];
+      const b = tabs.find((x) => /维度|Dimension/.test(x.textContent || ""));
+      if (b) b.click();
+      return true;
+    });
+    await sleep(1200);
+    const dimCats = await page.evaluate(() =>
+      [...document.querySelectorAll(".twb-root--panel .picker-item")].map((e) => e.getAttribute("class") || "")
+    );
+    ok(
+      dimOnly && dimCats.length > 0 && !dimCats.some((c) => c.includes("cat-parameter")),
+      `维度分类里没有参数（${dimCats.length} 项）`
+    );
 
     // 上传含 join 与自定义 SQL 的合成工作簿
     const dmInput = await page.$('.twb-root--panel input[type="file"]');
@@ -467,6 +544,32 @@ try {
     ok(dmView.hasSqlNode, "自定义 SQL 作为独立节点呈现");
     console.log(`  数据模型: ${dmView.stats}`);
 
+    // 数据模型右栏：自定义 SQL 常驻清单 + SQL 过程
+    const dmSql = await page.evaluate(() => {
+      const list = [...document.querySelectorAll(".twb-root--panel .dm-sql-item")];
+      return {
+        items: list.length,
+        firstSelected: list[0]?.getAttribute("class")?.includes("active") || false,
+        body: document.querySelector(".twb-root--panel .dm-sql")?.textContent || "",
+        hasCopy: !!document.querySelector(".twb-root--panel .sql-copy"),
+        title: document.querySelector(".twb-root--panel .dm-detail-title")?.textContent?.trim() || ""
+      };
+    });
+    ok(dmSql.items === 1, `数据模型右栏列出 ${dmSql.items} 段自定义 SQL`);
+    ok(dmSql.firstSelected, "进入数据模型即默认选中自定义 SQL（右侧直接给出过程）");
+    ok(/SELECT/.test(dmSql.body), "SQL 过程全文可见");
+    ok(dmSql.hasCopy, "SQL 提供复制按钮（交付核对用）");
+    console.log(`  自定义 SQL: ${dmSql.items} 段 · 详情标题「${dmSql.title}」`);
+
+    // 选中自定义 SQL 节点：右侧展示数据源与连接信息
+    await page.evaluate(() => {
+      const item = document.querySelector(".twb-root--panel .dm-sql-item");
+      if (item) item.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    await sleep(1200);
+    const sqlNodeDetail = await page.evaluate(() => document.querySelector(".twb-root--panel .dm-detail")?.innerText || "");
+    ok(/数据源|Datasource/.test(sqlNodeDetail), "自定义 SQL 节点详情含所属数据源");
+
     // 点弧线 → 详情显示连接类型、ON 条件与基数说明
     await page.evaluate(() => {
       const hit = document.querySelector(".twb-root--panel .dm-link-hit");
@@ -478,36 +581,6 @@ try {
     ok(/\[t0\]\.\[id\]/.test(edgeDetail), "连接详情显示 ON 条件表达式");
     ok(/基数|Cardinality/.test(edgeDetail), "连接详情标注基数（文件未记录时给出说明）");
 
-    // Metadata 面板 → 自定义 SQL 页签
-    await page.evaluate(() => {
-      const b = document.querySelectorAll(".twb-root--panel .view-tabs button")[0];
-      if (b) b.click();
-    });
-    await sleep(1500);
-    await page.evaluate(() => {
-      const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
-      const b = tabs.find((x) => /自定义 SQL|Custom SQL/.test(x.textContent || ""));
-      if (b) b.click();
-    });
-    await sleep(1500);
-    const sqlTab = await page.evaluate(() => ({
-      items: document.querySelectorAll(".twb-root--panel .sql-item").length,
-      body: document.querySelector(".twb-root--panel .sql-body")?.textContent || "",
-      hasCopy: !!document.querySelector(".twb-root--panel .sql-copy")
-    }));
-    ok(sqlTab.items === 1, `自定义 SQL 清单 1 条（实际 ${sqlTab.items}）`);
-    ok(/SELECT/.test(sqlTab.body), "自定义 SQL 全文已展示");
-    ok(sqlTab.hasCopy, "提供复制按钮（交付核对用）");
-
-    // 计算字段页签不再混入参数
-    await page.evaluate(() => {
-      const tabs = [...document.querySelectorAll(".twb-root--panel .meta-tabs button")];
-      const b = tabs.find((x) => /计算字段|Calculations/.test(x.textContent || ""));
-      if (b) b.click();
-    });
-    await sleep(1500);
-    const calcTab = await page.evaluate(() => document.querySelector(".twb-root--panel .calc-tab")?.innerText || "");
-    ok(!/0\.064000000000000001/.test(calcTab), "「计算字段」页签不再出现参数的长小数");
   }
 
   // ---- 控制台 ----

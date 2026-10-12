@@ -125,6 +125,27 @@ const joinCount = model.datasources.reduce((n, d) => n + d.dataModel.joins.lengt
 const sqlCount = model.datasources.reduce((n, d) => n + d.dataModel.customSql.length, 0);
 const paddedZones = allZones.filter((z) => z.format.padding !== null).length;
 
+// 参数在引用关系图里必须单列一类（既不算维度也不算度量）
+{
+  const { nodeCategory } = await import("../src/graph.ts");
+  const paramNodes = graph.nodes.filter((n) => n.isParameter);
+  const cats = new Set(paramNodes.map((n) => nodeCategory(n)));
+  const misclassified = graph.nodes.filter(
+    (n) => !n.isParameter && nodeCategory(n) === "parameter"
+  ).length;
+  const checks = {
+    "图中参数节点 6 个": [paramNodes.length, 6],
+    "参数节点类别均为 parameter": [cats.size === 1 && cats.has("parameter"), true],
+    "非参数节点被误判为参数的数量": [misclassified, 0]
+  };
+  for (const [name, [actual, expected]] of Object.entries(checks)) {
+    if (actual !== expected) {
+      console.error(`✗ ${name} 期望 ${JSON.stringify(expected)}，实际 ${JSON.stringify(actual)}`);
+      failed = true;
+    }
+  }
+}
+
 const PARAM_EXPECTED = {
   "参数总数（6 个，均不再计入计算字段）": [params, 6],
   "参数当前值含 float64 往返噪声（如 0.064000000000000001）": [

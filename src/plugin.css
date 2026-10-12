@@ -240,125 +240,195 @@
   stroke-width: 2.8;
 }
 
-/* ---- 参数页签 ---- */
-.twb-root .param-tab {
-  padding: 12px;
-  overflow: auto;
+/* ---- 布局图右栏：仪表板 / 工作表列表 ---- */
+.twb-root .wb-panel {
   height: 100%;
+  overflow: auto;
+  padding: 10px 12px;
+  background: #fff;
+  font-size: 12.5px;
 }
-.twb-root .param-item {
-  border: 1px solid var(--twb-border, #e2e8f0);
+.twb-root .wb-section + .wb-section {
+  margin-top: 14px;
+}
+.twb-root .wb-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--twb-muted);
+  text-transform: none;
+}
+.twb-root .wb-count {
+  display: inline-block;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  text-align: center;
+}
+.twb-root .wb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.twb-root .wb-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--twb-text);
+  text-align: left;
+  cursor: pointer;
+}
+.twb-root .wb-item:hover {
+  background: #f8fafc;
+  border-color: var(--twb-border, #e2e8f0);
+}
+.twb-root .wb-item.active {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  font-weight: 600;
+}
+.twb-root .wb-item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.twb-root .wb-item-meta {
+  color: var(--twb-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.twb-root .wb-sheet.in-current {
+  border-color: #bfdbfe;
+  background: #f8fafc;
+}
+.twb-root .wb-badge {
+  min-width: 16px;
+  padding: 0 4px;
   border-radius: 8px;
-  padding: 8px 10px;
-  margin-bottom: 8px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 10.5px;
+  text-align: center;
 }
-.twb-root .param-head {
+.twb-root .wb-empty {
+  color: var(--twb-muted);
+  padding: 4px 8px;
+}
+
+/* ---- 数据模型右栏：自定义 SQL 清单与连接信息 ---- */
+.twb-root .dm-kind-badge {
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 400;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+.twb-root .dm-kind-badge.custom-sql {
+  background: #f5f3ff;
+  color: #6d28d9;
+  border-color: #ddd6fe;
+}
+.twb-root .dm-sql-list {
+  margin-top: 14px;
+  border-top: 1px solid var(--twb-border, #e2e8f0);
+  padding-top: 10px;
+}
+.twb-root .dm-sql-list-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--twb-muted);
+  margin-bottom: 6px;
+}
+.twb-root .dm-sql-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 5px 8px;
+  margin-bottom: 3px;
+  border: 1px solid #ede9fe;
+  border-radius: 6px;
+  background: #faf5ff;
+  color: #5b21b6;
+  font-size: 12px;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.twb-root .dm-sql-item:hover {
+  background: #f3e8ff;
+}
+.twb-root .dm-sql-item.active {
+  border-color: #8b5cf6;
+  font-weight: 600;
+}
+.twb-root .dm-sql-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.twb-root .dm-legend-hint {
+  color: var(--twb-muted);
+  font-size: 11px;
+}
+
+/* ---- 引用关系图：参数详情 ---- */
+.twb-root .detail-param {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid #cffafe;
+  border-radius: 8px;
+  background: #f0fdff;
+}
+.twb-root .dp-value {
   display: flex;
   align-items: baseline;
   gap: 8px;
   margin-bottom: 4px;
 }
-.twb-root .param-name {
-  font-weight: 600;
-  color: var(--twb-text);
+.twb-root .dp-label {
+  color: var(--twb-muted);
+  font-size: 11.5px;
 }
-.twb-root .param-value {
-  font-size: 15px;
+.twb-root .dp-num {
+  font-size: 16px;
   font-weight: 600;
-  color: var(--twb-primary, #2563eb);
+  color: #0e7490;
 }
-.twb-root .param-meta {
+.twb-root .dp-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   font-size: 11.5px;
   color: var(--twb-muted);
 }
-.twb-root .param-raw {
+.twb-root .dp-raw {
+  margin-top: 4px;
   font-family: var(--twb-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-}
-.twb-root .row-param-badge {
-  display: inline-block;
-  margin-left: 6px;
-  padding: 0 5px;
-  border-radius: 4px;
-  font-size: 10px;
-  background: #ede9fe;
-  color: #6d28d9;
-  border: 1px solid #ddd6fe;
-}
-
-.twb-root .dm-detail {
-  width: 300px;
-  border-left: 1px solid var(--twb-border, #e2e8f0);
-  padding: 12px;
-  overflow: auto;
-  font-size: 12px;
-  background: #fff;
-}
-.twb-root .dm-detail-empty {
-  color: var(--twb-muted);
-}
-.twb-root .dm-detail-title {
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--twb-text);
-}
-.twb-root .dm-detail dl {
-  display: grid;
-  grid-template-columns: 68px 1fr;
-  gap: 4px 8px;
-  margin: 0;
-}
-.twb-root .dm-detail dt {
-  color: var(--twb-muted);
-}
-.twb-root .dm-detail dd {
-  margin: 0;
-  word-break: break-word;
-}
-.twb-root .dm-detail .mono,
-.twb-root .dm-sql {
-  font-family: var(--twb-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-}
-.twb-root .dm-sql-title {
-  margin: 10px 0 4px;
-  font-weight: 600;
-}
-.twb-root .dm-sql {
-  background: #f8fafc;
-  border: 1px solid var(--twb-border, #e2e8f0);
-  border-radius: 6px;
-  padding: 8px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 240px;
-  overflow: auto;
-  font-size: 11.5px;
-  margin: 0;
-}
-.twb-root .dm-legend {
-  margin-top: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  color: var(--twb-muted);
-}
-.twb-root .dm-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.twb-root .dm-swatch {
-  width: 14px;
-  height: 10px;
-  border-radius: 2px;
-  border: 1.5px solid #3b82f6;
-  background: #eff6ff;
-  display: inline-block;
-}
-.twb-root .dm-swatch.dm-custom-sql {
-  border-color: #8b5cf6;
-  background: #f5f3ff;
+  font-size: 11px;
+  color: #64748b;
+  word-break: break-all;
 }
