@@ -10,6 +10,12 @@ name: release
 on:
   push:
     tags: ["v*"]
+  # 支持对既有 tag 重跑（例如 NPM_TOKEN 失效后换新 token 重新暂存）
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "要（重新）发布的 tag，如 v0.5.0"
+        required: true
 
 permissions:
   contents: write
@@ -19,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
 
       # pnpm 负责依赖与构建；npm CLI 负责 stage publish（需要较新 CLI 才有 stage 子命令）
       - uses: pnpm/action-setup@v4
@@ -34,13 +42,15 @@ jobs:
 
       - name: 校验 tag 与 package.json 版本一致
         run: |
-          TAG="${GITHUB_REF_NAME#v}"
+          # tag 触发时用 ref 名；workflow_dispatch 时用输入
+          REF="${{ inputs.tag || github.ref_name }}"
+          TAG="${REF#v}"
           PKG="$(node -p "require('./package.json').version")"
           if [ "$TAG" != "$PKG" ]; then
-            echo "::error::tag v$TAG 与 package.json $PKG 不一致"
+            echo "::error::$REF 与 package.json $PKG 不一致"
             exit 1
           fi
-          echo "版本校验通过：$PKG"
+          echo "版本校验通过：$PKG（ref: $REF）"
 
       - name: 安装依赖、类型检查并构建
         run: |
@@ -69,10 +79,17 @@ jobs:
 
       - name: 暂存发布（2FA 推迟到人工批准）
         run: |
+          # pipefail：否则 `npm stage publish | tee` 会用 tee 的退出码掩盖 npm 的失败
+          # （2026-10-12 真实踩过：token 失效报 E401，步骤却显示成功）
+          set -o pipefail
           npm stage publish --registry=https://registry.npmjs.org/ | tee /tmp/stage.out
           # 优先从 `staged with id <uuid>` 行提取；取不到再退回第一个 UUID
           ID="$(grep -oE 'staged with id [0-9a-f-]{36}' /tmp/stage.out | grep -oE '[0-9a-f-]{36}' | head -1)"
           [ -n "$ID" ] || ID="$(grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' /tmp/stage.out | head -1)"
+          if [ -z "$ID" ]; then
+            echo "::error::未取得 stage id —— 暂存很可能失败（检查 NPM_TOKEN 是否有效），请看上方 npm 输出"
+            exit 1
+          fi
           {
             echo "### ⏳ npm 已暂存，等待批准"
             echo ""
