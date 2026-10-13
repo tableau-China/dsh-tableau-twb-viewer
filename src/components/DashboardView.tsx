@@ -55,9 +55,13 @@ function ZoneNode({
   const tip = [
     z.name || z.type || t("zoneBasic"),
     `${Math.round(z.w)} × ${Math.round(z.h)}`,
-    z.format.padding !== null ? t("zonePadding", { value: z.format.padding }) : null,
-    z.format.margin !== null ? t("zoneMargin", { value: z.format.margin }) : null,
-    z.format.background ? `${t("zoneColor")} ${z.format.background}` : null
+    z.format?.padding !== null && z.format?.padding !== undefined
+      ? t("zonePadding", { value: z.format.padding })
+      : null,
+    z.format?.margin !== null && z.format?.margin !== undefined
+      ? t("zoneMargin", { value: z.format.margin })
+      : null,
+    z.format?.background ? `${t("zoneColor")} ${z.format.background}` : null
   ]
     .filter(Boolean)
     .join(" · ");

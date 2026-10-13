@@ -14,7 +14,9 @@ export interface ViewerState {
   fileName: string;
 }
 
-const CACHE_KEY = "dsh-tableau-twb-viewer.state.v1";
+// v2：0.5.x 给 zone 增加了 shape/format、给数据源增加了 dataModel、给列增加了 isParameter。
+// 键升级后旧缓存会被直接忽略，避免旧模型进入新 UI（曾导致 z.format 取值抛 TypeError）。
+const CACHE_KEY = "dsh-tableau-twb-viewer.state.v2";
 let memoryCache: ViewerState | null = null;
 
 /** 内置示例路由（与 Node 半部 index.js 的 SAMPLE_PATH 保持一致）。 */
@@ -31,9 +33,30 @@ function isValidModel(model: unknown): model is WorkbookModel {
   ) {
     return false;
   }
-  return candidate.datasources.every(
+  const sourcesOk = candidate.datasources.every(
     (ds) => typeof ds === "object" && ds !== null && Array.isArray((ds as { columns?: unknown }).columns)
   );
+  if (!sourcesOk) return false;
+
+  // 采样校验 0.5.x 新增字段：数据源的 dataModel、zone 的 shape/format。
+  // 只抽样（首个数据源 + 每个仪表板的首个 zone），避免上万元素的工作簿做全量遍历。
+  const firstSource = candidate.datasources[0] as { dataModel?: { tables?: unknown } } | undefined;
+  if (firstSource && (typeof firstSource.dataModel !== "object" || firstSource.dataModel === null)) return false;
+  if (firstSource && !Array.isArray(firstSource.dataModel?.tables)) return false;
+
+  const sampleZoneOk = (zone: unknown): boolean => {
+    if (zone === null || typeof zone !== "object") return false;
+    const z = zone as { shape?: unknown; format?: unknown; children?: unknown };
+    if (typeof z.shape !== "string") return false;
+    if (typeof z.format !== "object" || z.format === null) return false;
+    const kids = z.children;
+    return !Array.isArray(kids) || kids.every(sampleZoneOk);
+  };
+  return candidate.dashboards.every((d) => {
+    const zones = (d as { zones?: unknown }).zones;
+    if (!Array.isArray(zones)) return false;
+    return zones.every(sampleZoneOk);
+  });
 }
 
 /** 读取持久化状态；形状不合法时返回 null（视为无缓存）。 */

@@ -39,5 +39,8 @@ jobs:
       - name: 快照测试（解析 / 构图 / 布局 / 分词基线 + 不变量）
         run: pnpm run verify
 
+      - name: 文案字典护栏（中英键一致 / 无死键 / 无缺失）
+        run: pnpm run verify:i18n
+
       - name: 性能基准（O(n²) 回归护栏）
         run: pnpm run bench

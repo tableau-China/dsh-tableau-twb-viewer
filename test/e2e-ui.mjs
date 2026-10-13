@@ -680,6 +680,55 @@ try {
 
   }
 
+  // ---- 旧形状缓存必须被拒绝（回归：曾导致 z.format 取值抛 TypeError 白屏） ----
+  {
+    await page.evaluate(() => {
+      // 0.5.0 之前的模型形状：zone 没有 shape/format，数据源没有 dataModel
+      const legacy = {
+        model: {
+          dashboards: [
+            {
+              name: "legacy",
+              width: 100,
+              height: 100,
+              zones: [{ x: 0, y: 0, w: 10, h: 10, type: "", name: "", text: "", kind: "container", children: [] }]
+            }
+          ],
+          worksheets: [],
+          datasources: [{ caption: "旧数据源", name: null, connection: null, columns: [], groups: [] }]
+        },
+        dashIdx: 0,
+        view: "layout",
+        fileName: "legacy-cache.twb"
+      };
+      sessionStorage.setItem("dsh-tableau-twb-viewer.state.v2", JSON.stringify(legacy));
+    });
+    await page.reload({ waitUntil: "networkidle2" });
+    await sleep(5000);
+    // 重新进入面板（reload 后回到会话视图）
+    for (let round = 0; round < 5; round++) {
+      const opened = await page.evaluate(() => {
+        const entry = document.querySelector('[aria-label="TWb 检视器"], [aria-label="TWb Viewer"]');
+        if (entry) entry.click();
+        const btn = [...document.querySelectorAll('[role="dialog"] button')].find((b) =>
+          /稍后配置|Configure later|保存并继续|Continue/.test(b.textContent || "")
+        );
+        if (btn) btn.click();
+        return !!entry;
+      });
+      await sleep(2500);
+      if (opened && (await page.evaluate(() => !!document.querySelector(".twb-root--panel")))) break;
+    }
+    const legacyState = await page.evaluate(() => ({
+      showsLegacy: document.body.innerText.includes("legacy-cache.twb"),
+      renders: !!document.querySelector(".twb-root--panel .canvas-viewport svg, .twb-root--panel .welcome"),
+      crashed: /Cannot read propert|TypeError/.test(document.body.innerText)
+    }));
+    ok(!legacyState.showsLegacy, "旧形状缓存被拒（未把 legacy-cache.twb 当成有效状态）");
+    ok(legacyState.renders, "拒绝旧缓存后回落到内置示例并正常渲染（未白屏）");
+    ok(!legacyState.crashed, "无渲染异常");
+  }
+
   // ---- 控制台 ----
   const realErrors = consoleErrors.filter((e) => !e.includes("favicon") && !e.includes("net::ERR_"));
   ok(realErrors.length === 0, `控制台无报错${realErrors.length ? "：" + realErrors.join(" | ").slice(0, 300) : ""}`);

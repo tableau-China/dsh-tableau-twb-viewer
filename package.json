@@ -30,7 +30,8 @@
     "verify:reference": "node test/verify-reference.mjs",
     "bench": "node test/bench.mjs",
     "e2e": "node test/e2e-ui.mjs",
-    "screenshots": "node test/screenshots.mjs"
+    "screenshots": "node test/screenshots.mjs",
+    "verify:i18n": "node test/i18n.mjs"
   },
   "keywords": [
     "deepseek-harness",
