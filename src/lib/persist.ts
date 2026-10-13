@@ -77,11 +77,20 @@ export function loadPersisted(): ViewerState | null {
   return memoryCache;
 }
 
-/** 写入持久化状态（配额不足时仅保留内存缓存）。 */
-export function persistState(state: ViewerState): void {
+/** 写入持久化状态（配额不足时仅保留内存缓存）。
+ *
+ *  `modelJson` 由调用方缓存并传入：大模型（8000 字段 ≈1.7MB，stringify ≈15ms）
+ *  在切页签 / 切仪表板时不必重新序列化，存储格式与 JSON.stringify(state) 完全一致。
+ */
+export function persistState(state: ViewerState & { modelJson?: string | null }): void {
   memoryCache = state;
   try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify(state));
+    const json = state.modelJson
+      ? `{"model":${state.modelJson},"dashIdx":${state.dashIdx},"view":${JSON.stringify(
+          state.view
+        )},"fileName":${JSON.stringify(state.fileName)}}`
+      : JSON.stringify(state);
+    sessionStorage.setItem(CACHE_KEY, json);
   } catch {
     /* 大文件超出配额时仅保留内存缓存 */
   }

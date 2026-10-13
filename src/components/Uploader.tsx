@@ -77,7 +77,11 @@ export function Uploader({ onText, onError, busy }: UploaderProps) {
         type="file"
         accept=".twb"
         style={{ display: "none" }}
-        onChange={(e) => pick(e.target.files?.[0])}
+        onChange={(e) => {
+          pick(e.target.files?.[0]);
+          // 清空 value：否则再选同一个文件不会触发 change（被拒后另存为同名 .twb 的典型场景）
+          e.target.value = "";
+        }}
       />
       <button className="primary" onClick={() => inputRef.current?.click()} disabled={busy}>
         {t("chooseFileBtn")}

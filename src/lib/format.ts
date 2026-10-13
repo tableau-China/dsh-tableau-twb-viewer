@@ -8,10 +8,13 @@
 /** 去掉 float64 往返噪声：0.064000000000000001 → 0.064；18.399999999999999 → 18.4。 */
 export function stripFloatNoise(raw: string | number | null | undefined): number | null {
   if (raw === null || raw === undefined) return null;
-  const n = typeof raw === "number" ? raw : Number(String(raw).trim());
+  const text = typeof raw === "number" ? String(raw) : String(raw).trim();
+  if (text === "") return null; // 空串不能当成 0（Number("") === 0）
+  const n = Number(text);
   if (!Number.isFinite(n)) return null;
-  // toPrecision(12) 足以消除往返噪声，又不会伤到真实精度
-  const t = Number(n.toPrecision(12));
+  // toPrecision(15)：float64 的第 16~17 位才是往返噪声，
+  // 取 12 会把 1234567890123 这类 13 位整数改成 1234567890120（口径核对工具不能给错数）。
+  const t = Number(n.toPrecision(15));
   return Number.isFinite(t) ? t : n;
 }
 
@@ -63,16 +66,22 @@ export function formatParameterValue(value: string | null | undefined, defaultFo
   return formatNumber(num);
 }
 
-/** 区间文案（min ~ max，含步长）。 */
-export function formatRange(range: { min: string | null; max: string | null; granularity: string | null } | null | undefined): string | null {
-  if (!range || (range.min === null && range.max === null)) return null;
+/** 区间文案（min ~ max，含步长）。
+ *  stepLabel 由调用方传入（i18n），避免库函数里硬编码中文。 */
+export function formatRange(
+  range: { min: string | null; max: string | null; granularity: string | null } | null | undefined,
+  stepLabel = "step"
+): string | null {
+  if (!range) return null;
   const min = stripFloatNoise(range.min);
   const max = stripFloatNoise(range.max);
   const step = stripFloatNoise(range.granularity);
+  // 只有步长时也要显示（此前 min/max 都为空会整体丢弃）
+  if (min === null && max === null && step === null) return null;
   const parts: string[] = [];
   if (min !== null || max !== null) {
     parts.push(`${min !== null ? formatNumber(min) : "—"} ~ ${max !== null ? formatNumber(max) : "—"}`);
   }
-  if (step !== null) parts.push(`步长 ${formatNumber(step)}`);
+  if (step !== null) parts.push(`${stepLabel} ${formatNumber(step)}`);
   return parts.join(" · ");
 }

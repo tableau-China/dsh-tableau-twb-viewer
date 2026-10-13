@@ -116,22 +116,68 @@ export function layoutDataModel(graph: DataModelGraph): DataModelLayout {
   for (const n of nodes) incoming.set(n.id, []);
   for (const e of edges) incoming.get(e.to)?.push(e.from);
 
-  // ---- 1) 分层（最长路径；无入边为第 0 层）----
-  const layer = new Map<string, number>();
-  for (const n of nodes) if ((incoming.get(n.id) || []).length === 0) layer.set(n.id, 0);
-  for (const n of nodes) if (!layer.has(n.id)) layer.set(n.id, 0);
-  for (let iter = 0; iter < nodes.length; iter++) {
-    let changed = false;
-    for (const e of edges) {
-      const fromLayer = layer.get(e.from) ?? 0;
-      const toLayer = layer.get(e.to) ?? 0;
-      if (toLayer < fromLayer + 1) {
-        layer.set(e.to, fromLayer + 1);
-        changed = true;
+  // ---- 1) 分层：先按强连通分量（SCC）收缩，再在 DAG 上取最长路径 ----
+  // 早期实现「反复松弛到不再变化」：遇到自关联/环时每条边每次都成立，
+  // 层号被推到 O(V)（自关联的表会被排到很远的列），复杂度 O(V·E)。
+  // SCC 收缩后每个环只占一层，环内节点同列，既正确又快。
+  const outgoing = new Map<string, string[]>();
+  for (const n of nodes) outgoing.set(n.id, []);
+  for (const e of edges) outgoing.get(e.from)?.push(e.to);
+
+  const index = new Map<string, number>();
+  const low = new Map<string, number>();
+  const onStack = new Set<string>();
+  const stack: string[] = [];
+  const comp = new Map<string, number>();
+  let counter = 0;
+  let compCount = 0;
+
+  // Tarjan：节点数是「表/自定义 SQL」量级（几十个），递归深度安全
+  const connect = (v: string): void => {
+    index.set(v, counter);
+    low.set(v, counter);
+    counter += 1;
+    stack.push(v);
+    onStack.add(v);
+    for (const w of outgoing.get(v) || []) {
+      if (!index.has(w)) {
+        connect(w);
+        low.set(v, Math.min(low.get(v) as number, low.get(w) as number));
+      } else if (onStack.has(w)) {
+        low.set(v, Math.min(low.get(v) as number, index.get(w) as number));
       }
     }
-    if (!changed) break;
+    if (low.get(v) === index.get(v)) {
+      for (;;) {
+        const w = stack.pop() as string;
+        onStack.delete(w);
+        comp.set(w, compCount);
+        if (w === v) break;
+      }
+      compCount += 1;
+    }
+  };
+  for (const n of nodes) if (!index.has(n.id)) connect(n.id);
+
+  // 收缩成 DAG 后计算分量层号（无环，DFS + memo 即可）
+  const compIncoming = new Map<number, Set<number>>();
+  for (let c = 0; c < compCount; c++) compIncoming.set(c, new Set());
+  for (const e of edges) {
+    const a = comp.get(e.from) as number;
+    const b = comp.get(e.to) as number;
+    if (a !== b) (compIncoming.get(b) as Set<number>).add(a);
   }
+  const compLayer = new Map<number, number>();
+  const layerOfComp = (c: number): number => {
+    const cached = compLayer.get(c);
+    if (cached !== undefined) return cached;
+    const parents = [...(compIncoming.get(c) || [])];
+    const value = parents.length === 0 ? 0 : Math.max(...parents.map(layerOfComp)) + 1;
+    compLayer.set(c, value);
+    return value;
+  };
+  const layer = new Map<string, number>();
+  for (const n of nodes) layer.set(n.id, layerOfComp(comp.get(n.id) as number));
 
   const byLayer = new Map<number, DataModelNode[]>();
   for (const n of nodes) {

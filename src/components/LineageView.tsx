@@ -28,6 +28,16 @@ import { wrapLabel } from "../lib/model.ts";
 import { formatParameterValue, formatRange } from "../lib/format.ts";
 import { FormulaCode } from "./FormulaCode.tsx";
 
+/** 节点类别 → 文案键（详情 pill 用；图例走 legendItems）。 */
+const CATEGORY_KEY: Record<string, string> = {
+  datasource: "legendDatasource",
+  dimension: "legendDimension",
+  measure: "legendMeasure",
+  calc: "legendCalc",
+  parameter: "legendParameter",
+  unknown: "legendUnknown"
+};
+
 /** 节点类别图例（顺序固定）。 */
 function legendItems(t: Translator): Array<[string, string]> {
   return [
@@ -114,6 +124,31 @@ export function LineageView({ model }: LineageViewProps) {
     };
   }, [nodes, edges, selected, focusHops]);
 
+  // 大图首帧保护：不选中时 focusHops 为 Infinity，会一次性创建上万个 DOM 元素
+  // （实测 16000 字段 → 28782 节点，每个节点 4 个元素）。超过阈值时默认聚焦到连接
+  // 最多的节点，首帧只渲染它的 ±2 跳邻域；用户点「全部」仍可看全图。
+  useEffect(() => {
+    if (nodes.length <= LARGE_GRAPH_NODES) return;
+    setSelected((cur) => {
+      if (cur) return cur;
+      const degree = new Map<string, number>();
+      for (const e of edges) {
+        degree.set(e.from, (degree.get(e.from) ?? 0) + 1);
+        degree.set(e.to, (degree.get(e.to) ?? 0) + 1);
+      }
+      let best: string | null = null;
+      let bestDegree = -1;
+      for (const n of nodes) {
+        const d = degree.get(n.id) ?? 0;
+        if (d > bestDegree) {
+          bestDegree = d;
+          best = n.id;
+        }
+      }
+      return best;
+    });
+  }, [nodes, edges]);
+
   const layout = useMemo(() => layeredLayout(visible.nodes, visible.edges), [visible]);
   const focused = visible.nodes.length !== nodes.length;
 
@@ -123,19 +158,21 @@ export function LineageView({ model }: LineageViewProps) {
     [lin]
   );
 
-  const fit = () => {
+  // 必须 useCallback：ResizeObserver 的 effect 依赖此函数，
+  // 否则每次渲染都重建 observer → observe 回调 → setView（新对象）→ 再渲染，形成自激循环。
+  const fit = useCallback(() => {
     const el = svgRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     if (!rect || rect.width === 0) return;
     const k = Math.min((rect.width - 24) / layout.width, (rect.height - 24) / layout.height, 1);
     setView({ x: Math.max(8, (rect.width - layout.width * k) / 2), y: 12, k });
-  };
+  }, [layout.width, layout.height]);
 
   useEffect(() => {
     const raf = requestAnimationFrame(fit);
     return () => cancelAnimationFrame(raf);
-  }, [layout]);
+  }, [fit]);
 
   // 容器尺寸变化（如全屏切换）时自动重新适配
   useEffect(() => {
@@ -168,6 +205,15 @@ export function LineageView({ model }: LineageViewProps) {
       dragRef.current = null;
     }
   }, [onPointerMove]);
+
+  // 组件卸载时清掉可能残留的拖拽监听（宿主切视图时组件会被卸载）
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      window.removeEventListener("blur", onPointerUp);
+    };
+  }, [onPointerMove, onPointerUp]);
 
   const onPointerDown = useCallback(
     (e: ReactPointerEvent<SVGSVGElement>) => {
@@ -285,12 +331,15 @@ export function LineageView({ model }: LineageViewProps) {
       <section className="lineage-canvas">
         <div className="lineage-toolbar">
           <div className="legend">
-            {Object.entries(KIND_STYLE).map(([k, s]) => (
-              <span key={k} className="lg">
-                <i style={{ background: s.fill, borderColor: s.stroke }} />
-                {s.tag}
-              </span>
-            ))}
+            {legendItems(t).map(([key, label]) => {
+              const style = KIND_STYLE[key as keyof typeof KIND_STYLE];
+              return (
+                <span key={key} className="lg">
+                  <i style={{ background: style.fill, borderColor: style.stroke }} />
+                  {label}
+                </span>
+              );
+            })}
             <span className="lg-note">{t("arrowNote")}</span>
           </div>
           <div className="toolbar-actions">
@@ -424,7 +473,7 @@ export function LineageView({ model }: LineageViewProps) {
             <div className="detail-head">{selectedNode.label}</div>
             <div className="detail-meta">
               <span className={`pill cat-${nodeCategory(selectedNode)}`}>
-                {KIND_STYLE[nodeCategory(selectedNode)].tag}
+                {t(CATEGORY_KEY[nodeCategory(selectedNode)])}
               </span>
               {selectedNode.kind === "field" && !selectedNode.isParameter && (
                 <span className="pill">
@@ -447,8 +496,8 @@ export function LineageView({ model }: LineageViewProps) {
                 </div>
                 <div className="dp-meta">
                   <span>{t("paramDomain")}: {selectedNode.parameter?.domainType ?? "—"}</span>
-                  {formatRange(selectedNode.parameter?.range) && (
-                    <span>{t("paramRange")}: {formatRange(selectedNode.parameter?.range)}</span>
+                  {formatRange(selectedNode.parameter?.range, t("paramStep")) && (
+                    <span>{t("paramRange")}: {formatRange(selectedNode.parameter?.range, t("paramStep"))}</span>
                   )}
                   <span>{t("paramFormat")}: {selectedNode.parameter?.defaultFormat ?? "—"}</span>
                 </div>

@@ -33,9 +33,14 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
   /** 布局图上高亮的工作表（由右栏工作表列表点击设置）。 */
   const [highlightSheet, setHighlightSheet] = useState<string | null>(null);
 
-  // 模型 / 视图变化时写入缓存
+  // 持久化：模型只在变化时序列化一次并缓存（实测 8000 字段 ≈1.7MB / stringify ≈15ms），
+  // 切页签与切仪表板复用缓存，不再整份重写主线程。
+  const modelJsonRef = useRef<string | null>(null);
   useEffect(() => {
-    persistState({ model, dashIdx, view, fileName });
+    modelJsonRef.current = model ? JSON.stringify(model) : "null";
+  }, [model]);
+  useEffect(() => {
+    persistState({ model, dashIdx, view, fileName, modelJson: modelJsonRef.current });
   }, [model, dashIdx, view, fileName]);
 
   const onText = (text: string, name: string) => {
@@ -70,7 +75,9 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
         if (!cancelled) setError(t("sampleAutoLoadFailed") + (err as Error).message + t("orChooseManually"));
       })
       .finally(() => {
-        if (!cancelled) setSampleLoading(false);
+        // 不能加 !cancelled：示例加载中途被打断（拖入 .twb 会改变 model 触发 cleanup）
+        // 时 busy 会永久为真，上传按钮再也点不动。
+        setSampleLoading(false);
       });
     return () => {
       cancelled = true;
@@ -120,7 +127,7 @@ export function App({ fullscreen = false, onToggleFullscreen }: AppProps) {
         <div className="welcome">
           <div className="welcome-card">
             <h2>{sampleLoading ? t("sampleLoading") : t("welcomeTitle")}</h2>
-            <p>{t("welcomeTitle")}</p>
+            <p>{t("helpAuto")}</p>
             <ul>
               <li>
                 {t("help1a")}

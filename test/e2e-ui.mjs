@@ -241,10 +241,35 @@ try {
       if (b) b.click();
     });
     await sleep(6000);
-    const all = await page.evaluate(() => document.querySelectorAll(".twb-root--panel .ln-node").length);
-    ok(all > 1200, `大图全量渲染（${all} 节点）`);
 
-    // 聚焦模式切回「自动」（前面的断言把它设成了「全部」，面板不卸载会保留该状态）
+    // 前面的用例把聚焦模式留在了「全部」，先归位到「自动」
+    await page.evaluate(() => {
+      const segs = [...document.querySelectorAll(".twb-root--panel .focus-seg button")];
+      if (segs[0]) segs[0].click();
+    });
+    await sleep(1500);
+
+    // 大图首帧保护：打开时自动聚焦到连接最多的节点，不再一次性渲染上万节点
+    const firstPaint = await page.evaluate(() => ({
+      rendered: document.querySelectorAll(".twb-root--panel .ln-node").length,
+      count: document.querySelector(".twb-root--panel .focus-count")?.textContent?.trim() || ""
+    }));
+    ok(
+      firstPaint.rendered > 0 && firstPaint.rendered < 1200,
+      `大图打开即自动聚焦（首帧 ${firstPaint.rendered} 节点 · ${firstPaint.count}）`
+    );
+
+    // 切「全部」可看全图
+    await page.evaluate(() => {
+      const segs = [...document.querySelectorAll(".twb-root--panel .focus-seg button")];
+      const b = segs[segs.length - 1];
+      if (b) b.click();
+    });
+    await sleep(2500);
+    const all = await page.evaluate(() => document.querySelectorAll(".twb-root--panel .ln-node").length);
+    ok(all > 1200, `切「全部」后可看全图（${all} 节点）`);
+
+    // 聚焦模式切回「自动」（面板不卸载会保留「全部」状态）
     await page.evaluate(() => {
       const segs = [...document.querySelectorAll(".twb-root--panel .focus-seg button")];
       const b = segs[0];
@@ -273,6 +298,18 @@ try {
     await sleep(4000);
     const back = await page.evaluate(() => document.querySelectorAll(".twb-root--panel .ln-node").length);
     ok(back === all, `切「全部」恢复全量渲染（${back} 节点）`);
+
+    // 还原内置示例：否则后续断言看到的是这张大图夹具
+    await page.evaluate(() => {
+      const btns = [...document.querySelectorAll(".twb-root--panel button")];
+      const b = btns.find((x) => /载入示例|Load sample/.test(x.textContent || ""));
+      if (b) b.click();
+    });
+    await sleep(5000);
+    ok(
+      await page.evaluate(() => /sample/.test(document.querySelector(".twb-root--panel .summary-bar .sf")?.textContent || "")),
+      "已还原内置示例（供后续断言使用）"
+    );
   }
 
   // ---- 中英切换：在设置里真实切换宿主语言，插件 UI 应随之切换 ----

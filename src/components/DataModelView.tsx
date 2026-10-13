@@ -52,14 +52,21 @@ export function DataModelView({ model }: DataModelViewProps) {
 
   const nodeById = useMemo(() => new Map(graph.nodes.map((n) => [n.id, n])), [graph.nodes]);
 
-  // 进入数据模型视图时，若有自定义 SQL 就默认选中第一个 —— 右侧直接给出 SQL 过程
+  // 换工作簿时旧 id 可能已不存在：先校验，失效则重新按「第一个自定义 SQL」选中，
+  // 否则右侧会只剩清单、详情整体空白（看起来像坏了）。
   useEffect(() => {
     setSelected((cur) => {
-      if (cur) return cur;
+      if (cur) {
+        const alive =
+          cur.kind === "node"
+            ? graph.nodes.some((n) => n.id === cur.id)
+            : graph.edges.some((e) => e.id === cur.id);
+        if (alive) return cur;
+      }
       const first = graph.nodes.find((n) => n.kind === "custom-sql");
-      return first ? { kind: "node", id: first.id } : cur;
+      return first ? { kind: "node", id: first.id } : null;
     });
-  }, [graph.nodes]);
+  }, [graph.nodes, graph.edges]);
 
   /** 数据源连接摘要（服务器 / 库 / 文件）。 */
   const connectionText = (n: DataModelNode): string => {

@@ -67,12 +67,18 @@ function parseZones(el: ZoneContainer, size: { w: number; h: number }, worksheet
     .map((z) => parseZone(z, size, worksheetNames));
 }
 
+/** 读取数值属性并做有限性兜底（NaN/Infinity 会污染 SVG 与 Excalidraw 导出）。 */
+function numAttr(el: Element, name: string, fallback = 0): number {
+  const n = parseFloat(el.getAttribute(name) || "");
+  return Number.isFinite(n) ? n : fallback;
+}
+
 /** 解析单个 <zone>：把 1/100000 坐标换算为像素，处理固定尺寸与类型分类。 */
 function parseZone(z: Element, size: { w: number; h: number }, worksheetNames: string[]): Zone {
-  const x = parseFloat(z.getAttribute("x") || "0");
-  const y = parseFloat(z.getAttribute("y") || "0");
-  const w = parseFloat(z.getAttribute("w") || "0");
-  const h = parseFloat(z.getAttribute("h") || "0");
+  const x = numAttr(z, "x");
+  const y = numAttr(z, "y");
+  const w = numAttr(z, "w");
+  const h = numAttr(z, "h");
 
   let px = (x / ZONE_UNIT) * size.w;
   let py = (y / ZONE_UNIT) * size.h;
@@ -81,7 +87,7 @@ function parseZone(z: Element, size: { w: number; h: number }, worksheetNames: s
 
   // 固定尺寸的 zone：以 layout-cache 的 type-w/type-h 为准
   const fixed = z.getAttribute("is-fixed") === "true";
-  const fixedSize = parseFloat(z.getAttribute("fixed-size") || "0");
+  const fixedSize = numAttr(z, "fixed-size");
   if (fixed && fixedSize) {
     const cache = child(z, "layout-cache");
     const tw = cache ? cache.getAttribute("type-w") : null;
@@ -355,7 +361,8 @@ function parseJoinClause(rel: Element): { leftExpr: string | null; rightExpr: st
   const parts = outer ? children(outer, "expression") : [];
   return {
     leftExpr: parts[0] ? attr(parts[0], "op") : null,
-    rightExpr: parts[1] ? attr(parts[1], "op") : attr(outer, "op"),
+    // 外层 op 是连接运算符（如 '='），不是表达式：单表达式时右端应留空
+    rightExpr: parts[1] ? attr(parts[1], "op") : null,
     cardinality
   };
 }
@@ -394,6 +401,12 @@ function parseObjectGraph(ds: Element): DatasourceDataModel | null {
     const relName = rel ? attr(rel, "name") : null;
     const caption = attr(obj, "caption") || relName || "(object)";
     const relType = rel ? attr(rel, "type") : null;
+    // 逻辑对象内部可能是一棵 relation 树（join / collection / union）：此时对象模型粒度太粗，
+    // 展开会让 relationship 端点归属不清（一个对象对应多张表）。改为整体回退到 <connection>
+    // 下的物理 relation 树——那里有完整的表与 ON 条件，避免静默丢表。
+    if (rel && (relType === "join" || relType === "collection" || relType === "union")) {
+      return null;
+    }
     const ref: DataTableRef =
       relType === "text"
         ? {

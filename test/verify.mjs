@@ -232,6 +232,92 @@ for (const [name, [actual, expected]] of Object.entries(MODEL_EXPECTED)) {
   console.log(`  数据模型（合成夹具）: ${dmGraph.nodes.length} 节点 / ${dmGraph.edges.length} 连接`);
 }
 
+// ---- 代码审查修复的回归护栏（数值精度 / join 解析 / NaN 几何 / 环分层 / 对象模型回退） ----
+{
+  const { formatParameterValue, formatRange, stripFloatNoise } = await import("../src/lib/format.ts");
+  const { layoutDataModel, buildDataModelGraph } = await import("../src/lib/datamodel.ts");
+
+  const checks = {
+    // 1) float64 去噪不得损伤真实精度（曾用 toPrecision(12) 把 13 位整数改错）
+    "13 位整数不失真": [formatParameterValue("1234567890123", "N"), "1,234,567,890,123"],
+    "0.064 仍去噪": [formatParameterValue("0.064000000000000001", "p0.00%"), "6.40%"],
+    "空串 → —（不再当 0）": [formatParameterValue("", null), "—"],
+    'stripFloatNoise 空串 → null': [stripFloatNoise(""), null],
+    "只有步长的 range 也展示": [formatRange({ min: null, max: null, granularity: "1000" }, "步长"), "步长 1,000"]
+  };
+
+  // 2) join 单表达式：不得把比较运算符当右表达式
+  {
+    const twb = `<?xml version='1.0' encoding='utf-8'?><workbook version='18.1'><worksheets/><dashboards/>` +
+      `<datasources><datasource caption='单表达式' name='ds'><connection class='federated'>` +
+      `<relation join='inner' type='join'><clause type='join'><expression op='='>` +
+      `<expression op='[t0].[id]'/></expression></clause>` +
+      `<relation name='t0' table='[t0]' type='table'/>` +
+      `<relation name='t1' table='[t1]' type='table'/>` +
+      `</relation></connection></datasource></datasources></workbook>`;
+    const m = parseWorkbook(twb);
+    const j = m.datasources[0].dataModel.joins[0];
+    checks["单表达式 join 的右端为 null（不是 '='）"] = [j?.rightExpr, null];
+    checks["单表达式 join 左端保留"] = [j?.leftExpr, "[t0].[id]"];
+  }
+
+  // 3) zone 几何 NaN 兜底
+  {
+    const twb = `<?xml version='1.0' encoding='utf-8'?><workbook version='18.1'><worksheets>` +
+      `<worksheet name='S'/></worksheets><dashboards><dashboard name='D'>` +
+      `<size minwidth='100' minheight='100'/><zones>` +
+      `<zone x='abc' y='0' w='0' h='0' type-v2='worksheet' name='S'/></zones>` +
+      `</dashboard></dashboards><datasources/></workbook>`;
+    const z = parseWorkbook(twb).dashboards[0].zones[0];
+    checks["NaN 坐标降级为有限值"] = [[z.x, z.y, z.w, z.h].every((v) => Number.isFinite(v)), true];
+  }
+
+  // 4) 环 / 自关联不得把节点推到很远的列
+  {
+    const graph = {
+      nodes: ["a", "b", "self", "c"].map((id) => ({ id, label: id, sublabel: null, kind: "table", datasource: "ds", connection: null, sql: null })),
+      edges: [
+        { id: "e0", from: "a", to: "b", joinType: "inner", leftExpr: null, rightExpr: null, cardinality: null, datasource: "ds" },
+        { id: "e1", from: "b", to: "a", joinType: "inner", leftExpr: null, rightExpr: null, cardinality: null, datasource: "ds" },
+        { id: "e2", from: "self", to: "self", joinType: "inner", leftExpr: null, rightExpr: null, cardinality: null, datasource: "ds" },
+        { id: "e3", from: "a", to: "c", joinType: "inner", leftExpr: null, rightExpr: null, cardinality: null, datasource: "ds" }
+      ]
+    };
+    const layout = layoutDataModel(graph);
+    const maxX = Math.max(...Object.values(layout.pos).map((p) => p.x));
+    checks["环收缩后层数 ≤ 2（环内同层）"] = [layout.layers <= 2, true];
+    checks["2-环的两个表同列"] = [layout.pos.a?.x, layout.pos.b?.x];
+    checks["自关联节点留在第一列"] = [layout.pos.self?.x, 24];
+    checks["列跨度有限"] = [maxX <= 24 + 168 + 120, true];
+  }
+
+  // 5) 对象模型粒度粗（对象内是 join）时回退物理 relation 树，不丢表
+  {
+    const twb = `<?xml version='1.0' encoding='utf-8'?><workbook version='18.1'><worksheets/><dashboards/>` +
+      `<datasources><datasource caption='粗粒度' name='ds'><connection class='federated'>` +
+      `<relation join='inner' type='join'><clause type='join'><expression op='='>` +
+      `<expression op='[p0].[id]'/><expression op='[p1].[id]'/></expression></clause>` +
+      `<relation name='p0' table='[p0]' type='table'/><relation name='p1' table='[p1]' type='table'/>` +
+      `</relation></connection>` +
+      `<object-graph><objects><object caption='逻辑对象' id='obj1'><properties>` +
+      `<relation join='inner' type='join'><clause type='join'><expression op='='/></clause>` +
+      `<relation name='p0' table='[p0]' type='table'/><relation name='p1' table='[p1]' type='table'/>` +
+      `</relation></properties></object></objects><relationships/></object-graph>` +
+      `</datasource></datasources></workbook>`;
+    const dm = parseWorkbook(twb).datasources[0].dataModel;
+    checks["粗粒度对象模型回退后表数不为 1"] = [dm.tables.length >= 2, true];
+    checks["粗粒度对象模型回退后保留 join"] = [dm.joins.length >= 1, true];
+  }
+
+  for (const [name, [actual, expected]] of Object.entries(checks)) {
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+      console.error(`✗ 回归护栏·${name} 期望 ${JSON.stringify(expected)}，实际 ${JSON.stringify(actual)}`);
+      failed = true;
+    }
+  }
+  console.log(`  审查修复护栏: ${Object.keys(checks).length} 项`);
+}
+
 console.log(
   `  规模: 仪表板 ${model.dashboards.length} · 工作表 ${model.worksheets.length} · 数据源 ${model.datasources.length} · 字段 ${fields} · 计算字段 ${calcs}`
 );

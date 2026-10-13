@@ -160,7 +160,9 @@ export function DashboardView({ dashboard, highlightSheet = null }: DashboardVie
     return () => ro.disconnect();
   }, [fit]);
 
-  const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+  // React 把 wheel 注册为 passive，preventDefault 无效（还会报控制台 error）：
+  // 改用原生监听 + { passive: false }。
+  const onWheelNative = useCallback((e: WheelEvent) => {
     e.preventDefault();
     const vp = viewportRef.current;
     if (!vp) return;
@@ -173,7 +175,15 @@ export function DashboardView({ dashboard, highlightSheet = null }: DashboardVie
     setPanX(mx - (mx - panX) * ratio);
     setPanY(my - (my - panY) * ratio);
     setZoom(next);
-  };
+  }, [zoom, panX, panY]);
+
+  // 原生监听（非 passive）才能阻止宿主页面跟着滚
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    vp.addEventListener("wheel", onWheelNative, { passive: false });
+    return () => vp.removeEventListener("wheel", onWheelNative);
+  }, [onWheelNative]);
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragRef.current = { x: e.clientX, y: e.clientY, tx: panX, ty: panY };
@@ -284,7 +294,6 @@ export function DashboardView({ dashboard, highlightSheet = null }: DashboardVie
       <div
         ref={viewportRef}
         className="canvas-viewport"
-        onWheel={onWheel}
         onMouseDown={onPointerDown}
         onMouseMove={onPointerMove}
         onMouseUp={endDrag}
@@ -312,13 +321,13 @@ export function DashboardView({ dashboard, highlightSheet = null }: DashboardVie
       </div>
       <div className="legend">
         <span>
-          <i className="sw sw-ws" /> 工作表
+          <i className="sw sw-ws" /> {t("zoneWorksheet")}
         </span>
         <span>
-          <i className="sw sw-ct" /> 容器/布局
+          <i className="sw sw-ct" /> {t("zoneContainer")}
         </span>
         <span>
-          <i className="sw sw-tx" /> 文本
+          <i className="sw sw-tx" /> {t("zoneText")}
         </span>
       </div>
     </div>
